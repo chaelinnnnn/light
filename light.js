@@ -5,26 +5,26 @@ const nextBtn = document.getElementById('nextBtn');
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
 
-// 시간대별 색상 & 위치
+//시간대별 위치
 const timeData = {
   '1pm': {
-    colors: ['#FF6B9D', '#E91E63', '#C2185B'],  // 핑크 (레퍼런스 1)
-    position: { x: canvas.width * 0.3, y: canvas.height * 0.3 },
-    type: 'single'  // 단일 큰 blob
+    colors: ['#FF6B9D', '#E91E63', '#C2185B'],
+    position: { x: canvas.width * 0.28, y: canvas.height * 0.28 },
+    type: 'single'
   },
   '5pm': {
-    colors: ['#FFEAA7', '#FDD835', '#F9A825'],  // 노랑-복숭아 (레퍼런스 4)
-    position: { x: canvas.width * 0.7, y: canvas.height * 0.3 },
+    colors: ['#FFEAA7', '#FDD835', '#F9A825'],
+    position: { x: canvas.width * 0.72, y: canvas.height * 0.28 },
     type: 'single'
   },
   '11pm': {
-    colors: ['#FFB6C1', '#F8BBD0', '#E1BEE7'],  // 연핑크 (레퍼런스 3)
-    position: { x: canvas.width * 0.3, y: canvas.height * 0.7 },
+    colors: ['#FFB6C1', '#F8BBD0', '#E1BEE7'],
+    position: { x: canvas.width * 0.28, y: canvas.height * 0.72 },
     type: 'single'
   },
   '7am': {
-    colors: ['#74B9FF', '#42A5F5', '#1E88E5'],  // 파랑 (레퍼런스 2)
-    position: { x: canvas.width * 0.7, y: canvas.height * 0.7 },
+    colors: ['#74B9FF', '#42A5F5', '#1E88E5'],
+    position: { x: canvas.width * 0.72, y: canvas.height * 0.72 },
     type: 'single'
   }
 };
