@@ -1,4 +1,4 @@
-// ===== 설정 =====
+// ===== 캔버스 설정 =====
 const canvas = document.getElementById('lightCanvas');
 const ctx = canvas.getContext('2d');
 const audio = document.getElementById('audio');
@@ -6,14 +6,14 @@ const audio = document.getElementById('audio');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// 사용자 선택 저장
+// ===== 사용자 선택 저장 =====
 let userChoices = {
   emotion: null,
   movement: null,
   intensity: null
 };
 
-// 감정별 빛 데이터
+// ===== 감정별 빛 데이터 =====
 const emotionData = {
   calm: {
     name: "평온의 빛",
@@ -240,7 +240,7 @@ class Light {
   }
 }
 
-// 빛 생성
+// ===== 빛 생성 =====
 const light = new Light();
 
 // ===== 애니메이션 루프 =====
@@ -344,7 +344,6 @@ function drawCardCanvas() {
   cardCtx.fillRect(0, 0, 400, 400);
   
   // 현재 빛 상태를 카드에 그리기
-  // (간단 버전 - 중앙에 고정)
   const centerX = 200;
   const centerY = 200;
   
@@ -419,7 +418,7 @@ function restart() {
   showScreen('intro');
 }
 
-// 윈도우 리사이즈
+// ===== 윈도우 리사이즈 =====
 window.addEventListener('resize', () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -429,7 +428,7 @@ window.addEventListener('resize', () => {
   light.targetY = light.y;
 });
 
-// 스킵 기능 (크리틱용 - ESC)
+// ===== 스킵 기능 (크리틱용 - ESC) =====
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     // 바로 결과로
