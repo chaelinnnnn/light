@@ -3,151 +3,102 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>How To Find Your Light</title>
+  <title>Light Archive</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Three.js 캔버스 -->
-  <div id="three-container"></div>
-  
-  <div id="overlay">
+  <div id="container">
     
-    <!-- 오프닝 화면 -->
-    <div id="opening" class="screen active">
-      <div class="opening-content">
-        <img src="light.png" alt="How To Find Your Light" class="opening-image">
-        <button class="understand-btn" onclick="closeOpening()">I Understand</button>
-      </div>
-    </div>
-    
-    <!-- Stage 1 UI -->
-    <div id="stage1" class="screen">
-      <div class="stage-header">
-        <div class="progress">●○○</div>
-        <div class="timer" id="timer1">10</div>
+    <!-- 왼쪽: 흰색 영역 -->
+    <div id="left-panel">
+      <div class="binder-holes">
+        <div class="hole"></div>
+        <div class="hole"></div>
+        <div class="hole"></div>
       </div>
       
-      <div class="instruction-text">
-        빛을 유리에 넣어주세요
-      </div>
-      
-      <div class="warning-text" id="warning1"></div>
-    </div>
-    
-    <!-- Stage 2 UI -->
-    <div id="stage2" class="screen">
-      <div class="stage-header">
-        <div class="progress">●●○</div>
-        <div class="instruction">빛이 머무르는 시간을 설정하세요</div>
-      </div>
-      
-      <div class="time-slider">
-        <div class="slider-label">
-          <span>짧음 (5초)</span>
-          <span>김 (30초)</span>
-        </div>
-        <input type="range" id="timeRange" min="5" max="30" value="15" step="1">
-        <div class="slider-value">현재: <span id="timeValue">15</span>초</div>
-      </div>
-      
-      <button class="next-btn" onclick="confirmTime()">확인</button>
-    </div>
-    
-    <!-- Stage 3 UI -->
-    <div id="stage3" class="screen">
-      <div class="stage-header">
-        <div class="progress">●●●</div>
-        <div class="instruction">빛의 움직임을 선택하세요</div>
-      </div>
-      
-      <div class="movement-grid">
-        <button class="movement-btn" onclick="selectMovement('still')">정지</button>
-        <button class="movement-btn" onclick="selectMovement('sway')">좌우</button>
-        <button class="movement-btn" onclick="selectMovement('rotate')">회전</button>
-        <button class="movement-btn" onclick="selectMovement('bounce')">상하</button>
-      </div>
-    </div>
-    
-    <!-- 생성 화면 -->
-    <div id="generating" class="screen">
       <div class="content">
-        <h2 class="generating-text">당신의 빛을 생성하고 있습니다</h2>
-        <div class="loading-dots">
-          <span>.</span><span>.</span><span>.</span>
-        </div>
-      </div>
-    </div>
-    
-    <!-- 결과 화면 -->
-    <div id="result" class="screen">
-      <div class="content">
-        <div class="card">
-          <canvas id="cardCanvas"></canvas>
-          <div class="card-info">
-            <h2 class="card-title">당신의 빛:</h2>
-            <h1 class="card-emotion" id="emotionName">평온의 빛</h1>
-            
-            <div class="card-details">
-              <p class="observation-data" id="observationData">관찰: 01.28 / 15:47 / -2°C</p>
-              <p class="location-data" id="locationData">장소: 창문 빛</p>
-              
-              <div class="interview-quotes">
-                <p class="quote" id="quote1">"편안해요"</p>
-                <p class="quote" id="quote2">"오래 보고 싶어요"</p>
-              </div>
-              
-              <p class="warning" id="warningText">⚠️ 이 빛은 당신을 기억합니다</p>
-              
-              <p class="card-id" id="cardId">#L-2847</p>
-            </div>
+        <h1>At what time shall you<br>allow your light to remain?</h1>
+        
+        <div class="clock-grid">
+          <div class="clock-item">
+            <svg class="clock" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="black" stroke-width="2"/>
+              <text x="50" y="20" text-anchor="middle" font-size="8">12</text>
+              <text x="85" y="55" text-anchor="middle" font-size="8">3</text>
+              <text x="50" y="90" text-anchor="middle" font-size="8">6</text>
+              <text x="15" y="55" text-anchor="middle" font-size="8">9</text>
+              <!-- 1시 바늘 -->
+              <line x1="50" y1="50" x2="50" y2="25" stroke="black" stroke-width="2"/>
+              <line x1="50" y1="50" x2="70" y2="45" stroke="black" stroke-width="1.5"/>
+            </svg>
+            <p>(1) 1:00 pm</p>
+          </div>
+          
+          <div class="clock-item">
+            <svg class="clock" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="black" stroke-width="2"/>
+              <text x="50" y="20" text-anchor="middle" font-size="8">12</text>
+              <text x="85" y="55" text-anchor="middle" font-size="8">3</text>
+              <text x="50" y="90" text-anchor="middle" font-size="8">6</text>
+              <text x="15" y="55" text-anchor="middle" font-size="8">9</text>
+              <!-- 5시 바늘 -->
+              <line x1="50" y1="50" x2="50" y2="25" stroke="black" stroke-width="2"/>
+              <line x1="50" y1="50" x2="70" y2="70" stroke="black" stroke-width="1.5"/>
+            </svg>
+            <p>(2) 5:00 pm</p>
+          </div>
+          
+          <div class="clock-item">
+            <svg class="clock" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="black" stroke-width="2"/>
+              <text x="50" y="20" text-anchor="middle" font-size="8">12</text>
+              <text x="85" y="55" text-anchor="middle" font-size="8">3</text>
+              <text x="50" y="90" text-anchor="middle" font-size="8">6</text>
+              <text x="15" y="55" text-anchor="middle" font-size="8">9</text>
+              <!-- 11시 바늘 -->
+              <line x1="50" y1="50" x2="50" y2="25" stroke="black" stroke-width="2"/>
+              <line x1="50" y1="50" x2="30" y2="30" stroke="black" stroke-width="1.5"/>
+            </svg>
+            <p>(3) 11:00 pm</p>
+          </div>
+          
+          <div class="clock-item">
+            <svg class="clock" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="black" stroke-width="2"/>
+              <text x="50" y="20" text-anchor="middle" font-size="8">12</text>
+              <text x="85" y="55" text-anchor="middle" font-size="8">3</text>
+              <text x="50" y="90" text-anchor="middle" font-size="8">6</text>
+              <text x="15" y="55" text-anchor="middle" font-size="8">9</text>
+              <!-- 7시 바늘 -->
+              <line x1="50" y1="50" x2="50" y2="25" stroke="black" stroke-width="2"/>
+              <line x1="50" y1="50" x2="50" y2="75" stroke="black" stroke-width="1.5"/>
+            </svg>
+            <p>(4) 7:00 am</p>
           </div>
         </div>
         
-        <div class="result-actions">
-          <button class="btn-primary" onclick="downloadCard()">다운로드</button>
-          <button class="btn-secondary" onclick="restart()">다시 하기</button>
+        <div class="guidelines">
+          <h3>Behavioral Guidelines</h3>
+          <ol>
+            <li>Do not tell lies in front of the light.</li>
+            <li>If the light grows dim, touch the screen immediately.</li>
+            <li>If an abnormal pop-up appears, enter the keyword.</li>
+            <li>If the light disappears from the screen, call a staff member immediately.</li>
+          </ol>
+          <p class="note">Furthermore, the Light retains memory of you at all times.</p>
         </div>
       </div>
     </div>
     
-    <!-- 경고 오버레이 -->
-    <div id="ruleOverlay" class="rule-overlay">
-      <div class="rule-content">
-        <p id="ruleText"></p>
-      </div>
-    </div>
-    
-    <!-- 비정상 팝업 -->
-    <div id="abnormalPopup" class="abnormal-popup">
-      <div class="popup-content">
-        <h3>⚠️ ABNORMAL BEHAVIOR DETECTED</h3>
-        <p>Please enter the keyword to proceed:</p>
-        <input type="text" id="keywordInput" placeholder="Enter keyword">
-        <button onclick="checkKeyword()">Submit</button>
-      </div>
-    </div>
-    
-    <!-- 직원 호출 -->
-    <div id="staffCall" class="staff-call">
-      <div class="staff-content">
-        <h2>빛이 사라졌습니다</h2>
-        <p>직원을 호출하시겠습니까?</p>
-        <button class="call-btn" onclick="callStaff()">직원 호출</button>
-      </div>
-    </div>
-    
-    <!-- 요정 등장 -->
-    <div id="fairy" class="fairy-overlay">
-      <div class="fairy-content">
-        <div class="fairy">✨</div>
-        <p>빛의 요정이 당신의 빛을 복구했습니다</p>
-      </div>
+    <!-- 오른쪽: 검은색 Canvas -->
+    <div id="right-panel">
+      <canvas id="canvas"></canvas>
+      <button id="nextBtn" class="next-btn">Next</button>
     </div>
     
   </div>
   
-  <!-- Three.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="light-three.js"></script>
+  <script src="light.js"></script>
 </body>
 </html>
