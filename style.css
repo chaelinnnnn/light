@@ -57,11 +57,11 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 5px;
 }
 
 .opening-image {
-  max-width: 1100px;  /* 600px → 900px */
+  max-width: 1250px;
   width: 90%;
   height: auto;
   border-radius: 0;
@@ -69,24 +69,25 @@ body {
 }
 
 .understand-btn {
-  padding: 12px 40px;  /* 15px 60px → 12px 40px */
-  font-size: 14px;  /* 16px → 14px */
+  padding: 12px 40px;
+  font-size: 14px;
   font-family: 'Helvetica Neue', 'Arial', sans-serif;
-  border: 1px solid rgba(255,255,255,0.4);  /* 2px → 1px */
+  border: 0px solid rgba(0,0,0,0.4);
   border-radius: 0;
-  background: rgba(0,0,0,0.3);  /* 0.5 → 0.3 */
+  background: rgba(255,255,255,0.9);  /* 흰색 배경 */
   backdrop-filter: blur(10px);
-  color: white;
+  color: #000;  /* 검은 글자 */
   cursor: pointer;
   transition: all 0.3s ease;
   pointer-events: all;
-  letter-spacing: 2px;  /* 1px → 2px */
+  letter-spacing: 2px;
 }
 
 .understand-btn:hover {
-  background: rgba(255,255,255,0.05);  /* 0.1 → 0.05 */
-  border-color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,1);  /* 완전 흰색 */
+  color: #000;  /* 검은 글자 유지 */
   transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255,255,255,0.3);  /* 흰색 그림자 */
 }
 
 .content {
