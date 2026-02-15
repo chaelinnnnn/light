@@ -1,235 +1,98 @@
-const canvas = document.getElementById('lightCanvas');
-const ctx = canvas.getContext('2d');
-const audio = document.getElementById('audio');
+const particleCanvas = document.getElementById('particleCanvas');
+const particleCtx = particleCanvas.getContext('2d');
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+particleCanvas.width = window.innerWidth;
+particleCanvas.height = window.innerHeight;
 
-let userChoices = {
-  emotion: null,
-  movement: null,
-  intensity: null
-};
-
-const emotionData = {
-  calm: {
-    name: "평온의 빛",
-    color: { r: 255, g: 215, b: 0 },
-    observation: "01.28 / 15:47 / -2°C",
-    quotes: ["편안해요", "오래 보고 싶어요"],
-    warning: "⚠️ 이 빛은 당신을 기다립니다",
-    audio: "calm.mp3"
-  },
-  hope: {
-    name: "희망의 빛",
-    color: { r: 176, g: 224, b: 230 },
-    observation: "01.30 / 13:15 / 맑음",
-    quotes: ["새로 시작하는 느낌", "가능성"],
-    warning: "⚠️ 이 빛은 당신을 인도합니다",
-    audio: "hope.mp3"
-  },
-  joy: {
-    name: "기쁨의 빛",
-    color: { r: 255, g: 255, b: 255 },
-    observation: "01.30 / 13:15 / 맑음",
-    quotes: ["신나요", "에너지 넘쳐요"],
-    warning: "⚠️ 이 빛은 당신을 채웁니다",
-    audio: "joy.mp3"
-  },
-  excitement: {
-    name: "설렘의 빛",
-    color: { r: 255, g: 140, b: 0 },
-    observation: "01.31 / 17:58 / 일몰",
-    quotes: ["두근거려요", "뭔가 일어날 것 같아요"],
-    warning: "⚠️ 이 빛은 당신을 부릅니다",
-    audio: "excitement.mp3"
-  }
-};
-
-class Light {
+class Particle {
   constructor() {
-    this.x = canvas.width / 2;
-    this.y = canvas.height / 2;
-    this.targetX = this.x;
-    this.targetY = this.y;
-    this.color = { r: 128, g: 128, b: 128 };
-    this.targetColor = { ...this.color };
-    this.size = 80;
-    this.targetSize = 80;
-    this.opacity = 0.5;
-    this.targetOpacity = 0.5;
-    this.blur = 20;
-    this.targetBlur = 20;
-    this.particles = [];
-    this.particleCount = 800;
-    this.createParticles();
-    this.movement = 'idle';
-    this.time = 0;
-  }
-  
-  createParticles() {
-    this.particles = [];
-    for (let i = 0; i < this.particleCount; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const radius = Math.random() * this.size * 1.5;
-      
-      this.particles.push({
-        x: Math.cos(angle) * radius,
-        y: Math.sin(angle) * radius,
-        baseX: Math.cos(angle) * radius,
-        baseY: Math.sin(angle) * radius,
-        size: Math.random() * 1.5 + 0.3,
-        opacity: Math.random() * 0.9 + 0.1,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3
-      });
-    }
-  }
-  
-  setColor(emotion) {
-    this.targetColor = { ...emotionData[emotion].color };
-  }
-  
-  setMovement(movement) {
-    this.movement = movement;
-    if (movement === 'play') {
-      this.particleCount = 1000;
-      this.createParticles();
-    }
-  }
-  
-  setIntensity(intensity) {
-    switch(intensity) {
-      case 'whisper':
-        this.targetOpacity = 0.3;
-        this.targetSize = 60;
-        this.targetBlur = 25;
-        break;
-      case 'talk':
-        this.targetOpacity = 0.7;
-        this.targetSize = 80;
-        this.targetBlur = 15;
-        break;
-      case 'song':
-        this.targetOpacity = 0.9;
-        this.targetSize = 100;
-        this.targetBlur = 10;
-        break;
-      case 'shout':
-        this.targetOpacity = 1;
-        this.targetSize = 120;
-        this.targetBlur = 5;
-        break;
-    }
+    this.x = Math.random() * particleCanvas.width;
+    this.y = Math.random() * particleCanvas.height;
+    this.size = Math.random() * 1.5 + 0.5;
+    this.speedX = (Math.random() - 0.5) * 0.3;
+    this.speedY = (Math.random() - 0.5) * 0.3;
+    this.opacity = Math.random() * 0.3 + 0.2;
   }
   
   update() {
-    this.time += 0.01;
-    this.color.r += (this.targetColor.r - this.color.r) * 0.05;
-    this.color.g += (this.targetColor.g - this.color.g) * 0.05;
-    this.color.b += (this.targetColor.b - this.color.b) * 0.05;
-    this.size += (this.targetSize - this.size) * 0.05;
-    this.opacity += (this.targetOpacity - this.opacity) * 0.05;
-    this.blur += (this.targetBlur - this.blur) * 0.05;
-    
-    switch(this.movement) {
-      case 'idle':
-        this.targetSize = 80 + Math.sin(this.time * 2) * 5;
-        break;
-      case 'still':
-        this.targetX = canvas.width / 2;
-        this.targetY = canvas.height / 2;
-        break;
-      case 'walk':
-        this.targetX = canvas.width / 2 + Math.sin(this.time) * 100;
-        this.targetY = canvas.height / 2;
-        break;
-      case 'play':
-        this.particles.forEach(p => {
-          p.vx = (Math.random() - 0.5) * 2;
-          p.vy = (Math.random() - 0.5) * 2;
-        });
-        break;
-      case 'run':
-        this.targetX = canvas.width / 2 + Math.sin(this.time * 3) * 150;
-        this.targetY = canvas.height / 2;
-        break;
-    }
-    
-    this.x += (this.targetX - this.x) * 0.05;
-    this.y += (this.targetY - this.y) * 0.05;
-    
-    this.particles.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      const dist = Math.sqrt(p.x * p.x + p.y * p.y);
-      if (dist > this.size * 2) {
-        const angle = Math.random() * Math.PI * 2;
-        const radius = Math.random() * this.size * 0.5;
-        p.x = Math.cos(angle) * radius;
-        p.y = Math.sin(angle) * radius;
-      }
-    });
+    this.x += this.speedX;
+    this.y += this.speedY;
+    if (this.x < 0 || this.x > particleCanvas.width) this.speedX *= -1;
+    if (this.y < 0 || this.y > particleCanvas.height) this.speedY *= -1;
   }
   
   draw() {
-    ctx.save();
-    ctx.translate(this.x, this.y);
-    
-    for (let i = 0; i < 3; i++) {
-      const offset = i * 30;
-      const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.size * 1.5 + offset);
-      gradient.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${0.1 * this.opacity})`);
-      gradient.addColorStop(0.5, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${0.05 * this.opacity})`);
-      gradient.addColorStop(1, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0)`);
-      
-      ctx.filter = `blur(${this.blur * 2}px)`;
-      ctx.fillStyle = gradient;
-      ctx.fillRect(-this.size * 2, -this.size * 2, this.size * 4, this.size * 4);
-    }
-    
-    this.particles.forEach(p => {
-      const colorVariation = Math.sin(p.x * 0.1) * 20;
-      const r = Math.max(0, Math.min(255, this.color.r + colorVariation));
-      const g = Math.max(0, Math.min(255, this.color.g + colorVariation));
-      const b = Math.max(0, Math.min(255, this.color.b + colorVariation));
-      
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size * 1.5, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${p.opacity * this.opacity * 0.6})`;
-      ctx.fill();
-    });
-    
-    for (let i = 0; i < 5; i++) {
-      const coreSize = this.size * (0.8 - i * 0.15);
-      const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, coreSize);
-      
-      const brightness = 1 + (i * 0.1);
-      gradient.addColorStop(0, `rgba(${Math.min(255, this.color.r * brightness)}, ${Math.min(255, this.color.g * brightness)}, ${Math.min(255, this.color.b * brightness)}, ${this.opacity * 0.8})`);
-      gradient.addColorStop(0.6, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.opacity * 0.4})`);
-      gradient.addColorStop(1, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0)`);
-      
-      ctx.filter = `blur(${this.blur * (1 - i * 0.15)}px)`;
-      ctx.fillStyle = gradient;
-      ctx.fillRect(-coreSize, -coreSize, coreSize * 2, coreSize * 2);
-    }
-    
-    ctx.filter = 'none';
-    ctx.restore();
+    particleCtx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+    particleCtx.beginPath();
+    particleCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    particleCtx.fill();
   }
 }
 
-const light = new Light();
-
-function animate() {
-  ctx.fillStyle = 'rgba(26, 26, 26, 0.1)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  light.update();
-  light.draw();
-  requestAnimationFrame(animate);
+const particles = [];
+for (let i = 0; i < 40; i++) {
+  particles.push(new Particle());
 }
 
-animate();
+function animateParticles() {
+  particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+  particles.forEach(p => {
+    p.update();
+    p.draw();
+  });
+  requestAnimationFrame(animateParticles);
+}
+
+animateParticles();
+
+const observedLights = {
+  window: {
+    name: "평온의 빛",
+    color: { r: 255, g: 215, b: 0 },
+    colorName: "Golden",
+    observation: "01.28 / 15:47 / -2°C",
+    location: "창문 빛",
+    quotes: ["편안해요", "오래 보고 싶어요"],
+    warning: "⚠️ 이 빛은 당신을 기다립니다"
+  },
+  street: {
+    name: "긴장의 빛",
+    color: { r: 176, g: 224, b: 230 },
+    colorName: "Powder Blue",
+    observation: "01.29 / 19:22 / -4°C",
+    location: "가로등",
+    quotes: ["긴장돼요", "빨리 지나가고 싶어요"],
+    warning: "⚠️ 이 빛은 당신을 경계합니다"
+  },
+  snow: {
+    name: "기쁨의 빛",
+    color: { r: 255, g: 255, b: 255 },
+    colorName: "Pure White",
+    observation: "01.30 / 13:15 / 맑음",
+    location: "눈 반사",
+    quotes: ["신기해요", "반짝거려요"],
+    warning: "⚠️ 이 빛은 당신을 채웁니다"
+  },
+  sunset: {
+    name: "설렘의 빛",
+    color: { r: 255, g: 140, b: 0 },
+    colorName: "Dark Orange",
+    observation: "01.31 / 17:58 / 일몰",
+    location: "해질녘",
+    quotes: ["아쉬워요", "아름다워요"],
+    warning: "⚠️ 이 빛은 당신을 부릅니다"
+  }
+};
+
+let userChoices = {
+  light: null,
+  time: 15,
+  movement: null
+};
+
+let stageTimer = null;
+let shrinkTimer = null;
+let lightDisappeared = false;
 
 function showScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => {
@@ -238,162 +101,349 @@ function showScreen(screenId) {
   document.getElementById(screenId).classList.add('active');
 }
 
-function startExperience() {
+function showWarning(elementId, message, duration = 3000) {
+  const warning = document.getElementById(elementId);
+  warning.textContent = message;
+  warning.classList.add('show');
+  setTimeout(() => {
+    warning.classList.remove('show');
+  }, duration);
+}
+
+function showRuleOverlay(message, duration = 2000) {
+  const overlay = document.getElementById('ruleOverlay');
+  const text = document.getElementById('ruleText');
+  text.innerHTML = message;
+  overlay.classList.add('show');
+  setTimeout(() => {
+    overlay.classList.remove('show');
+  }, duration);
+}
+
+function closeOpening() {
   showScreen('stage1');
-  light.movement = 'idle';
+  setupStage1();
 }
 
-function selectEmotion(emotion) {
-  userChoices.emotion = emotion;
-  light.setColor(emotion);
-  setTimeout(() => {
-    showScreen('stage2');
-  }, 2000);
+function setupStage1() {
+  setupDragAndDrop();
+  startStageTimer(10);
 }
 
-function selectMovement(movement) {
-  userChoices.movement = movement;
-  light.setMovement(movement);
-  setTimeout(() => {
-    showScreen('stage3');
-  }, 2000);
+function startStageTimer(seconds) {
+  let timeLeft = seconds;
+  const timerElement = document.getElementById('timer1');
+  
+  const countdown = setInterval(() => {
+    timeLeft--;
+    timerElement.textContent = timeLeft;
+    
+    if (timeLeft <= 3) {
+      timerElement.classList.add('warning');
+    }
+    
+    if (timeLeft <= 0) {
+      clearInterval(countdown);
+      startShrinking();
+    }
+  }, 1000);
+  
+  stageTimer = countdown;
 }
 
-function selectIntensity(intensity) {
-  userChoices.intensity = intensity;
-  light.setIntensity(intensity);
-  setTimeout(() => {
-    showScreen('generating');
-    generateCard();
-  }, 2000);
+function startShrinking() {
+  const light = document.getElementById('floatingLight');
+  light.classList.add('shrinking');
+  showWarning('warning1', '⚠️ 빛이 작아지고 있습니다. 즉시 화면을 터치하십시오', 5000);
+  
+  shrinkTimer = setTimeout(() => {
+    triggerLightDisappear();
+  }, 5000);
+  
+  document.addEventListener('click', stopShrinking, { once: true });
 }
 
-function generateCard() {
+function stopShrinking() {
+  const light = document.getElementById('floatingLight');
+  light.classList.remove('shrinking');
+  clearTimeout(shrinkTimer);
+  showWarning('warning1', '안전합니다', 2000);
+  startStageTimer(10);
+}
+
+function triggerLightDisappear() {
+  lightDisappeared = true;
+  const staffCall = document.getElementById('staffCall');
+  staffCall.classList.add('show');
+}
+
+function callStaff() {
+  const staffCall = document.getElementById('staffCall');
+  const fairy = document.getElementById('fairy');
+  
+  staffCall.classList.remove('show');
+  fairy.classList.add('show');
+  
   setTimeout(() => {
-    const emotion = emotionData[userChoices.emotion];
-    document.getElementById('emotionName').textContent = emotion.name;
-    document.getElementById('observationData').textContent = `관찰: ${emotion.observation}`;
-    document.getElementById('quote1').textContent = `"${emotion.quotes[0]}"`;
-    document.getElementById('quote2').textContent = `"${emotion.quotes[1]}"`;
-    document.getElementById('warningText').textContent = emotion.warning;
-    document.getElementById('cardId').textContent = `#L-${Math.floor(Math.random() * 9000) + 1000}`;
-    drawCardCanvas();
-    showScreen('result');
+    fairy.classList.remove('show');
+    restart();
   }, 3000);
 }
 
+function setupDragAndDrop() {
+  const light = document.getElementById('floatingLight');
+  const glasses = document.querySelectorAll('.glass');
+  
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+  
+  light.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+  
+  light.addEventListener('touchstart', dragStart);
+  document.addEventListener('touchmove', drag);
+  document.addEventListener('touchend', dragEnd);
+  
+  function dragStart(e) {
+    if (e.type === 'touchstart') {
+      initialX = e.touches[0].clientX - xOffset;
+      initialY = e.touches[0].clientY - yOffset;
+    } else {
+      initialX = e.clientX - xOffset;
+      initialY = e.clientY - yOffset;
+    }
+    
+    if (e.target === light || light.contains(e.target)) {
+      isDragging = true;
+      light.classList.add('dragging');
+    }
+  }
+  
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+      
+      if (e.type === 'touchmove') {
+        currentX = e.touches[0].clientX - initialX;
+        currentY = e.touches[0].clientY - initialY;
+      } else {
+        currentX = e.clientX - initialX;
+        currentY = e.clientY - initialY;
+      }
+      
+      xOffset = currentX;
+      yOffset = currentY;
+      
+      setTranslate(currentX, currentY, light);
+    }
+  }
+  
+  function dragEnd(e) {
+    if (isDragging) {
+      initialX = currentX;
+      initialY = currentY;
+      isDragging = false;
+      light.classList.remove('dragging');
+      
+      checkDrop(e);
+    }
+  }
+  
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+  }
+  
+  function checkDrop(e) {
+    const lightRect = light.getBoundingClientRect();
+    const lightCenterX = lightRect.left + lightRect.width / 2;
+    const lightCenterY = lightRect.top + lightRect.height / 2;
+    
+    let droppedOnGlass = false;
+    
+    glasses.forEach(glass => {
+      const glassRect = glass.getBoundingClientRect();
+      
+      if (lightCenterX > glassRect.left && lightCenterX < glassRect.right &&
+          lightCenterY > glassRect.top && lightCenterY < glassRect.bottom) {
+        
+        const lightType = glass.closest('.glass-wrapper').dataset.light;
+        droppedOnGlass = true;
+        selectLight(lightType);
+      }
+    });
+    
+    if (!droppedOnGlass) {
+      triggerAbnormalPopup();
+      resetLight();
+    }
+  }
+  
+  function resetLight() {
+    xOffset = 0;
+    yOffset = 0;
+    light.style.transform = 'translate(0, 0)';
+  }
+}
+
+function triggerAbnormalPopup() {
+  const popup = document.getElementById('abnormalPopup');
+  popup.classList.add('show');
+}
+
+function checkKeyword() {
+  const input = document.getElementById('keywordInput');
+  const value = input.value.trim().toLowerCase();
+  const popup = document.getElementById('abnormalPopup');
+  
+  const validKeywords = ['light', 'glass', 'color', 'time'];
+  
+  if (validKeywords.includes(value)) {
+    popup.classList.remove('show');
+    input.value = '';
+    showRuleOverlay('Access Granted', 2000);
+  } else {
+    showRuleOverlay('⚠️ Invalid Keyword', 2000);
+    input.value = '';
+  }
+}
+
+function selectLight(lightType) {
+  clearTimeout(stageTimer);
+  clearTimeout(shrinkTimer);
+  
+  userChoices.light = lightType;
+  const lightData = observedLights[lightType];
+  
+  showRuleOverlay(`Color Selected:<br>${lightData.colorName}`, 2000);
+  
+  setTimeout(() => {
+    showScreen('stage2');
+    setupStage2();
+  }, 2500);
+}
+
+function setupStage2() {
+  const lightData = observedLights[userChoices.light];
+  const lightInside = document.getElementById('lightInside');
+  const timeRange = document.getElementById('timeRange');
+  const timeValue = document.getElementById('timeValue');
+  
+  lightInside.style.background = `radial-gradient(circle, 
+    rgba(${lightData.color.r}, ${lightData.color.g}, ${lightData.color.b}, 1) 0%, 
+    rgba(${lightData.color.r}, ${lightData.color.g}, ${lightData.color.b}, 0.6) 40%, 
+    transparent 70%)`;
+  
+  timeRange.addEventListener('input', (e) => {
+    const value = e.target.value;
+    timeValue.textContent = value;
+    userChoices.time = value;
+    
+    const duration = 31 - value / 30 * 29;
+    lightInside.style.animationDuration = `${duration}s`;
+  });
+}
+
+function confirmTime() {
+  showScreen('stage3');
+  setupStage3();
+}
+
+function setupStage3() {
+  const lightData = observedLights[userChoices.light];
+  const previews = document.querySelectorAll('.light-preview');
+  
+  previews.forEach(preview => {
+    preview.style.background = `radial-gradient(circle, 
+      rgba(${lightData.color.r}, ${lightData.color.g}, ${lightData.color.b}, 1) 0%, 
+      rgba(${lightData.color.r}, ${lightData.color.g}, ${lightData.color.b}, 0.6) 40%, 
+      transparent 70%)`;
+  });
+}
+
+function selectMovement(movementType) {
+  userChoices.movement = movementType;
+  
+  if (movementType === 'rotate') {
+    showRuleOverlay('⚠️ 빛이 3회 회전합니다<br>3번째 회전 시 아무 키나 누르십시오', 3000);
+    setTimeout(() => {
+      triggerRotateRule();
+    }, 3500);
+  } else {
+    proceedToResult();
+  }
+}
+
+function triggerRotateRule() {
+  let rotations = 0;
+  let keyPressed = false;
+  
+  const interval = setInterval(() => {
+    rotations++;
+    showRuleOverlay(`${rotations}회 회전`, 500);
+    
+    if (rotations === 3) {
+      clearInterval(interval);
+      
+      const keyListener = (e) => {
+        keyPressed = true;
+        document.removeEventListener('keydown', keyListener);
+        showRuleOverlay('안전합니다', 2000);
+        setTimeout(proceedToResult, 2500);
+      };
+      
+      document.addEventListener('keydown', keyListener);
+      
+      setTimeout(() => {
+        if (!keyPressed) {
+          document.removeEventListener('keydown', keyListener);
+          showRuleOverlay('⚠️ 규칙 위반<br>빛이 불안정해졌습니다', 3000);
+          setTimeout(proceedToResult, 3500);
+        }
+      }, 3000);
+    }
+  }, 1000);
+}
+
+function proceedToResult() {
+  showScreen('generating');
+  setTimeout(() => {
+    generateCard();
+  }, 3000);
+}
+
+function generateCard() {
+  const lightData = observedLights[userChoices.light];
+  
+  document.getElementById('emotionName').textContent = lightData.name;
+  document.getElementById('observationData').textContent = `관찰: ${lightData.observation}`;
+  document.getElementById('locationData').textContent = `장소: ${lightData.location}`;
+  document.getElementById('quote1').textContent = `"${lightData.quotes[0]}"`;
+  document.getElementById('quote2').textContent = `"${lightData.quotes[1]}"`;
+  document.getElementById('warningText').textContent = lightData.warning;
+  document.getElementById('cardId').textContent = `#L-${Math.floor(Math.random() * 9000) + 1000}`;
+  
+  drawCardCanvas();
+  showScreen('result');
+}
+
 function drawCardCanvas() {
-  const cardCanvas = document.getElementById('cardCanvas');
-  const cardCtx = cardCanvas.getContext('2d');
-  cardCanvas.width = 400;
-  cardCanvas.height = 400;
+  const canvas = document.getElementById('cardCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 400;
+  canvas.height = 400;
   
-  cardCtx.fillStyle = '#1a1a1a';
-  cardCtx.fillRect(0, 0, 400, 400);
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fillRect(0, 0, 400, 400);
   
+  const lightData = observedLights[userChoices.light];
   const centerX = 200;
   const centerY = 200;
   
   for (let i = 0; i < 3; i++) {
-    const offset = i * 20;
-    const gradient = cardCtx.createRadialGradient(
-      centerX, centerY, 0,
-      centerX, centerY, light.size + offset
-    );
-    gradient.addColorStop(0, `rgba(${light.color.r}, ${light.color.g}, ${light.color.b}, ${0.1 * light.opacity})`);
-    gradient.addColorStop(0.5, `rgba(${light.color.r}, ${light.color.g}, ${light.color.b}, ${0.05 * light.opacity})`);
-    gradient.addColorStop(1, `rgba(${light.color.r}, ${light.color.g}, ${light.color.b}, 0)`);
-    
-    cardCtx.fillStyle = gradient;
-    cardCtx.fillRect(0, 0, 400, 400);
-  }
-  
-  light.particles.slice(0, 400).forEach(p => {
-    const colorVariation = Math.sin(p.x * 0.1) * 20;
-    const r = Math.max(0, Math.min(255, light.color.r + colorVariation));
-    const g = Math.max(0, Math.min(255, light.color.g + colorVariation));
-    const b = Math.max(0, Math.min(255, light.color.b + colorVariation));
-    
-    cardCtx.beginPath();
-    cardCtx.arc(
-      centerX + p.x * 0.6,
-      centerY + p.y * 0.6,
-      p.size * 1.5,
-      0, Math.PI * 2
-    );
-    cardCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${p.opacity * light.opacity * 0.6})`;
-    cardCtx.fill();
-  });
-  
-  for (let i = 0; i < 5; i++) {
-    const coreSize = light.size * (0.8 - i * 0.15) * 0.6;
-    const gradient = cardCtx.createRadialGradient(
-      centerX, centerY, 0,
-      centerX, centerY, coreSize
-    );
-    
-    const brightness = 1 + (i * 0.1);
-    gradient.addColorStop(0, `rgba(${Math.min(255, light.color.r * brightness)}, ${Math.min(255, light.color.g * brightness)}, ${Math.min(255, light.color.b * brightness)}, ${light.opacity * 0.8})`);
-    gradient.addColorStop(0.6, `rgba(${light.color.r}, ${light.color.g}, ${light.color.b}, ${light.opacity * 0.4})`);
-    gradient.addColorStop(1, `rgba(${light.color.r}, ${light.color.g}, ${light.color.b}, 0)`);
-    
-    cardCtx.fillStyle = gradient;
-    cardCtx.fillRect(0, 0, 400, 400);
-  }
-}
-
-function saveCard() {
-  showScreen('qr');
-  const qrcodeDiv = document.getElementById('qrcode');
-  qrcodeDiv.innerHTML = '';
-  const cardData = {
-    emotion: userChoices.emotion,
-    movement: userChoices.movement,
-    intensity: userChoices.intensity,
-    timestamp: new Date().toISOString()
-  };
-  new QRCode(qrcodeDiv, {
-    text: JSON.stringify(cardData),
-    width: 200,
-    height: 200,
-    colorDark: "#000000",
-    colorLight: "#ffffff",
-  });
-}
-
-function closeQR() {
-  showScreen('result');
-}
-
-function restart() {
-  userChoices = { emotion: null, movement: null, intensity: null };
-  light.movement = 'idle';
-  light.targetColor = { r: 128, g: 128, b: 128 };
-  light.targetOpacity = 0.5;
-  light.targetSize = 80;
-  light.targetBlur = 20;
-  light.particleCount = 800;
-  light.createParticles();
-  showScreen('intro');
-}
-
-window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  light.x = canvas.width / 2;
-  light.y = canvas.height / 2;
-  light.targetX = light.x;
-  light.targetY = light.y;
-});
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    userChoices.emotion = 'calm';
-    userChoices.movement = 'still';
-    userChoices.intensity = 'talk';
-    light.setColor('calm');
-    light.setMovement('still');
-    light.setIntensity('talk');
-    generateCard();
-  }
-});
+    const gradient = ctx.createRadialGradient(centerX, centerY
