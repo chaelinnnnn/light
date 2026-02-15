@@ -446,5 +446,29 @@ function drawCardCanvas() {
   const centerY = 200;
   
   for (let i = 0; i < 3; i++) {
-    const gradient = ctx.createRadialGradient(centerX, centerY
-                                              }
+    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 100 + i * 20);
+    gradient.addColorStop(0, `rgba(${lightData.color.r}, ${lightData.color.g}, ${lightData.color.b}, 0.1)`);
+    gradient.addColorStop(1, 'transparent');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 400, 400);
+  }
+  
+  for (let i = 0; i < 300; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const radius = Math.random() * 80;
+    const x = centerX + Math.cos(angle) * radius;
+    const y = centerY + Math.sin(angle) * radius;
+    const size = Math.random() * 2;
+    
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${lightData.color.r}, ${lightData.color.g}, ${lightData.color.b}, ${Math.random() * 0.6})`;
+    ctx.fill();
+  }
+  
+  const coreGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 60);
+  coreGradient.addColorStop(0, `rgba(${lightData.color.r}, ${lightData.color.g}, ${lightData.color.b}, 0.9)`);
+  coreGradient.addColorStop(1, 'transparent');
+  ctx.fillStyle = coreGradient;
+  ctx.fillRect(0, 0, 400, 400);
+}
