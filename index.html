@@ -7,119 +7,169 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <canvas id="lightCanvas"></canvas>
-  <audio id="audio" loop></audio>
+  <canvas id="particleCanvas"></canvas>
   
   <div id="overlay">
     
+    <!-- 입장 화면 -->
     <div id="intro" class="screen active">
       <div class="content">
-        <h1 class="title fade-in">빛의 증언 기록소</h1>
-        <p class="subtitle fade-in delay-1">당신의 감정을 빛으로 변환합니다</p>
+        <h1 class="title">빛의 증언 기록소</h1>
+        <p class="subtitle">당신이 관찰한 빛을 선택하세요</p>
         
-        <div class="rules fade-in delay-2">
+        <div class="rules">
           <h3>행동 지침서</h3>
           <ol>
-            <li>빛 앞에서 거짓을 말하지 마십시오</li>
-            <li>빛이 작아지면 즉시 화면을 터치하십시오</li>
-            <li>비정상 팝업 발생 시 키워드를 입력하십시오</li>
+            <li>투명 유리만 사용하십시오</li>
+            <li>15초 안에 선택하십시오</li>
             <li>빛이 3회 깜빡이면 시선을 거두십시오</li>
-            <li>당신의 빛은 당신을 기억합니다</li>
           </ol>
         </div>
         
-        <button class="start-btn fade-in delay-3" onclick="startExperience()">시작하기</button>
+        <button class="start-btn" onclick="startExperience()">시작하기</button>
       </div>
     </div>
     
+    <!-- Stage 1: 색 선택 -->
     <div id="stage1" class="screen">
-      <div class="progress">●○○</div>
-      <div class="metadata">첫 번째 증언</div>
-      <h2 class="question">당신은 지금<br>어디에 있습니까?</h2>
-      
-      <div class="choices">
-        <button class="choice" onclick="selectEmotion('calm')">
-          <div class="choice-content">
-            <div class="choice-text">집에 돌아온</div>
-            <div class="choice-subtext">곳에서</div>
-          </div>
-        </button>
-        
-        <button class="choice" onclick="selectEmotion('hope')">
-          <div class="choice-content">
-            <div class="choice-text">새로 시작하는</div>
-            <div class="choice-subtext">곳에서</div>
-          </div>
-        </button>
-        
-        <button class="choice" onclick="selectEmotion('joy')">
-          <div class="choice-content">
-            <div class="choice-text">빛이 가득한</div>
-            <div class="choice-subtext">곳에서</div>
-          </div>
-        </button>
-        
-        <button class="choice" onclick="selectEmotion('excitement')">
-          <div class="choice-content">
-            <div class="choice-text">무언가 일어날</div>
-            <div class="choice-subtext">곳에서</div>
-          </div>
-        </button>
+      <div class="stage-header">
+        <div class="progress">●○○</div>
+        <div class="instruction">빛을 유리에 넣어주세요</div>
       </div>
+      
+      <div class="game-area">
+        <div class="floating-light" id="floatingLight">
+          <div class="light-core"></div>
+        </div>
+        
+        <div class="glass-containers">
+          <div class="glass-wrapper" data-light="window">
+            <div class="glass colored" data-color="window">
+              <div class="glass-shine"></div>
+            </div>
+            <button class="make-transparent" onclick="makeTransparent('window')">투명하게</button>
+            <div class="glass-label">
+              <div class="time">15:47</div>
+              <div class="temp">-2°C</div>
+            </div>
+          </div>
+          
+          <div class="glass-wrapper" data-light="street">
+            <div class="glass colored" data-color="street">
+              <div class="glass-shine"></div>
+            </div>
+            <button class="make-transparent" onclick="makeTransparent('street')">투명하게</button>
+            <div class="glass-label">
+              <div class="time">19:22</div>
+              <div class="temp">-4°C</div>
+            </div>
+          </div>
+          
+          <div class="glass-wrapper" data-light="snow">
+            <div class="glass colored" data-color="snow">
+              <div class="glass-shine"></div>
+            </div>
+            <button class="make-transparent" onclick="makeTransparent('snow')">투명하게</button>
+            <div class="glass-label">
+              <div class="time">13:15</div>
+              <div class="temp">맑음</div>
+            </div>
+          </div>
+          
+          <div class="glass-wrapper" data-light="sunset">
+            <div class="glass colored" data-color="sunset">
+              <div class="glass-shine"></div>
+            </div>
+            <button class="make-transparent" onclick="makeTransparent('sunset')">투명하게</button>
+            <div class="glass-label">
+              <div class="time">17:58</div>
+              <div class="temp">일몰</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="warning-text" id="warning1"></div>
     </div>
     
+    <!-- Stage 2: 시간 설정 -->
     <div id="stage2" class="screen">
-      <div class="progress">●●○</div>
-      <div class="metadata">두 번째 증언</div>
-      <h2 class="question">당신은 그곳에서<br>무엇을 하고 싶습니까?</h2>
-      
-      <div class="choices">
-        <button class="choice" onclick="selectMovement('still')">
-          <div class="choice-icon">●</div>
-          <div class="choice-text">머물고 싶다</div>
-        </button>
-        
-        <button class="choice" onclick="selectMovement('walk')">
-          <div class="choice-icon">→</div>
-          <div class="choice-text">천천히 걷고 싶다</div>
-        </button>
-        
-        <button class="choice" onclick="selectMovement('play')">
-          <div class="choice-icon">✦</div>
-          <div class="choice-text">뛰어다니고 싶다</div>
-        </button>
-        
-        <button class="choice" onclick="selectMovement('run')">
-          <div class="choice-icon">⟫</div>
-          <div class="choice-text">달려가고 싶다</div>
-        </button>
+      <div class="stage-header">
+        <div class="progress">●●○</div>
+        <div class="instruction">빛이 머무르는 시간을 설정하세요</div>
+        <div class="timer" id="timer2">15</div>
       </div>
+      
+      <div class="game-area">
+        <div class="glass-display">
+          <div class="glass" id="selectedGlass">
+            <div class="glass-shine"></div>
+            <div class="light-inside" id="lightInside"></div>
+          </div>
+        </div>
+        
+        <div class="time-slider">
+          <div class="slider-label">
+            <span>짧음 (5초)</span>
+            <span>김 (30초)</span>
+          </div>
+          <input type="range" id="timeRange" min="5" max="30" value="15" step="1">
+          <div class="slider-value">현재: <span id="timeValue">15</span>초</div>
+        </div>
+        
+        <button class="next-btn" onclick="confirmTime()">확인</button>
+      </div>
+      
+      <div class="warning-text" id="warning2"></div>
     </div>
     
+    <!-- Stage 3: 움직임 선택 -->
     <div id="stage3" class="screen">
-      <div class="progress">●●●</div>
-      <div class="metadata">세 번째 증언</div>
-      <h2 class="question">그 감정이<br>얼마나 강합니까?</h2>
-      
-      <div class="choices">
-        <button class="choice" onclick="selectIntensity('whisper')">
-          <div class="choice-text">속삭임처럼</div>
-        </button>
-        
-        <button class="choice" onclick="selectIntensity('talk')">
-          <div class="choice-text">대화처럼</div>
-        </button>
-        
-        <button class="choice" onclick="selectIntensity('song')">
-          <div class="choice-text">노래처럼</div>
-        </button>
-        
-        <button class="choice" onclick="selectIntensity('shout')">
-          <div class="choice-text">함성처럼</div>
-        </button>
+      <div class="stage-header">
+        <div class="progress">●●●</div>
+        <div class="instruction">빛의 움직임을 선택하세요</div>
       </div>
+      
+      <div class="game-area">
+        <div class="movement-options">
+          <div class="movement-option" onclick="selectMovement('still')">
+            <div class="glass small">
+              <div class="glass-shine"></div>
+              <div class="light-preview still"></div>
+            </div>
+            <div class="movement-label">정지</div>
+          </div>
+          
+          <div class="movement-option" onclick="selectMovement('sway')">
+            <div class="glass small">
+              <div class="glass-shine"></div>
+              <div class="light-preview sway"></div>
+            </div>
+            <div class="movement-label">좌우</div>
+          </div>
+          
+          <div class="movement-option" onclick="selectMovement('rotate')">
+            <div class="glass small">
+              <div class="glass-shine"></div>
+              <div class="light-preview rotate"></div>
+            </div>
+            <div class="movement-label">회전</div>
+          </div>
+          
+          <div class="movement-option" onclick="selectMovement('bounce')">
+            <div class="glass small">
+              <div class="glass-shine"></div>
+              <div class="light-preview bounce"></div>
+            </div>
+            <div class="movement-label">상하</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="warning-text" id="warning3"></div>
     </div>
     
+    <!-- 생성 화면 -->
     <div id="generating" class="screen">
       <div class="content">
         <h2 class="generating-text">당신의 빛을 생성하고 있습니다</h2>
@@ -129,6 +179,7 @@
       </div>
     </div>
     
+    <!-- 결과 화면 -->
     <div id="result" class="screen">
       <div class="content">
         <div class="card">
@@ -139,6 +190,7 @@
             
             <div class="card-details">
               <p class="observation-data" id="observationData">관찰: 01.28 / 15:47 / -2°C</p>
+              <p class="location-data" id="locationData">장소: 창문 빛</p>
               
               <div class="interview-quotes">
                 <p class="quote" id="quote1">"편안해요"</p>
@@ -153,23 +205,21 @@
         </div>
         
         <div class="result-actions">
-          <button class="btn-primary" onclick="saveCard()">QR로 저장</button>
+          <button class="btn-primary" onclick="downloadCard()">다운로드</button>
           <button class="btn-secondary" onclick="restart()">다시 하기</button>
         </div>
       </div>
     </div>
     
-    <div id="qr" class="screen">
-      <div class="content">
-        <h2>QR 코드로 저장하세요</h2>
-        <div id="qrcode"></div>
-        <button class="btn-secondary" onclick="closeQR()">닫기</button>
+    <!-- 경고 오버레이 -->
+    <div id="ruleOverlay" class="rule-overlay">
+      <div class="rule-content">
+        <p id="ruleText"></p>
       </div>
     </div>
     
   </div>
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="light.js"></script>
 </body>
 </html>
