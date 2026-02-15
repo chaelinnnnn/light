@@ -171,6 +171,13 @@
         <div class="result-actions">
           <button class="btn-primary" onclick="downloadCard()">다운로드</button>
           <button class="btn-secondary" onclick="restart()">다시 하기</button>
+          function downloadCard() {  // 이게 맞는지 확인
+          const canvas = document.getElementById('cardCanvas');
+          const link = document.createElement('a');
+          link.download = `my-light-${Date.now()}.png`;
+          link.href = canvas.toDataURL();
+          link.click();
+          }
         </div>
       </div>
     </div>
