@@ -12,7 +12,6 @@ body {
   height: 100vh;
 }
 
-/* Canvas */
 #lightCanvas {
   position: fixed;
   top: 0;
@@ -22,7 +21,6 @@ body {
   z-index: 1;
 }
 
-/* Overlay */
 #overlay {
   position: fixed;
   top: 0;
@@ -33,7 +31,6 @@ body {
   pointer-events: none;
 }
 
-/* Screen */
 .screen {
   position: absolute;
   top: 0;
@@ -55,14 +52,12 @@ body {
   pointer-events: all;
 }
 
-/* Content */
 .content {
   text-align: center;
   max-width: 600px;
   width: 100%;
 }
 
-/* Typography */
 .title {
   font-size: 48px;
   font-weight: 300;
@@ -84,7 +79,6 @@ body {
   line-height: 1.5;
 }
 
-/* Rules */
 .rules {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
@@ -111,7 +105,6 @@ body {
   color: rgba(255,255,255,0.8);
 }
 
-/* Progress */
 .progress {
   position: absolute;
   top: 40px;
@@ -128,7 +121,6 @@ body {
   color: rgba(255,255,255,0.5);
 }
 
-/* Choices */
 .choices {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -184,7 +176,6 @@ body {
   margin-bottom: 15px;
 }
 
-/* Buttons */
 .start-btn,
 .btn-primary,
 .btn-secondary {
@@ -208,7 +199,6 @@ body {
   transform: translateY(-2px);
 }
 
-/* Generating */
 .generating-text {
   font-size: 24px;
   font-weight: 300;
@@ -237,7 +227,6 @@ body {
   40% { opacity: 1; }
 }
 
-/* Card */
 .card {
   background: rgba(26, 26, 26, 0.9);
   border: 2px solid rgba(255,255,255,0.2);
@@ -302,21 +291,18 @@ body {
   margin-top: 20px;
 }
 
-/* Result Actions */
 .result-actions {
   display: flex;
   gap: 15px;
   justify-content: center;
 }
 
-/* QR Code */
 #qrcode {
   margin: 40px 0;
   display: flex;
   justify-content: center;
 }
 
-/* Animations */
 .fade-in {
   animation: fadeIn 1s ease forwards;
   opacity: 0;
@@ -327,12 +313,9 @@ body {
 .delay-3 { animation-delay: 0.9s; }
 
 @keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
+  to { opacity: 1; }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .title {
     font-size: 32px;
