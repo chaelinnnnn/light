@@ -9,89 +9,12 @@
 <body>
   <div id="container">
     
-    <!-- 왼쪽: 흰색 영역 -->
+    <!-- 왼쪽: 이미지 -->
     <div id="left-panel">
-      <div class="binder-holes">
-        <div class="hole"></div>
-        <div class="hole"></div>
-        <div class="hole"></div>
-      </div>
-      
-      <div class="content">
-        <h1>At what time shall you<br>allow your light to remain?</h1>
-        
-        <div class="clock-grid">
-          <div class="clock-item">
-            <svg class="clock" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="black" stroke-width="2"/>
-              <text x="50" y="20" text-anchor="middle" font-size="8">12</text>
-              <text x="85" y="55" text-anchor="middle" font-size="8">3</text>
-              <text x="50" y="90" text-anchor="middle" font-size="8">6</text>
-              <text x="15" y="55" text-anchor="middle" font-size="8">9</text>
-              <!-- 1시 바늘 -->
-              <line x1="50" y1="50" x2="50" y2="25" stroke="black" stroke-width="2"/>
-              <line x1="50" y1="50" x2="70" y2="45" stroke="black" stroke-width="1.5"/>
-            </svg>
-            <p>(1) 1:00 pm</p>
-          </div>
-          
-          <div class="clock-item">
-            <svg class="clock" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="black" stroke-width="2"/>
-              <text x="50" y="20" text-anchor="middle" font-size="8">12</text>
-              <text x="85" y="55" text-anchor="middle" font-size="8">3</text>
-              <text x="50" y="90" text-anchor="middle" font-size="8">6</text>
-              <text x="15" y="55" text-anchor="middle" font-size="8">9</text>
-              <!-- 5시 바늘 -->
-              <line x1="50" y1="50" x2="50" y2="25" stroke="black" stroke-width="2"/>
-              <line x1="50" y1="50" x2="70" y2="70" stroke="black" stroke-width="1.5"/>
-            </svg>
-            <p>(2) 5:00 pm</p>
-          </div>
-          
-          <div class="clock-item">
-            <svg class="clock" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="black" stroke-width="2"/>
-              <text x="50" y="20" text-anchor="middle" font-size="8">12</text>
-              <text x="85" y="55" text-anchor="middle" font-size="8">3</text>
-              <text x="50" y="90" text-anchor="middle" font-size="8">6</text>
-              <text x="15" y="55" text-anchor="middle" font-size="8">9</text>
-              <!-- 11시 바늘 -->
-              <line x1="50" y1="50" x2="50" y2="25" stroke="black" stroke-width="2"/>
-              <line x1="50" y1="50" x2="30" y2="30" stroke="black" stroke-width="1.5"/>
-            </svg>
-            <p>(3) 11:00 pm</p>
-          </div>
-          
-          <div class="clock-item">
-            <svg class="clock" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="black" stroke-width="2"/>
-              <text x="50" y="20" text-anchor="middle" font-size="8">12</text>
-              <text x="85" y="55" text-anchor="middle" font-size="8">3</text>
-              <text x="50" y="90" text-anchor="middle" font-size="8">6</text>
-              <text x="15" y="55" text-anchor="middle" font-size="8">9</text>
-              <!-- 7시 바늘 -->
-              <line x1="50" y1="50" x2="50" y2="25" stroke="black" stroke-width="2"/>
-              <line x1="50" y1="50" x2="50" y2="75" stroke="black" stroke-width="1.5"/>
-            </svg>
-            <p>(4) 7:00 am</p>
-          </div>
-        </div>
-        
-        <div class="guidelines">
-          <h3>Behavioral Guidelines</h3>
-          <ol>
-            <li>Do not tell lies in front of the light.</li>
-            <li>If the light grows dim, touch the screen immediately.</li>
-            <li>If an abnormal pop-up appears, enter the keyword.</li>
-            <li>If the light disappears from the screen, call a staff member immediately.</li>
-          </ol>
-          <p class="note">Furthermore, the Light retains memory of you at all times.</p>
-        </div>
-      </div>
+      <img src="art1.png" alt="Instructions" class="instruction-image">
     </div>
     
-    <!-- 오른쪽: 검은색 Canvas -->
+    <!-- 오른쪽: Canvas -->
     <div id="right-panel">
       <canvas id="canvas"></canvas>
       <button id="nextBtn" class="next-btn">Next</button>
