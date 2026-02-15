@@ -58,10 +58,10 @@ class Light {
     this.targetSize = 80;
     this.opacity = 0.5;
     this.targetOpacity = 0.5;
-    this.blur = 15;
-    this.targetBlur = 15;
+    this.blur = 20;
+    this.targetBlur = 20;
     this.particles = [];
-    this.particleCount = 300;
+    this.particleCount = 800;
     this.createParticles();
     this.movement = 'idle';
     this.time = 0;
@@ -71,16 +71,17 @@ class Light {
     this.particles = [];
     for (let i = 0; i < this.particleCount; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const radius = Math.random() * this.size;
+      const radius = Math.random() * this.size * 1.5;
+      
       this.particles.push({
         x: Math.cos(angle) * radius,
         y: Math.sin(angle) * radius,
         baseX: Math.cos(angle) * radius,
         baseY: Math.sin(angle) * radius,
-        size: Math.random() * 2 + 0.5,
-        opacity: Math.random() * 0.8 + 0.2,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5
+        size: Math.random() * 1.5 + 0.3,
+        opacity: Math.random() * 0.9 + 0.1,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3
       });
     }
   }
@@ -92,7 +93,7 @@ class Light {
   setMovement(movement) {
     this.movement = movement;
     if (movement === 'play') {
-      this.particleCount = 500;
+      this.particleCount = 1000;
       this.createParticles();
     }
   }
@@ -102,22 +103,22 @@ class Light {
       case 'whisper':
         this.targetOpacity = 0.3;
         this.targetSize = 60;
-        this.targetBlur = 20;
+        this.targetBlur = 25;
         break;
       case 'talk':
         this.targetOpacity = 0.7;
         this.targetSize = 80;
-        this.targetBlur = 10;
+        this.targetBlur = 15;
         break;
       case 'song':
         this.targetOpacity = 0.9;
         this.targetSize = 100;
-        this.targetBlur = 5;
+        this.targetBlur = 10;
         break;
       case 'shout':
         this.targetOpacity = 1;
         this.targetSize = 120;
-        this.targetBlur = 0;
+        this.targetBlur = 5;
         break;
     }
   }
@@ -162,7 +163,7 @@ class Light {
       p.x += p.vx;
       p.y += p.vy;
       const dist = Math.sqrt(p.x * p.x + p.y * p.y);
-      if (dist > this.size * 1.5) {
+      if (dist > this.size * 2) {
         const angle = Math.random() * Math.PI * 2;
         const radius = Math.random() * this.size * 0.5;
         p.x = Math.cos(angle) * radius;
@@ -175,19 +176,44 @@ class Light {
     ctx.save();
     ctx.translate(this.x, this.y);
     
+    for (let i = 0; i < 3; i++) {
+      const offset = i * 30;
+      const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.size * 1.5 + offset);
+      gradient.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${0.1 * this.opacity})`);
+      gradient.addColorStop(0.5, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${0.05 * this.opacity})`);
+      gradient.addColorStop(1, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0)`);
+      
+      ctx.filter = `blur(${this.blur * 2}px)`;
+      ctx.fillStyle = gradient;
+      ctx.fillRect(-this.size * 2, -this.size * 2, this.size * 4, this.size * 4);
+    }
+    
     this.particles.forEach(p => {
+      const colorVariation = Math.sin(p.x * 0.1) * 20;
+      const r = Math.max(0, Math.min(255, this.color.r + colorVariation));
+      const g = Math.max(0, Math.min(255, this.color.g + colorVariation));
+      const b = Math.max(0, Math.min(255, this.color.b + colorVariation));
+      
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${p.opacity * this.opacity})`;
+      ctx.arc(p.x, p.y, p.size * 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${p.opacity * this.opacity * 0.6})`;
       ctx.fill();
     });
     
-    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.size);
-    gradient.addColorStop(0, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.opacity * 0.6})`);
-    gradient.addColorStop(1, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0)`);
-    ctx.filter = `blur(${this.blur}px)`;
-    ctx.fillStyle = gradient;
-    ctx.fillRect(-this.size, -this.size, this.size * 2, this.size * 2);
+    for (let i = 0; i < 5; i++) {
+      const coreSize = this.size * (0.8 - i * 0.15);
+      const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, coreSize);
+      
+      const brightness = 1 + (i * 0.1);
+      gradient.addColorStop(0, `rgba(${Math.min(255, this.color.r * brightness)}, ${Math.min(255, this.color.g * brightness)}, ${Math.min(255, this.color.b * brightness)}, ${this.opacity * 0.8})`);
+      gradient.addColorStop(0.6, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, ${this.opacity * 0.4})`);
+      gradient.addColorStop(1, `rgba(${this.color.r}, ${this.color.g}, ${this.color.b}, 0)`);
+      
+      ctx.filter = `blur(${this.blur * (1 - i * 0.15)}px)`;
+      ctx.fillStyle = gradient;
+      ctx.fillRect(-coreSize, -coreSize, coreSize * 2, coreSize * 2);
+    }
+    
     ctx.filter = 'none';
     ctx.restore();
   }
@@ -261,24 +287,59 @@ function drawCardCanvas() {
   const cardCtx = cardCanvas.getContext('2d');
   cardCanvas.width = 400;
   cardCanvas.height = 400;
+  
   cardCtx.fillStyle = '#1a1a1a';
   cardCtx.fillRect(0, 0, 400, 400);
   
   const centerX = 200;
   const centerY = 200;
   
-  light.particles.slice(0, 200).forEach(p => {
+  for (let i = 0; i < 3; i++) {
+    const offset = i * 20;
+    const gradient = cardCtx.createRadialGradient(
+      centerX, centerY, 0,
+      centerX, centerY, light.size + offset
+    );
+    gradient.addColorStop(0, `rgba(${light.color.r}, ${light.color.g}, ${light.color.b}, ${0.1 * light.opacity})`);
+    gradient.addColorStop(0.5, `rgba(${light.color.r}, ${light.color.g}, ${light.color.b}, ${0.05 * light.opacity})`);
+    gradient.addColorStop(1, `rgba(${light.color.r}, ${light.color.g}, ${light.color.b}, 0)`);
+    
+    cardCtx.fillStyle = gradient;
+    cardCtx.fillRect(0, 0, 400, 400);
+  }
+  
+  light.particles.slice(0, 400).forEach(p => {
+    const colorVariation = Math.sin(p.x * 0.1) * 20;
+    const r = Math.max(0, Math.min(255, light.color.r + colorVariation));
+    const g = Math.max(0, Math.min(255, light.color.g + colorVariation));
+    const b = Math.max(0, Math.min(255, light.color.b + colorVariation));
+    
     cardCtx.beginPath();
-    cardCtx.arc(centerX + p.x * 0.8, centerY + p.y * 0.8, p.size, 0, Math.PI * 2);
-    cardCtx.fillStyle = `rgba(${light.color.r}, ${light.color.g}, ${light.color.b}, ${p.opacity * light.opacity})`;
+    cardCtx.arc(
+      centerX + p.x * 0.6,
+      centerY + p.y * 0.6,
+      p.size * 1.5,
+      0, Math.PI * 2
+    );
+    cardCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${p.opacity * light.opacity * 0.6})`;
     cardCtx.fill();
   });
   
-  const gradient = cardCtx.createRadialGradient(centerX, centerY, 0, centerX, centerY, light.size * 0.8);
-  gradient.addColorStop(0, `rgba(${light.color.r}, ${light.color.g}, ${light.color.b}, ${light.opacity * 0.6})`);
-  gradient.addColorStop(1, `rgba(${light.color.r}, ${light.color.g}, ${light.color.b}, 0)`);
-  cardCtx.fillStyle = gradient;
-  cardCtx.fillRect(0, 0, 400, 400);
+  for (let i = 0; i < 5; i++) {
+    const coreSize = light.size * (0.8 - i * 0.15) * 0.6;
+    const gradient = cardCtx.createRadialGradient(
+      centerX, centerY, 0,
+      centerX, centerY, coreSize
+    );
+    
+    const brightness = 1 + (i * 0.1);
+    gradient.addColorStop(0, `rgba(${Math.min(255, light.color.r * brightness)}, ${Math.min(255, light.color.g * brightness)}, ${Math.min(255, light.color.b * brightness)}, ${light.opacity * 0.8})`);
+    gradient.addColorStop(0.6, `rgba(${light.color.r}, ${light.color.g}, ${light.color.b}, ${light.opacity * 0.4})`);
+    gradient.addColorStop(1, `rgba(${light.color.r}, ${light.color.g}, ${light.color.b}, 0)`);
+    
+    cardCtx.fillStyle = gradient;
+    cardCtx.fillRect(0, 0, 400, 400);
+  }
 }
 
 function saveCard() {
@@ -310,8 +371,8 @@ function restart() {
   light.targetColor = { r: 128, g: 128, b: 128 };
   light.targetOpacity = 0.5;
   light.targetSize = 80;
-  light.targetBlur = 15;
-  light.particleCount = 300;
+  light.targetBlur = 20;
+  light.particleCount = 800;
   light.createParticles();
   showScreen('intro');
 }
