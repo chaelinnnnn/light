@@ -447,3 +447,4 @@ function drawCardCanvas() {
   
   for (let i = 0; i < 3; i++) {
     const gradient = ctx.createRadialGradient(centerX, centerY
+                                              }
