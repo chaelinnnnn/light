@@ -5,7 +5,7 @@
 }
 
 body {
-  font-family: 'Georgia', serif;
+  font-family: 'Helvetica Neue', 'Arial', sans-serif;
   overflow: hidden;
   height: 100vh;
   background: #000;
@@ -17,104 +17,26 @@ body {
   height: 100vh;
 }
 
-/* 왼쪽 패널 */
+/* 왼쪽 패널 - 이미지 고정 */
 #left-panel {
   width: 40%;
   background: #f5f5f5;
+  overflow: hidden;  /* 스크롤 방지 */
   position: relative;
-  overflow-y: auto;
 }
 
-.binder-holes {
-  position: absolute;
-  right: 0;
+.instruction-image {
+  width: 100%;
+  height: 100vh;  /* 100%가 아니라 100vh로 고정 */
+  object-fit: cover;
+  object-position: left top;
+  position: fixed;  /* 고정 */
+  left: 0;
   top: 0;
-  height: 100%;
-  width: 60px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  align-items: center;
-  background: linear-gradient(90deg, transparent 0%, #ddd 50%, transparent 100%);
+  max-width: 40%;  /* 왼쪽 영역만 차지 */
 }
 
-.hole {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: #666;
-  box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-}
-
-.content {
-  padding: 60px 80px 60px 60px;
-}
-
-h1 {
-  font-size: 36px;
-  font-weight: 400;
-  line-height: 1.4;
-  margin-bottom: 40px;
-  color: #000;
-}
-
-.clock-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 30px;
-  margin-bottom: 50px;
-}
-
-.clock-item {
-  text-align: center;
-}
-
-.clock {
-  width: 120px;
-  height: 120px;
-  margin-bottom: 10px;
-}
-
-.clock-item p {
-  font-size: 14px;
-  color: #333;
-}
-
-.guidelines {
-  background: #e8e8e8;
-  padding: 30px;
-  border-radius: 8px;
-}
-
-.guidelines h3 {
-  font-size: 18px;
-  font-weight: 500;
-  margin-bottom: 20px;
-  text-align: center;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 10px;
-}
-
-.guidelines ol {
-  padding-left: 20px;
-  margin-bottom: 15px;
-}
-
-.guidelines li {
-  font-size: 13px;
-  line-height: 1.8;
-  margin-bottom: 8px;
-  color: #333;
-}
-
-.guidelines .note {
-  font-size: 12px;
-  color: #666;
-  font-style: italic;
-  margin-top: 15px;
-}
-
-/* 오른쪽 패널 */
+/* 오른쪽 패널 - Canvas */
 #right-panel {
   width: 60%;
   background: #000;
@@ -128,25 +50,38 @@ h1 {
 }
 
 .next-btn {
-  position: absolute;
-  bottom: 60px;
-  right: 60px;
-  padding: 15px 60px;
-  font-size: 18px;
-  font-family: 'Georgia', serif;
-  background: white;
+  position: fixed;  /* absolute → fixed */
+  bottom: 40px;  /* 60px → 40px */
+  right: 40px;  /* 60px → 40px */
+  padding: 18px 80px;  /* 더 크게 */
+  font-size: 20px;  /* 18px → 20px */
+  font-family: 'Helvetica Neue', 'Arial', sans-serif;
+  background: rgba(255, 255, 255, 0.95);  /* 약간 투명 */
   color: black;
-  border: none;
+  border: 2px solid rgba(255, 255, 255, 0.5);
   cursor: pointer;
   transition: all 0.3s ease;
+  letter-spacing: 2px;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);  /* 그림자 추가 */
+  z-index: 1000;  /* 최상단 */
 }
 
 .next-btn:hover {
-  background: #f0f0f0;
-  transform: translateY(-2px);
+  background: white;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 30px rgba(255, 255, 255, 0.5);
 }
 
 .next-btn:disabled {
-  opacity: 0.3;
+  opacity: 0.2;
   cursor: not-allowed;
+  background: rgba(100, 100, 100, 0.3);
+  color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(100, 100, 100, 0.3);
+  box-shadow: none;
+}
+
+.next-btn:disabled:hover {
+  transform: none;
 }
