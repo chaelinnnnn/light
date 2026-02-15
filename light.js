@@ -5,26 +5,26 @@ const nextBtn = document.getElementById('nextBtn');
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
 
-//시간대별 위치
+// 시간대별 색상 & 위치 (영역 축소)
 const timeData = {
   '1pm': {
     colors: ['#FF6B9D', '#E91E63', '#C2185B'],
-    position: { x: canvas.width * 0.28, y: canvas.height * 0.28 },
+    position: { x: canvas.width * 0.3, y: canvas.height * 0.3 },
     type: 'single'
   },
   '5pm': {
     colors: ['#FFEAA7', '#FDD835', '#F9A825'],
-    position: { x: canvas.width * 0.72, y: canvas.height * 0.28 },
+    position: { x: canvas.width * 0.7, y: canvas.height * 0.3 },
     type: 'single'
   },
   '11pm': {
     colors: ['#FFB6C1', '#F8BBD0', '#E1BEE7'],
-    position: { x: canvas.width * 0.28, y: canvas.height * 0.72 },
+    position: { x: canvas.width * 0.3, y: canvas.height * 0.7 },
     type: 'single'
   },
   '7am': {
     colors: ['#74B9FF', '#42A5F5', '#1E88E5'],
-    position: { x: canvas.width * 0.72, y: canvas.height * 0.72 },
+    position: { x: canvas.width * 0.7, y: canvas.height * 0.7 },
     type: 'single'
   }
 };
@@ -42,17 +42,17 @@ class EnhancedBlob {
   }
   
   update(time) {
-    this.radius = this.baseRadius + Math.sin(time * 0.001 + this.offset) * 8;
+    this.radius = this.baseRadius + Math.sin(time * 0.001 + this.offset) * 6;
   }
   
   draw() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     
-    // 외곽 glow (blur 강함)
-    ctx.filter = 'blur(80px)';
+    // 외곽 glow
+    ctx.filter = 'blur(60px)';
     for (let i = 0; i < 2; i++) {
-      const glowRadius = this.radius * 1.5;
+      const glowRadius = this.radius * 1.3;
       const gradient = ctx.createRadialGradient(
         this.x, this.y, 0,
         this.x, this.y, glowRadius
@@ -68,51 +68,53 @@ class EnhancedBlob {
       ctx.fill();
     }
     
-    // 중간 레이어 (blur 중간)
-    ctx.filter = 'blur(50px)';
+    // 중간 레이어
+    ctx.filter = 'blur(40px)';
     const midGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
-      this.x, this.y, this.radius * 1.2
+      this.x, this.y, this.radius
     );
     midGradient.addColorStop(0, this.colors[0] + 'dd');
     midGradient.addColorStop(0.6, this.colors[1] + '99');
     midGradient.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius * 1.2, 0, Math.PI * 2);
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     ctx.fillStyle = midGradient;
     ctx.fill();
     
-    // 코어 (blur 약함)
-    ctx.filter = 'blur(30px)';
+    // 코어
+    ctx.filter = 'blur(25px)';
     const coreGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
-      this.x, this.y, this.radius * 0.8
+      this.x, this.y, this.radius * 0.7
     );
     coreGradient.addColorStop(0, this.colors[0] + 'ff');
     coreGradient.addColorStop(0.7, this.colors[1] + 'cc');
     coreGradient.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius * 0.8, 0, Math.PI * 2);
+    ctx.arc(this.x, this.y, this.radius * 0.7, 0, Math.PI * 2);
     ctx.fillStyle = coreGradient;
     ctx.fill();
     
     ctx.filter = 'none';
     ctx.restore();
     
-    // 라벨 (blur 없음)
+    // 라벨
     ctx.save();
     ctx.fillStyle = 'white';
     ctx.font = '16px Helvetica Neue, Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(this.label, this.x, this.y + this.radius + 40);
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowBlur = 10;
+    ctx.fillText(this.label, this.x, this.y + this.radius + 35);
     ctx.restore();
   }
 }
 
-// 4개 시간대 blobs 생성
+// 4개 시간대 blobs 생성 (크기 축소: 120 → 90)
 const timeBlobs = {};
 const labels = {
   '1pm': '(1) 1:00 pm',
@@ -125,17 +127,17 @@ for (const [key, data] of Object.entries(timeData)) {
   timeBlobs[key] = new EnhancedBlob(
     data.position.x,
     data.position.y,
-    120,  // 더 크게
+    90,  // 120 → 90
     data.colors,
     labels[key]
   );
 }
 
-// 중앙 흰 빛 (드래그 가능)
+// 중앙 흰 빛 (크기 축소: 100 → 70)
 const centerLight = new EnhancedBlob(
   canvas.width / 2,
   canvas.height / 2,
-  100,
+  70,  // 100 → 70
   ['#FFFFFF', '#F5F5F5', '#E0E0E0'],
   ''
 );
@@ -144,6 +146,32 @@ centerLight.draggable = true;
 let isDragging = false;
 let selectedTime = null;
 let isAnimating = false;
+let guideShown = false;
+
+// 드래그 가이드 표시
+function showDragGuide() {
+  if (guideShown) return;
+  guideShown = true;
+  
+  const guide = document.createElement('div');
+  guide.className = 'drag-guide';
+  guide.innerHTML = `
+    <div class="drag-guide-text">Drag the light to a time</div>
+    <div class="drag-arrow">↕</div>
+  `;
+  
+  document.getElementById('right-panel').appendChild(guide);
+  
+  // 3초 후 자동 제거
+  setTimeout(() => {
+    guide.remove();
+  }, 3000);
+}
+
+// 페이지 로드 후 가이드 표시
+setTimeout(() => {
+  showDragGuide();
+}, 500);
 
 // 드래그 이벤트
 canvas.addEventListener('mousedown', (e) => {
@@ -167,7 +195,6 @@ canvas.addEventListener('mousemove', (e) => {
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
   
-  // 호버 효과
   const dist = Math.sqrt((x - centerLight.x) ** 2 + (y - centerLight.y) ** 2);
   if (dist < centerLight.radius && !isDragging) {
     canvas.style.cursor = 'grab';
@@ -185,6 +212,40 @@ canvas.addEventListener('mouseup', (e) => {
   if (isDragging && !isAnimating) {
     isDragging = false;
     canvas.style.cursor = 'default';
+    checkDrop();
+  }
+});
+
+// 터치 이벤트 추가
+canvas.addEventListener('touchstart', (e) => {
+  if (isAnimating) return;
+  e.preventDefault();
+  
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0];
+  const x = touch.clientX - rect.left;
+  const y = touch.clientY - rect.top;
+  
+  const dist = Math.sqrt((x - centerLight.x) ** 2 + (y - centerLight.y) ** 2);
+  if (dist < centerLight.radius) {
+    isDragging = true;
+  }
+});
+
+canvas.addEventListener('touchmove', (e) => {
+  if (isDragging && !isAnimating) {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    centerLight.x = touch.clientX - rect.left;
+    centerLight.y = touch.clientY - rect.top;
+  }
+});
+
+canvas.addEventListener('touchend', (e) => {
+  if (isDragging && !isAnimating) {
+    e.preventDefault();
+    isDragging = false;
     checkDrop();
   }
 });
@@ -240,13 +301,11 @@ function changeColor(timeKey, originalX, originalY, originalRadius) {
   const newColors = timeData[timeKey].colors;
   const duration = 1000;
   const startTime = Date.now();
-  const oldColors = centerLight.colors;
   
   function animateColor() {
     const elapsed = Date.now() - startTime;
     const progress = Math.min(elapsed / duration, 1);
     
-    // 색 전환
     centerLight.colors = newColors;
     centerLight.radius = originalRadius * (0.6 + progress * 0.4);
     
@@ -303,13 +362,11 @@ function animate() {
   
   const time = Date.now();
   
-  // 4개 시간대 blobs
   Object.values(timeBlobs).forEach(blob => {
     blob.update(time);
     blob.draw();
   });
   
-  // 중앙 빛
   centerLight.update(time);
   centerLight.draw();
   
@@ -322,7 +379,6 @@ animate();
 nextBtn.disabled = true;
 nextBtn.addEventListener('click', () => {
   console.log('Selected time:', selectedTime);
-  // Stage 2로 이동
   alert(`다음 Stage로! 선택: ${selectedTime}`);
 });
 
@@ -334,7 +390,6 @@ window.addEventListener('resize', () => {
   canvas.width = canvas.offsetWidth;
   canvas.height = canvas.offsetHeight;
   
-  // blob 위치 비율 유지
   const scaleX = canvas.width / oldWidth;
   const scaleY = canvas.height / oldHeight;
   
