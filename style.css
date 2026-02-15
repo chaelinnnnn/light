@@ -57,11 +57,11 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 0px;
 }
 
 .opening-image {
-  max-width: 1350px;
+  max-width: 1300px;
   width: 90%;
   height: auto;
   border-radius: 0;
@@ -69,8 +69,8 @@ body {
 }
 
 .understand-btn {
-  padding: 12px 40px;
-  font-size: 14px;
+  padding: 12px 35px;
+  font-size: 13px;
   font-family: 'Helvetica Neue', 'Arial', sans-serif;
   border: 0px solid rgba(0,0,0,0.4);
   border-radius: 0;
