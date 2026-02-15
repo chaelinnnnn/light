@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>빛의 증언 기록소</title>
+  <title>How To Find Your Light</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,22 +11,11 @@
   
   <div id="overlay">
     
-    <!-- 입장 화면 -->
-    <div id="intro" class="screen active">
-      <div class="content">
-        <h1 class="title">빛의 증언 기록소</h1>
-        <p class="subtitle">당신이 관찰한 빛을 선택하세요</p>
-        
-        <div class="rules">
-          <h3>행동 지침서</h3>
-          <ol>
-            <li>투명 유리만 사용하십시오</li>
-            <li>15초 안에 선택하십시오</li>
-            <li>빛이 3회 깜빡이면 시선을 거두십시오</li>
-          </ol>
-        </div>
-        
-        <button class="start-btn" onclick="startExperience()">시작하기</button>
+    <!-- 오프닝 화면 -->
+    <div id="opening" class="screen active">
+      <div class="opening-content">
+        <img src="light.png" alt="How To Find Your Light" class="opening-image">
+        <button class="understand-btn" onclick="closeOpening()">I Understand</button>
       </div>
     </div>
     
@@ -34,7 +23,7 @@
     <div id="stage1" class="screen">
       <div class="stage-header">
         <div class="progress">●○○</div>
-        <div class="instruction">빛을 유리에 넣어주세요</div>
+        <div class="timer" id="timer1">10</div>
       </div>
       
       <div class="game-area">
@@ -44,46 +33,26 @@
         
         <div class="glass-containers">
           <div class="glass-wrapper" data-light="window">
-            <div class="glass colored" data-color="window">
+            <div class="glass" data-color="window">
               <div class="glass-shine"></div>
-            </div>
-            <button class="make-transparent" onclick="makeTransparent('window')">투명하게</button>
-            <div class="glass-label">
-              <div class="time">15:47</div>
-              <div class="temp">-2°C</div>
             </div>
           </div>
           
           <div class="glass-wrapper" data-light="street">
-            <div class="glass colored" data-color="street">
+            <div class="glass" data-color="street">
               <div class="glass-shine"></div>
-            </div>
-            <button class="make-transparent" onclick="makeTransparent('street')">투명하게</button>
-            <div class="glass-label">
-              <div class="time">19:22</div>
-              <div class="temp">-4°C</div>
             </div>
           </div>
           
           <div class="glass-wrapper" data-light="snow">
-            <div class="glass colored" data-color="snow">
+            <div class="glass" data-color="snow">
               <div class="glass-shine"></div>
-            </div>
-            <button class="make-transparent" onclick="makeTransparent('snow')">투명하게</button>
-            <div class="glass-label">
-              <div class="time">13:15</div>
-              <div class="temp">맑음</div>
             </div>
           </div>
           
           <div class="glass-wrapper" data-light="sunset">
-            <div class="glass colored" data-color="sunset">
+            <div class="glass" data-color="sunset">
               <div class="glass-shine"></div>
-            </div>
-            <button class="make-transparent" onclick="makeTransparent('sunset')">투명하게</button>
-            <div class="glass-label">
-              <div class="time">17:58</div>
-              <div class="temp">일몰</div>
             </div>
           </div>
         </div>
@@ -97,7 +66,6 @@
       <div class="stage-header">
         <div class="progress">●●○</div>
         <div class="instruction">빛이 머무르는 시간을 설정하세요</div>
-        <div class="timer" id="timer2">15</div>
       </div>
       
       <div class="game-area">
@@ -119,8 +87,6 @@
         
         <button class="next-btn" onclick="confirmTime()">확인</button>
       </div>
-      
-      <div class="warning-text" id="warning2"></div>
     </div>
     
     <!-- Stage 3: 움직임 선택 -->
@@ -165,8 +131,6 @@
           </div>
         </div>
       </div>
-      
-      <div class="warning-text" id="warning3"></div>
     </div>
     
     <!-- 생성 화면 -->
@@ -215,6 +179,33 @@
     <div id="ruleOverlay" class="rule-overlay">
       <div class="rule-content">
         <p id="ruleText"></p>
+      </div>
+    </div>
+    
+    <!-- 비정상 팝업 -->
+    <div id="abnormalPopup" class="abnormal-popup">
+      <div class="popup-content">
+        <h3>⚠️ ABNORMAL BEHAVIOR DETECTED</h3>
+        <p>Please enter the keyword to proceed:</p>
+        <input type="text" id="keywordInput" placeholder="Enter keyword">
+        <button onclick="checkKeyword()">Submit</button>
+      </div>
+    </div>
+    
+    <!-- 직원 호출 -->
+    <div id="staffCall" class="staff-call">
+      <div class="staff-content">
+        <h2>빛이 사라졌습니다</h2>
+        <p>직원을 호출하시겠습니까?</p>
+        <button class="call-btn" onclick="callStaff()">직원 호출</button>
+      </div>
+    </div>
+    
+    <!-- 요정 등장 -->
+    <div id="fairy" class="fairy-overlay">
+      <div class="fairy-content">
+        <div class="fairy">✨</div>
+        <p>빛의 요정이 당신의 빛을 복구했습니다</p>
       </div>
     </div>
     
