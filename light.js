@@ -444,7 +444,7 @@ class LightBeam {
   }
   
   update(delta) {
-    this.progress += delta * 0.0008;  // Slower
+    this.progress += delta * 0.0008;
     return this.progress >= 1;
   }
   
@@ -523,53 +523,58 @@ function initStage1() {
   setTimeout(() => showDragGuide(), 500);
 }
 
-// Stage 2 Initialization
+// Stage 2 Initialization (Bottom Layout)
 function initStage2() {
   leftImage.src = 'art2.png';
   
   stage2Blobs = {};
   const selectedColors = stage1Data[userChoices.time].colors;
   
+  // Bottom center layout - 4 shapes in a row
+  const shapeY = canvas.height * 0.72;
+  const shapeRadius = 50;
+  
   stage2Blobs['clover'] = new EnhancedBlob(
     canvas.width * 0.25,
-    canvas.height * 0.22,
-    85,
+    shapeY,
+    shapeRadius,
     selectedColors,
-    '(1) 하나의 완전한 형태',
+    '',
     'clover'
   );
   
-  stage2Blobs['heart'] = new EnhancedBlob(
-    canvas.width * 0.75,
-    canvas.height * 0.22,
-    85,
+  stage2Blobs['star'] = new EnhancedBlob(
+    canvas.width * 0.42,
+    shapeY,
+    shapeRadius,
     selectedColors,
-    '(2) 흩어진 조각들',
-    'heart'
+    '',
+    'star'
   );
   
-  stage2Blobs['star'] = new EnhancedBlob(
-    canvas.width * 0.25,
-    canvas.height * 0.68,
-    85,
+  stage2Blobs['heart'] = new EnhancedBlob(
+    canvas.width * 0.58,
+    shapeY,
+    shapeRadius,
     selectedColors,
-    '(3) 날카롭게 빛나는 선들',
-    'star'
+    '',
+    'heart'
   );
   
   stage2Blobs['triangle'] = new EnhancedBlob(
     canvas.width * 0.75,
-    canvas.height * 0.68,
-    85,
+    shapeY,
+    shapeRadius,
     selectedColors,
-    '(4) 부드럽게 번지는 색',
+    '',
     'triangle'
   );
   
+  // Center light larger and higher
   centerLight = new EnhancedBlob(
     canvas.width / 2,
-    canvas.height * 0.45,
-    70,
+    canvas.height * 0.35,
+    90,
     selectedColors,
     '',
     'circle'
@@ -660,7 +665,7 @@ canvas.addEventListener('click', (e) => {
   for (const [key, blob] of Object.entries(stage2Blobs)) {
     const dist = Math.sqrt((x - blob.x) ** 2 + (y - blob.y) ** 2);
     
-    if (dist < blob.radius + 20) {
+    if (dist < blob.radius + 30) {
       shootLight(key, blob);
       return;
     }
@@ -686,7 +691,7 @@ canvas.addEventListener('touchstart', (e) => {
     // Check shapes
     for (const [key, blob] of Object.entries(stage2Blobs)) {
       const dist = Math.sqrt((x - blob.x) ** 2 + (y - blob.y) ** 2);
-      if (dist < blob.radius + 20) {
+      if (dist < blob.radius + 30) {
         shootLight(key, blob);
         return;
       }
@@ -970,8 +975,13 @@ window.addEventListener('resize', () => {
     blob.y *= scaleY;
   }
   
-  centerLight.x = canvas.width / 2;
-  centerLight.y = canvas.height * 0.45;
+  if (currentStage === 1) {
+    centerLight.x = canvas.width / 2;
+    centerLight.y = canvas.height * 0.45;
+  } else {
+    centerLight.x = canvas.width / 2;
+    centerLight.y = canvas.height * 0.35;
+  }
 });
 
 // Start
