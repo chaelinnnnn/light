@@ -267,7 +267,7 @@ class EnhancedBlob {
   }
 }
 
-// ===== Stage 1 초기화 =====
+// ===== Stage 변수 =====
 let stage1Blobs = {};
 let stage2Blobs = {};
 let centerLight;
@@ -275,6 +275,7 @@ let isDragging = false;
 let isAnimating = false;
 let guideShown = false;
 
+// ===== Stage 1 초기화 =====
 function initStage1() {
   stage1Blobs = {};
   
@@ -303,7 +304,7 @@ function initStage1() {
 
 // ===== Stage 2 초기화 =====
 function initStage2() {
-  leftImage.src = 'light2.png';
+  leftImage.src = 'art2.png';
   
   stage2Blobs = {};
   const selectedColors = stage1Data[userChoices.time].colors;
@@ -351,7 +352,7 @@ function showDragGuide() {
   }, 3000);
 }
 
-// ===== 드래그 이벤트 =====
+// ===== 마우스 이벤트 =====
 canvas.addEventListener('mousedown', (e) => {
   if (isAnimating) return;
   
@@ -627,7 +628,9 @@ nextBtn.addEventListener('click', () => {
     guideShown = false;
     initStage2();
   } else if (currentStage === 2) {
-    alert(`Stage 3로! 시간: ${userChoices.time}, 형태: ${userChoices.shape}`);
+    console.log('Stage 3로!');
+    console.log('선택:', userChoices);
+    alert(`Stage 3로!\n시간: ${userChoices.time}\n형태: ${userChoices.shape}`);
   }
 });
 
