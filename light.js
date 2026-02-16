@@ -50,6 +50,7 @@ class EnhancedBlob {
     this.label = label;
     this.shapeType = shapeType;
     this.offset = Math.random() * Math.PI * 2;
+    this.glowIntensity = 1.0;
   }
   
   update(time) {
@@ -88,14 +89,16 @@ class EnhancedBlob {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     
+    const intensity = this.glowIntensity;
+    
     // Outer glow
     ctx.filter = 'blur(60px)';
     const glowGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
       this.x, this.y, this.radius * 1.8
     );
-    glowGradient.addColorStop(0, this.colors[0] + '66');
-    glowGradient.addColorStop(0.5, this.colors[1] + '44');
+    glowGradient.addColorStop(0, this.colors[0] + Math.floor(102 * intensity).toString(16).padStart(2, '0'));
+    glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
     glowGradient.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
@@ -109,9 +112,9 @@ class EnhancedBlob {
       this.x, this.y, 0,
       this.x, this.y, this.radius * 1.2
     );
-    midGradient.addColorStop(0, this.colors[0] + 'dd');
-    midGradient.addColorStop(0.7, this.colors[1] + 'aa');
-    midGradient.addColorStop(1, this.colors[2] + '44');
+    midGradient.addColorStop(0, this.colors[0] + Math.floor(221 * intensity).toString(16).padStart(2, '0'));
+    midGradient.addColorStop(0.7, this.colors[1] + Math.floor(170 * intensity).toString(16).padStart(2, '0'));
+    midGradient.addColorStop(1, this.colors[2] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
     
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius * 1.2, 0, Math.PI * 2);
@@ -124,9 +127,9 @@ class EnhancedBlob {
       this.x, this.y, 0,
       this.x, this.y, this.radius * 0.9
     );
-    coreGradient.addColorStop(0, this.colors[0] + 'ff');
-    coreGradient.addColorStop(0.7, this.colors[1] + 'ee');
-    coreGradient.addColorStop(1, this.colors[2] + '99');
+    coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+    coreGradient.addColorStop(0.7, this.colors[1] + Math.floor(238 * intensity).toString(16).padStart(2, '0'));
+    coreGradient.addColorStop(1, this.colors[2] + Math.floor(153 * intensity).toString(16).padStart(2, '0'));
     
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius * 0.9, 0, Math.PI * 2);
@@ -175,11 +178,13 @@ class EnhancedBlob {
   }
   
   drawClearLeaf(x, y, r) {
+    const intensity = this.glowIntensity;
+    
     // Outer glow
     ctx.filter = 'blur(25px)';
     const glowGradient = ctx.createRadialGradient(x, y, 0, x, y, r * 1.8);
-    glowGradient.addColorStop(0, this.colors[0] + '44');
-    glowGradient.addColorStop(0.5, this.colors[1] + '33');
+    glowGradient.addColorStop(0, this.colors[0] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
+    glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
     glowGradient.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
@@ -190,9 +195,9 @@ class EnhancedBlob {
     // Solid core
     ctx.filter = 'blur(8px)';
     const coreGradient = ctx.createRadialGradient(x, y, 0, x, y, r * 1.2);
-    coreGradient.addColorStop(0, this.colors[0] + 'ff');
-    coreGradient.addColorStop(0.5, this.colors[1] + 'ff');
-    coreGradient.addColorStop(1, this.colors[2] + 'cc');
+    coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+    coreGradient.addColorStop(0.5, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+    coreGradient.addColorStop(1, this.colors[2] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
     
     ctx.beginPath();
     ctx.arc(x, y, r * 1.2, 0, Math.PI * 2);
@@ -206,6 +211,7 @@ class EnhancedBlob {
     ctx.globalCompositeOperation = 'lighter';
     
     const size = this.radius * 0.8;
+    const intensity = this.glowIntensity;
     
     // Left circle - outer glow
     ctx.filter = 'blur(25px)';
@@ -213,8 +219,8 @@ class EnhancedBlob {
       this.x - size * 0.5, this.y - size * 0.3, 0,
       this.x - size * 0.5, this.y - size * 0.3, size * 1.0
     );
-    glow1.addColorStop(0, this.colors[0] + '44');
-    glow1.addColorStop(0.5, this.colors[1] + '33');
+    glow1.addColorStop(0, this.colors[0] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
+    glow1.addColorStop(0.5, this.colors[1] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
     glow1.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
@@ -228,9 +234,9 @@ class EnhancedBlob {
       this.x - size * 0.5, this.y - size * 0.3, 0,
       this.x - size * 0.5, this.y - size * 0.3, size * 0.65
     );
-    core1.addColorStop(0, this.colors[0] + 'ff');
-    core1.addColorStop(0.6, this.colors[1] + 'ff');
-    core1.addColorStop(1, this.colors[2] + 'cc');
+    core1.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+    core1.addColorStop(0.6, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+    core1.addColorStop(1, this.colors[2] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
     
     ctx.beginPath();
     ctx.arc(this.x - size * 0.5, this.y - size * 0.3, size * 0.65, 0, Math.PI * 2);
@@ -243,8 +249,8 @@ class EnhancedBlob {
       this.x + size * 0.5, this.y - size * 0.3, 0,
       this.x + size * 0.5, this.y - size * 0.3, size * 1.0
     );
-    glow2.addColorStop(0, this.colors[1] + '44');
-    glow2.addColorStop(0.5, this.colors[2] + '33');
+    glow2.addColorStop(0, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
+    glow2.addColorStop(0.5, this.colors[2] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
     glow2.addColorStop(1, this.colors[0] + '00');
     
     ctx.beginPath();
@@ -258,9 +264,9 @@ class EnhancedBlob {
       this.x + size * 0.5, this.y - size * 0.3, 0,
       this.x + size * 0.5, this.y - size * 0.3, size * 0.65
     );
-    core2.addColorStop(0, this.colors[1] + 'ff');
-    core2.addColorStop(0.6, this.colors[2] + 'ff');
-    core2.addColorStop(1, this.colors[0] + 'cc');
+    core2.addColorStop(0, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+    core2.addColorStop(0.6, this.colors[2] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+    core2.addColorStop(1, this.colors[0] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
     
     ctx.beginPath();
     ctx.arc(this.x + size * 0.5, this.y - size * 0.3, size * 0.65, 0, Math.PI * 2);
@@ -273,8 +279,8 @@ class EnhancedBlob {
       this.x, this.y + size * 0.3, 0,
       this.x, this.y + size * 0.3, size * 1.5
     );
-    glow3.addColorStop(0, this.colors[2] + '44');
-    glow3.addColorStop(0.5, this.colors[0] + '33');
+    glow3.addColorStop(0, this.colors[2] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
+    glow3.addColorStop(0.5, this.colors[0] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
     glow3.addColorStop(1, this.colors[1] + '00');
     
     ctx.beginPath();
@@ -291,9 +297,9 @@ class EnhancedBlob {
       this.x, this.y + size * 0.3, 0,
       this.x, this.y + size * 0.3, size * 1.0
     );
-    core3.addColorStop(0, this.colors[2] + 'ff');
-    core3.addColorStop(0.5, this.colors[0] + 'ff');
-    core3.addColorStop(1, this.colors[1] + 'cc');
+    core3.addColorStop(0, this.colors[2] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+    core3.addColorStop(0.5, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+    core3.addColorStop(1, this.colors[1] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
     
     ctx.beginPath();
     ctx.moveTo(this.x - size * 1.0, this.y - size * 0.1);
@@ -315,6 +321,7 @@ class EnhancedBlob {
     const spikes = 5;
     const outerRadius = this.radius * 0.9;
     const innerRadius = this.radius * 0.4;
+    const intensity = this.glowIntensity;
     
     // Outer glow
     ctx.filter = 'blur(30px)';
@@ -322,8 +329,8 @@ class EnhancedBlob {
       this.x, this.y, 0,
       this.x, this.y, outerRadius * 1.5
     );
-    glowGradient.addColorStop(0, this.colors[0] + '55');
-    glowGradient.addColorStop(0.5, this.colors[1] + '44');
+    glowGradient.addColorStop(0, this.colors[0] + Math.floor(85 * intensity).toString(16).padStart(2, '0'));
+    glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
     glowGradient.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
@@ -349,9 +356,9 @@ class EnhancedBlob {
       this.x, this.y, 0,
       this.x, this.y, outerRadius * 1.1
     );
-    coreGradient.addColorStop(0, this.colors[0] + 'ff');
-    coreGradient.addColorStop(0.4, this.colors[1] + 'ff');
-    coreGradient.addColorStop(0.8, this.colors[2] + 'ee');
+    coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+    coreGradient.addColorStop(0.4, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+    coreGradient.addColorStop(0.8, this.colors[2] + Math.floor(238 * intensity).toString(16).padStart(2, '0'));
     coreGradient.addColorStop(1, this.colors[0] + '00');
     
     ctx.beginPath();
@@ -381,6 +388,7 @@ class EnhancedBlob {
     ctx.globalCompositeOperation = 'lighter';
     
     const size = this.radius * 1.2;
+    const intensity = this.glowIntensity;
     
     // Outer glow
     ctx.filter = 'blur(30px)';
@@ -388,8 +396,8 @@ class EnhancedBlob {
       this.x, this.y, 0,
       this.x, this.y, size * 1.5
     );
-    glowGradient.addColorStop(0, this.colors[0] + '55');
-    glowGradient.addColorStop(0.5, this.colors[1] + '44');
+    glowGradient.addColorStop(0, this.colors[0] + Math.floor(85 * intensity).toString(16).padStart(2, '0'));
+    glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
     glowGradient.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
@@ -406,9 +414,9 @@ class EnhancedBlob {
       this.x, this.y, 0,
       this.x, this.y, size * 1.0
     );
-    coreGradient.addColorStop(0, this.colors[0] + 'ff');
-    coreGradient.addColorStop(0.4, this.colors[1] + 'ff');
-    coreGradient.addColorStop(0.8, this.colors[2] + 'ee');
+    coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+    coreGradient.addColorStop(0.4, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+    coreGradient.addColorStop(0.8, this.colors[2] + Math.floor(238 * intensity).toString(16).padStart(2, '0'));
     coreGradient.addColorStop(1, this.colors[0] + '00');
     
     ctx.beginPath();
@@ -436,7 +444,7 @@ class LightBeam {
   }
   
   update(delta) {
-    this.progress += delta * 0.003;
+    this.progress += delta * 0.0008;  // Slower
     return this.progress >= 1;
   }
   
@@ -447,8 +455,8 @@ class LightBeam {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     
-    // Light beam
-    ctx.filter = 'blur(20px)';
+    // Thick light beam with glow
+    ctx.filter = 'blur(30px)';
     const gradient = ctx.createLinearGradient(
       this.startX, this.startY,
       currentX, currentY
@@ -457,6 +465,15 @@ class LightBeam {
     gradient.addColorStop(0.5, this.colors[1] + 'ff');
     gradient.addColorStop(1, this.colors[2] + 'ff');
     
+    ctx.strokeStyle = gradient;
+    ctx.lineWidth = 15;
+    ctx.beginPath();
+    ctx.moveTo(this.startX, this.startY);
+    ctx.lineTo(currentX, currentY);
+    ctx.stroke();
+    
+    // Inner beam
+    ctx.filter = 'blur(10px)';
     ctx.strokeStyle = gradient;
     ctx.lineWidth = 8;
     ctx.beginPath();
@@ -473,6 +490,7 @@ class LightBeam {
 let stage1Blobs = {};
 let stage2Blobs = {};
 let centerLight;
+let targetShapeBlob = null;
 let isDragging = false;
 let isAnimating = false;
 let guideShown = false;
@@ -794,12 +812,13 @@ function returnToCenter(x, y, radius) {
   animateReturn();
 }
 
-// Stage 2: Shoot Light
+// Stage 2: Shoot Light (3-phase animation)
 function shootLight(shapeKey, targetBlob) {
   isAnimating = true;
   userChoices.shape = shapeKey;
+  targetShapeBlob = targetBlob;
   
-  // Create light beam
+  // Phase 1: Shoot beam (1.5s)
   lightBeam = new LightBeam(
     centerLight.x,
     centerLight.y,
@@ -808,45 +827,79 @@ function shootLight(shapeKey, targetBlob) {
     centerLight.colors
   );
   
-  const startTime = Date.now();
+  const phase1Start = Date.now();
   
-  function animateBeam() {
-    const elapsed = Date.now() - startTime;
+  function animatePhase1() {
+    const elapsed = Date.now() - phase1Start;
     const isComplete = lightBeam.update(elapsed);
     
     if (!isComplete) {
-      requestAnimationFrame(animateBeam);
+      requestAnimationFrame(animatePhase1);
     } else {
-      lightBeam = null;
+      // Phase 2: Illuminate shape (1s)
       setTimeout(() => {
-        changeShape(shapeKey);
+        animatePhase2();
       }, 200);
     }
   }
   
-  animateBeam();
-}
-
-function changeShape(shapeKey) {
-  const newShapeType = shapeKey;
-  const duration = 1000;
-  const startTime = Date.now();
-  
-  function animateShape() {
-    const elapsed = Date.now() - startTime;
-    const progress = Math.min(elapsed / duration, 1);
+  function animatePhase2() {
+    const duration = 1000;
+    const startTime = Date.now();
     
-    centerLight.shapeType = newShapeType;
-    
-    if (progress < 1) {
-      requestAnimationFrame(animateShape);
-    } else {
-      isAnimating = false;
-      nextBtn.disabled = false;
+    function illuminate() {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Shape brightens
+      targetShapeBlob.glowIntensity = 1.0 + progress * 1.5;
+      
+      // Center light dims
+      centerLight.glowIntensity = 1.0 - progress * 0.6;
+      
+      if (progress < 1) {
+        requestAnimationFrame(illuminate);
+      } else {
+        lightBeam = null;
+        // Phase 3: Transform (0.8s)
+        setTimeout(() => {
+          animatePhase3(shapeKey);
+        }, 300);
+      }
     }
+    
+    illuminate();
   }
   
-  animateShape();
+  function animatePhase3(shapeKey) {
+    const duration = 800;
+    const startTime = Date.now();
+    
+    function transform() {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      centerLight.shapeType = shapeKey;
+      centerLight.glowIntensity = 0.4 + progress * 0.6;
+      targetShapeBlob.glowIntensity = 2.5 - progress * 1.5;
+      
+      if (progress < 1) {
+        requestAnimationFrame(transform);
+      } else {
+        // Reset
+        centerLight.glowIntensity = 1.0;
+        targetShapeBlob.glowIntensity = 1.0;
+        targetShapeBlob = null;
+        
+        isAnimating = false;
+        nextBtn.disabled = false;
+      }
+    }
+    
+    transform();
+  }
+  
+  animatePhase1();
 }
 
 // Easing Function
