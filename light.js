@@ -12,23 +12,23 @@ let userChoices = {
   shape: null
 };
 
-// Stage 1 Data
+// Stage 1 Data (간격 더 벌림)
 const stage1Data = {
   '1pm': {
     colors: ['#FF6B9D', '#E91E63', '#C2185B'],
-    position: { x: canvas.width * 0.3, y: canvas.height * 0.25 }
+    position: { x: canvas.width * 0.25, y: canvas.height * 0.22 }  // 0.3, 0.25 -> 0.25, 0.22
   },
   '5pm': {
     colors: ['#FFEAA7', '#FDD835', '#F9A825'],
-    position: { x: canvas.width * 0.7, y: canvas.height * 0.25 }
+    position: { x: canvas.width * 0.75, y: canvas.height * 0.22 }  // 0.7, 0.25 -> 0.75, 0.22
   },
   '11pm': {
     colors: ['#FFB6C1', '#F8BBD0', '#E1BEE7'],
-    position: { x: canvas.width * 0.3, y: canvas.height * 0.6 }
+    position: { x: canvas.width * 0.25, y: canvas.height * 0.68 }  // 0.3, 0.6 -> 0.25, 0.68
   },
   '7am': {
     colors: ['#74B9FF', '#42A5F5', '#1E88E5'],
-    position: { x: canvas.width * 0.7, y: canvas.height * 0.6 }
+    position: { x: canvas.width * 0.75, y: canvas.height * 0.68 }  // 0.7, 0.6 -> 0.75, 0.68
   }
 };
 
@@ -83,35 +83,50 @@ class EnhancedBlob {
     }
   }
   
-  // Stage 1: Circle - Clear outline
+  // Stage 1: Circle (더 흐리게)
   drawCircle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     
-    // Outer glow (soft)
-    ctx.filter = 'blur(40px)';
+    // Outer glow (더 강한 blur)
+    ctx.filter = 'blur(60px)';  // 40 -> 60
     const glowGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
-      this.x, this.y, this.radius * 1.6
+      this.x, this.y, this.radius * 1.8  // 1.6 -> 1.8
     );
-    glowGradient.addColorStop(0, this.colors[0] + '44');
-    glowGradient.addColorStop(0.5, this.colors[1] + '22');
+    glowGradient.addColorStop(0, this.colors[0] + '66');  // 44 -> 66
+    glowGradient.addColorStop(0.5, this.colors[1] + '44');  // 22 -> 44
     glowGradient.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius * 1.6, 0, Math.PI * 2);
+    ctx.arc(this.x, this.y, this.radius * 1.8, 0, Math.PI * 2);
     ctx.fillStyle = glowGradient;
     ctx.fill();
     
-    // Solid core (clear)
-    ctx.filter = 'blur(15px)';
+    // Mid layer
+    ctx.filter = 'blur(35px)';  // 추가
+    const midGradient = ctx.createRadialGradient(
+      this.x, this.y, 0,
+      this.x, this.y, this.radius * 1.2
+    );
+    midGradient.addColorStop(0, this.colors[0] + 'dd');
+    midGradient.addColorStop(0.7, this.colors[1] + 'aa');
+    midGradient.addColorStop(1, this.colors[2] + '44');
+    
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius * 1.2, 0, Math.PI * 2);
+    ctx.fillStyle = midGradient;
+    ctx.fill();
+    
+    // Core (약간 흐리게)
+    ctx.filter = 'blur(20px)';  // 15 -> 20
     const coreGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
       this.x, this.y, this.radius * 0.9
     );
     coreGradient.addColorStop(0, this.colors[0] + 'ff');
-    coreGradient.addColorStop(0.7, this.colors[1] + 'ff');
-    coreGradient.addColorStop(1, this.colors[2] + 'aa');
+    coreGradient.addColorStop(0.7, this.colors[1] + 'ee');
+    coreGradient.addColorStop(1, this.colors[2] + '99');
     
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius * 0.9, 0, Math.PI * 2);
@@ -122,7 +137,7 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  // Stage 2-1: Clover - Clear outline
+  // Stage 2-1: Clover (더 뚜렷하게)
   drawClover() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -139,14 +154,14 @@ class EnhancedBlob {
     this.drawClearLeaf(this.x + leafRadius * 1.4, this.y + leafRadius * 0.2, leafRadius);
     
     // Stem
-    ctx.filter = 'blur(15px)';
+    ctx.filter = 'blur(10px)';  // 15 -> 10
     ctx.save();
     ctx.translate(this.x, this.y + leafRadius * 1.8);
     ctx.scale(0.4, 1);
     
     const stemGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, leafRadius * 1.2);
     stemGradient.addColorStop(0, this.colors[0] + 'ff');
-    stemGradient.addColorStop(0.8, this.colors[1] + 'aa');
+    stemGradient.addColorStop(0.8, this.colors[1] + 'cc');
     stemGradient.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
@@ -160,11 +175,11 @@ class EnhancedBlob {
   }
   
   drawClearLeaf(x, y, r) {
-    // Outer glow
-    ctx.filter = 'blur(30px)';
+    // Outer glow (줄임)
+    ctx.filter = 'blur(25px)';  // 30 -> 25
     const glowGradient = ctx.createRadialGradient(x, y, 0, x, y, r * 1.8);
-    glowGradient.addColorStop(0, this.colors[0] + '33');
-    glowGradient.addColorStop(0.5, this.colors[1] + '22');
+    glowGradient.addColorStop(0, this.colors[0] + '44');  // 33 -> 44
+    glowGradient.addColorStop(0.5, this.colors[1] + '33');  // 22 -> 33
     glowGradient.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
@@ -172,12 +187,12 @@ class EnhancedBlob {
     ctx.fillStyle = glowGradient;
     ctx.fill();
     
-    // Solid core
-    ctx.filter = 'blur(12px)';
+    // Solid core (더 선명)
+    ctx.filter = 'blur(8px)';  // 12 -> 8
     const coreGradient = ctx.createRadialGradient(x, y, 0, x, y, r * 1.2);
     coreGradient.addColorStop(0, this.colors[0] + 'ff');
-    coreGradient.addColorStop(0.6, this.colors[1] + 'ff');
-    coreGradient.addColorStop(1, this.colors[2] + 'aa');
+    coreGradient.addColorStop(0.5, this.colors[1] + 'ff');
+    coreGradient.addColorStop(1, this.colors[2] + 'cc');  // aa -> cc
     
     ctx.beginPath();
     ctx.arc(x, y, r * 1.2, 0, Math.PI * 2);
@@ -185,7 +200,7 @@ class EnhancedBlob {
     ctx.fill();
   }
   
-  // Stage 2-2: Heart - Clear outline
+  // Stage 2-2: Heart (더 뚜렷하게)
   drawHeart() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -193,13 +208,13 @@ class EnhancedBlob {
     const size = this.radius * 0.8;
     
     // Left circle - outer glow
-    ctx.filter = 'blur(30px)';
+    ctx.filter = 'blur(25px)';  // 30 -> 25
     const glow1 = ctx.createRadialGradient(
       this.x - size * 0.5, this.y - size * 0.3, 0,
       this.x - size * 0.5, this.y - size * 0.3, size * 1.0
     );
-    glow1.addColorStop(0, this.colors[0] + '33');
-    glow1.addColorStop(0.5, this.colors[1] + '22');
+    glow1.addColorStop(0, this.colors[0] + '44');  // 33 -> 44
+    glow1.addColorStop(0.5, this.colors[1] + '33');  // 22 -> 33
     glow1.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
@@ -208,14 +223,14 @@ class EnhancedBlob {
     ctx.fill();
     
     // Left circle - solid core
-    ctx.filter = 'blur(12px)';
+    ctx.filter = 'blur(8px)';  // 12 -> 8
     const core1 = ctx.createRadialGradient(
       this.x - size * 0.5, this.y - size * 0.3, 0,
       this.x - size * 0.5, this.y - size * 0.3, size * 0.65
     );
     core1.addColorStop(0, this.colors[0] + 'ff');
-    core1.addColorStop(0.7, this.colors[1] + 'ff');
-    core1.addColorStop(1, this.colors[2] + 'aa');
+    core1.addColorStop(0.6, this.colors[1] + 'ff');
+    core1.addColorStop(1, this.colors[2] + 'cc');  // aa -> cc
     
     ctx.beginPath();
     ctx.arc(this.x - size * 0.5, this.y - size * 0.3, size * 0.65, 0, Math.PI * 2);
@@ -223,13 +238,13 @@ class EnhancedBlob {
     ctx.fill();
     
     // Right circle - outer glow
-    ctx.filter = 'blur(30px)';
+    ctx.filter = 'blur(25px)';
     const glow2 = ctx.createRadialGradient(
       this.x + size * 0.5, this.y - size * 0.3, 0,
       this.x + size * 0.5, this.y - size * 0.3, size * 1.0
     );
-    glow2.addColorStop(0, this.colors[1] + '33');
-    glow2.addColorStop(0.5, this.colors[2] + '22');
+    glow2.addColorStop(0, this.colors[1] + '44');
+    glow2.addColorStop(0.5, this.colors[2] + '33');
     glow2.addColorStop(1, this.colors[0] + '00');
     
     ctx.beginPath();
@@ -238,14 +253,14 @@ class EnhancedBlob {
     ctx.fill();
     
     // Right circle - solid core
-    ctx.filter = 'blur(12px)';
+    ctx.filter = 'blur(8px)';
     const core2 = ctx.createRadialGradient(
       this.x + size * 0.5, this.y - size * 0.3, 0,
       this.x + size * 0.5, this.y - size * 0.3, size * 0.65
     );
     core2.addColorStop(0, this.colors[1] + 'ff');
-    core2.addColorStop(0.7, this.colors[2] + 'ff');
-    core2.addColorStop(1, this.colors[0] + 'aa');
+    core2.addColorStop(0.6, this.colors[2] + 'ff');
+    core2.addColorStop(1, this.colors[0] + 'cc');
     
     ctx.beginPath();
     ctx.arc(this.x + size * 0.5, this.y - size * 0.3, size * 0.65, 0, Math.PI * 2);
@@ -253,13 +268,13 @@ class EnhancedBlob {
     ctx.fill();
     
     // Bottom triangle - glow
-    ctx.filter = 'blur(30px)';
+    ctx.filter = 'blur(25px)';
     const glow3 = ctx.createRadialGradient(
       this.x, this.y + size * 0.3, 0,
       this.x, this.y + size * 0.3, size * 1.5
     );
-    glow3.addColorStop(0, this.colors[2] + '33');
-    glow3.addColorStop(0.5, this.colors[0] + '22');
+    glow3.addColorStop(0, this.colors[2] + '44');
+    glow3.addColorStop(0.5, this.colors[0] + '33');
     glow3.addColorStop(1, this.colors[1] + '00');
     
     ctx.beginPath();
@@ -271,14 +286,14 @@ class EnhancedBlob {
     ctx.fill();
     
     // Bottom triangle - solid
-    ctx.filter = 'blur(15px)';
+    ctx.filter = 'blur(10px)';  // 15 -> 10
     const core3 = ctx.createRadialGradient(
       this.x, this.y + size * 0.3, 0,
       this.x, this.y + size * 0.3, size * 1.0
     );
     core3.addColorStop(0, this.colors[2] + 'ff');
     core3.addColorStop(0.5, this.colors[0] + 'ff');
-    core3.addColorStop(1, this.colors[1] + 'aa');
+    core3.addColorStop(1, this.colors[1] + 'cc');
     
     ctx.beginPath();
     ctx.moveTo(this.x - size * 1.0, this.y - size * 0.1);
@@ -292,7 +307,7 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  // Stage 2-3: Star - Clear outline
+  // Stage 2-3: Star (더 뚜렷하게)
   drawStar() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -302,13 +317,13 @@ class EnhancedBlob {
     const innerRadius = this.radius * 0.4;
     
     // Outer glow
-    ctx.filter = 'blur(35px)';
+    ctx.filter = 'blur(30px)';  // 35 -> 30
     const glowGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
       this.x, this.y, outerRadius * 1.5
     );
-    glowGradient.addColorStop(0, this.colors[0] + '44');
-    glowGradient.addColorStop(0.5, this.colors[1] + '33');
+    glowGradient.addColorStop(0, this.colors[0] + '55');  // 44 -> 55
+    glowGradient.addColorStop(0.5, this.colors[1] + '44');  // 33 -> 44
     glowGradient.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
@@ -329,14 +344,14 @@ class EnhancedBlob {
     ctx.fill();
     
     // Solid core
-    ctx.filter = 'blur(12px)';
+    ctx.filter = 'blur(8px)';  // 12 -> 8
     const coreGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
       this.x, this.y, outerRadius * 1.1
     );
     coreGradient.addColorStop(0, this.colors[0] + 'ff');
     coreGradient.addColorStop(0.4, this.colors[1] + 'ff');
-    coreGradient.addColorStop(0.8, this.colors[2] + 'dd');
+    coreGradient.addColorStop(0.8, this.colors[2] + 'ee');  // dd -> ee
     coreGradient.addColorStop(1, this.colors[0] + '00');
     
     ctx.beginPath();
@@ -360,7 +375,7 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  // Stage 2-4: Triangle - Clear outline
+  // Stage 2-4: Triangle (더 뚜렷하게)
   drawTriangle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -368,13 +383,13 @@ class EnhancedBlob {
     const size = this.radius * 1.2;
     
     // Outer glow
-    ctx.filter = 'blur(35px)';
+    ctx.filter = 'blur(30px)';  // 35 -> 30
     const glowGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
       this.x, this.y, size * 1.5
     );
-    glowGradient.addColorStop(0, this.colors[0] + '44');
-    glowGradient.addColorStop(0.5, this.colors[1] + '33');
+    glowGradient.addColorStop(0, this.colors[0] + '55');  // 44 -> 55
+    glowGradient.addColorStop(0.5, this.colors[1] + '44');  // 33 -> 44
     glowGradient.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
@@ -386,14 +401,14 @@ class EnhancedBlob {
     ctx.fill();
     
     // Solid core
-    ctx.filter = 'blur(15px)';
+    ctx.filter = 'blur(10px)';  // 15 -> 10
     const coreGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
       this.x, this.y, size * 1.0
     );
     coreGradient.addColorStop(0, this.colors[0] + 'ff');
     coreGradient.addColorStop(0.4, this.colors[1] + 'ff');
-    coreGradient.addColorStop(0.8, this.colors[2] + 'dd');
+    coreGradient.addColorStop(0.8, this.colors[2] + 'ee');  // dd -> ee
     coreGradient.addColorStop(1, this.colors[0] + '00');
     
     ctx.beginPath();
@@ -434,7 +449,7 @@ function initStage1() {
   
   centerLight = new EnhancedBlob(
     canvas.width / 2,
-    canvas.height * 0.42,
+    canvas.height * 0.45,  // 0.42 -> 0.45 (중앙으로)
     85,
     ['#FFFFFF', '#F5F5F5', '#E0E0E0'],
     '',
@@ -444,7 +459,7 @@ function initStage1() {
   setTimeout(() => showDragGuide(), 500);
 }
 
-// Stage 2 Initialization
+// Stage 2 Initialization (간격 더 벌림)
 function initStage2() {
   leftImage.src = 'art2.png';
   
@@ -452,8 +467,8 @@ function initStage2() {
   const selectedColors = stage1Data[userChoices.time].colors;
   
   stage2Blobs['clover'] = new EnhancedBlob(
-    canvas.width * 0.3,
-    canvas.height * 0.25,
+    canvas.width * 0.25,  // 0.3 -> 0.25
+    canvas.height * 0.22,  // 0.25 -> 0.22
     110,
     selectedColors,
     '(1) 하나의 완전한 형태',
@@ -461,8 +476,8 @@ function initStage2() {
   );
   
   stage2Blobs['heart'] = new EnhancedBlob(
-    canvas.width * 0.7,
-    canvas.height * 0.25,
+    canvas.width * 0.75,  // 0.7 -> 0.75
+    canvas.height * 0.22,  // 0.25 -> 0.22
     110,
     selectedColors,
     '(2) 흩어진 조각들',
@@ -470,8 +485,8 @@ function initStage2() {
   );
   
   stage2Blobs['star'] = new EnhancedBlob(
-    canvas.width * 0.3,
-    canvas.height * 0.6,
+    canvas.width * 0.25,  // 0.3 -> 0.25
+    canvas.height * 0.68,  // 0.6 -> 0.68
     110,
     selectedColors,
     '(3) 날카롭게 빛나는 선들',
@@ -479,8 +494,8 @@ function initStage2() {
   );
   
   stage2Blobs['triangle'] = new EnhancedBlob(
-    canvas.width * 0.7,
-    canvas.height * 0.6,
+    canvas.width * 0.75,  // 0.7 -> 0.75
+    canvas.height * 0.68,  // 0.6 -> 0.68
     110,
     selectedColors,
     '(4) 부드럽게 번지는 색',
@@ -489,7 +504,7 @@ function initStage2() {
   
   centerLight = new EnhancedBlob(
     canvas.width / 2,
-    canvas.height * 0.42,
+    canvas.height * 0.45,  // 0.42 -> 0.45
     85,
     selectedColors,
     '',
@@ -736,7 +751,7 @@ function returnToCenter(x, y, radius) {
   const startX = centerLight.x;
   const startY = centerLight.y;
   const centerX = canvas.width / 2;
-  const centerY = canvas.height * 0.42;
+  const centerY = canvas.height * 0.45;  // 0.42 -> 0.45
   
   function animateReturn() {
     const elapsed = Date.now() - startTime;
@@ -819,7 +834,7 @@ window.addEventListener('resize', () => {
   }
   
   centerLight.x = canvas.width / 2;
-  centerLight.y = canvas.height * 0.42;
+  centerLight.y = canvas.height * 0.45;
 });
 
 // Start
