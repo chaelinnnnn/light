@@ -611,7 +611,7 @@ function absorbShape(shapeKey, targetBlob) {
 }
 
 function changeShape(shapeKey, originalX, originalY, originalRadius) {
-  const newShapeType = shapeKey; // 'clover', 'heart', 'star', 'triangle'
+  const newShapeType = shapeKey;
   const duration = 1000;
   const startTime = Date.now();
   
