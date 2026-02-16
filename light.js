@@ -12,7 +12,7 @@ let userChoices = {
   shape: null
 };
 
-// ===== Stage 1 데이터 =====
+// Stage 1 Data
 const stage1Data = {
   '1pm': {
     colors: ['#FF6B9D', '#E91E63', '#C2185B'],
@@ -39,7 +39,7 @@ const stage1Labels = {
   '7am': '(4) 7:00 am'
 };
 
-// ===== Blob 클래스 =====
+// Blob Class
 class EnhancedBlob {
   constructor(x, y, radius, colors, label, shapeType = 'circle') {
     this.x = x;
@@ -69,7 +69,7 @@ class EnhancedBlob {
       this.drawTriangle();
     }
     
-    // 라벨
+    // Label
     if (this.label) {
       ctx.save();
       ctx.fillStyle = 'white';
@@ -83,12 +83,12 @@ class EnhancedBlob {
     }
   }
   
-  // Stage 1: 기본 원 (Blur 감소)
+  // Stage 1: Basic Circle
   drawCircle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     
-    // 외곽 glow - blur 줄임 (60 → 40)
+    // Outer glow
     ctx.filter = 'blur(40px)';
     for (let i = 0; i < 2; i++) {
       const glowRadius = this.radius * 1.3;
@@ -107,7 +107,7 @@ class EnhancedBlob {
       ctx.fill();
     }
     
-    // 중간 레이어 - blur 줄임 (40 → 30)
+    // Mid layer
     ctx.filter = 'blur(30px)';
     const midGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
@@ -122,7 +122,7 @@ class EnhancedBlob {
     ctx.fillStyle = midGradient;
     ctx.fill();
     
-    // 코어 - blur 줄임 (25 → 20)
+    // Core
     ctx.filter = 'blur(20px)';
     const coreGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
@@ -141,7 +141,7 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  // Stage 2-1: 클로버 (Blur 감소: 45 → 30)
+  // Stage 2-1: Clover
   drawClover() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -149,16 +149,16 @@ class EnhancedBlob {
     
     const leafRadius = this.radius * 0.35;
     
-    // 위쪽 잎
+    // Top leaf
     this.drawLeaf(this.x, this.y - leafRadius * 1.6, leafRadius);
     
-    // 왼쪽 잎
+    // Left leaf
     this.drawLeaf(this.x - leafRadius * 1.4, this.y + leafRadius * 0.2, leafRadius);
     
-    // 오른쪽 잎
+    // Right leaf
     this.drawLeaf(this.x + leafRadius * 1.4, this.y + leafRadius * 0.2, leafRadius);
     
-    // 줄기 (blur 감소: 35 → 25)
+    // Stem
     ctx.filter = 'blur(25px)';
     ctx.save();
     ctx.translate(this.x, this.y + leafRadius * 1.8);
@@ -190,7 +190,7 @@ class EnhancedBlob {
     ctx.fill();
   }
   
-  // Stage 2-2: 하트 (Blur 감소: 50 → 35)
+  // Stage 2-2: Heart
   drawHeart() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -198,7 +198,7 @@ class EnhancedBlob {
     
     const size = this.radius * 0.8;
     
-    // 왼쪽 반원
+    // Left circle
     const gradient1 = ctx.createRadialGradient(
       this.x - size * 0.5, this.y - size * 0.3, 0,
       this.x - size * 0.5, this.y - size * 0.3, size * 0.7
@@ -212,7 +212,7 @@ class EnhancedBlob {
     ctx.fillStyle = gradient1;
     ctx.fill();
     
-    // 오른쪽 반원
+    // Right circle
     const gradient2 = ctx.createRadialGradient(
       this.x + size * 0.5, this.y - size * 0.3, 0,
       this.x + size * 0.5, this.y - size * 0.3, size * 0.7
@@ -226,7 +226,7 @@ class EnhancedBlob {
     ctx.fillStyle = gradient2;
     ctx.fill();
     
-    // 아래 삼각형
+    // Bottom triangle
     const gradient3 = ctx.createRadialGradient(
       this.x, this.y + size * 0.3, 0,
       this.x, this.y + size * 0.3, size * 1.2
@@ -247,7 +247,7 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  // Stage 2-3: 별 (Blur 감소: 40 → 25)
+  // Stage 2-3: Star
   drawStar() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -287,7 +287,7 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  // Stage 2-4: 세모 (Blur 감소: 50 → 35)
+  // Stage 2-4: Triangle
   drawTriangle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -317,7 +317,7 @@ class EnhancedBlob {
   }
 }
 
-// ===== 전역 변수 =====
+// Global Variables
 let stage1Blobs = {};
 let stage2Blobs = {};
 let centerLight;
@@ -325,7 +325,7 @@ let isDragging = false;
 let isAnimating = false;
 let guideShown = false;
 
-// ===== Stage 1 초기화 =====
+// Stage 1 Initialization
 function initStage1() {
   stage1Blobs = {};
   
@@ -352,7 +352,7 @@ function initStage1() {
   setTimeout(() => showDragGuide(), 500);
 }
 
-// ===== Stage 2 초기화 =====
+// Stage 2 Initialization
 function initStage2() {
   leftImage.src = 'art2.png';
   
@@ -409,7 +409,7 @@ function initStage2() {
   setTimeout(() => showDragGuide(), 500);
 }
 
-// ===== 드래그 가이드 =====
+// Drag Guide
 function showDragGuide() {
   if (guideShown) return;
   guideShown = true;
@@ -428,7 +428,7 @@ function showDragGuide() {
   }, 3000);
 }
 
-// ===== 마우스 이벤트 =====
+// Mouse Events
 canvas.addEventListener('mousedown', (e) => {
   if (isAnimating) return;
   
@@ -471,7 +471,7 @@ canvas.addEventListener('mouseup', (e) => {
   }
 });
 
-// ===== 터치 이벤트 =====
+// Touch Events
 canvas.addEventListener('touchstart', (e) => {
   if (isAnimating) return;
   e.preventDefault();
@@ -505,7 +505,7 @@ canvas.addEventListener('touchend', (e) => {
   }
 });
 
-// ===== 드롭 감지 =====
+// Drop Detection
 function checkDrop() {
   const blobs = currentStage === 1 ? stage1Blobs : stage2Blobs;
   
@@ -525,7 +525,7 @@ function checkDrop() {
   }
 }
 
-// ===== Stage 1: 색 흡수 =====
+// Stage 1: Color Absorption
 function absorbColor(timeKey, targetBlob) {
   isAnimating = true;
   userChoices.time = timeKey;
@@ -581,7 +581,7 @@ function changeColor(timeKey, originalX, originalY, originalRadius) {
   animateColor();
 }
 
-// ===== Stage 2: 형태 흡수 =====
+// Stage 2: Shape Absorption
 function absorbShape(shapeKey, targetBlob) {
   isAnimating = true;
   userChoices.shape = shapeKey;
@@ -637,7 +637,7 @@ function changeShape(shapeKey, originalX, originalY, originalRadius) {
   animateShape();
 }
 
-// ===== 원래 위치로 =====
+// Return to Center
 function returnToCenter(x, y, radius) {
   const duration = 600;
   const startTime = Date.now();
@@ -666,12 +666,12 @@ function returnToCenter(x, y, radius) {
   animateReturn();
 }
 
-// ===== Easing =====
+// Easing Function
 function easeInOutCubic(t) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-// ===== 애니메이션 루프 =====
+// Animation Loop
 function animate() {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -696,20 +696,20 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-// ===== Next 버튼 =====
+// Next Button
 nextBtn.disabled = true;
 nextBtn.addEventListener('click', () => {
   if (currentStage === 1) {
     currentStage = 2;
     initStage2();
   } else if (currentStage === 2) {
-    console.log('Stage 3로!');
-    console.log('선택:', userChoices);
-    alert(`Stage 3로!\n시간: ${userChoices.time}\n형태: ${userChoices.shape}`);
+    console.log('Stage 3');
+    console.log('Choices:', userChoices);
+    alert(`Stage 3!\nTime: ${userChoices.time}\nShape: ${userChoices.shape}`);
   }
 });
 
-// ===== 리사이즈 =====
+// Resize Handler
 window.addEventListener('resize', () => {
   const oldWidth = canvas.width;
   const oldHeight = canvas.height;
@@ -730,17 +730,6 @@ window.addEventListener('resize', () => {
   centerLight.y = canvas.height * 0.42;
 });
 
-// ===== 시작 =====
+// Start
 initStage1();
 animate();
-```
-
----
-
-## ✅ Blur 감소 요약
-```
-drawCircle:  60→40, 40→30, 25→20
-drawClover:  45→30, 35→25
-drawHeart:   50→35
-drawStar:    40→25
-drawTriangle: 50→35
