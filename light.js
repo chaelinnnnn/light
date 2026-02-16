@@ -5,31 +5,31 @@ const nextBtn = document.getElementById('nextBtn');
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
 
-// 시간대별 색상 & 위치 (영역 축소)
+// 시간대별 색상 & 위치
 const timeData = {
   '1pm': {
     colors: ['#FF6B9D', '#E91E63', '#C2185B'],
-    position: { x: canvas.width * 0.3, y: canvas.height * 0.3 },
+    position: { x: canvas.width * 0.3, y: canvas.height * 0.25 },
     type: 'single'
   },
   '5pm': {
     colors: ['#FFEAA7', '#FDD835', '#F9A825'],
-    position: { x: canvas.width * 0.7, y: canvas.height * 0.3 },
+    position: { x: canvas.width * 0.7, y: canvas.height * 0.25 },
     type: 'single'
   },
   '11pm': {
     colors: ['#FFB6C1', '#F8BBD0', '#E1BEE7'],
-    position: { x: canvas.width * 0.3, y: canvas.height * 0.7 },
+    position: { x: canvas.width * 0.3, y: canvas.height * 0.6 },
     type: 'single'
   },
   '7am': {
     colors: ['#74B9FF', '#42A5F5', '#1E88E5'],
-    position: { x: canvas.width * 0.7, y: canvas.height * 0.7 },
+    position: { x: canvas.width * 0.7, y: canvas.height * 0.6 },
     type: 'single'
   }
 };
 
-// 개선된 Blob 클래스
+// Blob 클래스
 class EnhancedBlob {
   constructor(x, y, radius, colors, label) {
     this.x = x;
@@ -102,19 +102,21 @@ class EnhancedBlob {
     ctx.restore();
     
     // 라벨
-    ctx.save();
-    ctx.fillStyle = 'white';
-    ctx.font = '16px Helvetica Neue, Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-    ctx.shadowBlur = 10;
-    ctx.fillText(this.label, this.x, this.y + this.radius + 35);
-    ctx.restore();
+    if (this.label) {
+      ctx.save();
+      ctx.fillStyle = 'white';
+      ctx.font = '16px Helvetica Neue, Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+      ctx.shadowBlur = 10;
+      ctx.fillText(this.label, this.x, this.y + this.radius + 35);
+      ctx.restore();
+    }
   }
 }
 
-// 4개 시간대 blobs 생성 (크기 축소: 120 → 90)
+// 4개 시간대 blobs 생성
 const timeBlobs = {};
 const labels = {
   '1pm': '(1) 1:00 pm',
@@ -127,17 +129,17 @@ for (const [key, data] of Object.entries(timeData)) {
   timeBlobs[key] = new EnhancedBlob(
     data.position.x,
     data.position.y,
-    90,  // 120 → 90
+    110,
     data.colors,
     labels[key]
   );
 }
 
-// 중앙 흰 빛 (크기 축소: 100 → 70)
+// 중앙 흰 빛
 const centerLight = new EnhancedBlob(
   canvas.width / 2,
-  canvas.height / 2,
-  70,  // 100 → 70
+  canvas.height * 0.42,
+  85,
   ['#FFFFFF', '#F5F5F5', '#E0E0E0'],
   ''
 );
@@ -162,18 +164,16 @@ function showDragGuide() {
   
   document.getElementById('right-panel').appendChild(guide);
   
-  // 3초 후 자동 제거
   setTimeout(() => {
     guide.remove();
   }, 3000);
 }
 
-// 페이지 로드 후 가이드 표시
 setTimeout(() => {
   showDragGuide();
 }, 500);
 
-// 드래그 이벤트
+// 마우스 이벤트
 canvas.addEventListener('mousedown', (e) => {
   if (isAnimating) return;
   
@@ -216,7 +216,7 @@ canvas.addEventListener('mouseup', (e) => {
   }
 });
 
-// 터치 이벤트 추가
+// 터치 이벤트
 canvas.addEventListener('touchstart', (e) => {
   if (isAnimating) return;
   e.preventDefault();
@@ -328,7 +328,7 @@ function returnToCenter(x, y, radius) {
   const startX = centerLight.x;
   const startY = centerLight.y;
   const centerX = canvas.width / 2;
-  const centerY = canvas.height / 2;
+  const centerY = canvas.height * 0.42;
   
   function animateReturn() {
     const elapsed = Date.now() - startTime;
@@ -399,5 +399,5 @@ window.addEventListener('resize', () => {
   }
   
   centerLight.x = canvas.width / 2;
-  centerLight.y = canvas.height / 2;
+  centerLight.y = canvas.height * 0.42;
 });
