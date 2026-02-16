@@ -734,3 +734,13 @@ window.addEventListener('resize', () => {
 initStage1();
 animate();
 ```
+
+---
+
+## ✅ Blur 감소 요약
+```
+drawCircle:  60→40, 40→30, 25→20
+drawClover:  45→30, 35→25
+drawHeart:   50→35
+drawStar:    40→25
+drawTriangle: 50→35
