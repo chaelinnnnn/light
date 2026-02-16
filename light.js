@@ -83,12 +83,13 @@ class EnhancedBlob {
     }
   }
   
-  // Stage 1: 기본 원
+  // Stage 1: 기본 원 (Blur 감소)
   drawCircle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     
-    ctx.filter = 'blur(60px)';
+    // 외곽 glow - blur 줄임 (60 → 40)
+    ctx.filter = 'blur(40px)';
     for (let i = 0; i < 2; i++) {
       const glowRadius = this.radius * 1.3;
       const gradient = ctx.createRadialGradient(
@@ -106,7 +107,8 @@ class EnhancedBlob {
       ctx.fill();
     }
     
-    ctx.filter = 'blur(40px)';
+    // 중간 레이어 - blur 줄임 (40 → 30)
+    ctx.filter = 'blur(30px)';
     const midGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
       this.x, this.y, this.radius
@@ -120,7 +122,8 @@ class EnhancedBlob {
     ctx.fillStyle = midGradient;
     ctx.fill();
     
-    ctx.filter = 'blur(25px)';
+    // 코어 - blur 줄임 (25 → 20)
+    ctx.filter = 'blur(20px)';
     const coreGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
       this.x, this.y, this.radius * 0.7
@@ -138,11 +141,11 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  // Stage 2-1: 클로버 ♣
+  // Stage 2-1: 클로버 (Blur 감소: 45 → 30)
   drawClover() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.filter = 'blur(45px)';
+    ctx.filter = 'blur(30px)';
     
     const leafRadius = this.radius * 0.35;
     
@@ -155,8 +158,8 @@ class EnhancedBlob {
     // 오른쪽 잎
     this.drawLeaf(this.x + leafRadius * 1.4, this.y + leafRadius * 0.2, leafRadius);
     
-    // 줄기
-    ctx.filter = 'blur(35px)';
+    // 줄기 (blur 감소: 35 → 25)
+    ctx.filter = 'blur(25px)';
     ctx.save();
     ctx.translate(this.x, this.y + leafRadius * 1.8);
     ctx.scale(0.4, 1);
@@ -187,11 +190,11 @@ class EnhancedBlob {
     ctx.fill();
   }
   
-  // Stage 2-2: 하트 ♥
+  // Stage 2-2: 하트 (Blur 감소: 50 → 35)
   drawHeart() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.filter = 'blur(50px)';
+    ctx.filter = 'blur(35px)';
     
     const size = this.radius * 0.8;
     
@@ -244,11 +247,11 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  // Stage 2-3: 둥근 별 ✦
+  // Stage 2-3: 별 (Blur 감소: 40 → 25)
   drawStar() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.filter = 'blur(40px)';
+    ctx.filter = 'blur(25px)';
     
     const spikes = 5;
     const outerRadius = this.radius * 0.9;
@@ -284,11 +287,11 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  // Stage 2-4: 세모 △
+  // Stage 2-4: 세모 (Blur 감소: 50 → 35)
   drawTriangle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.filter = 'blur(50px)';
+    ctx.filter = 'blur(35px)';
     
     const size = this.radius * 1.2;
     
@@ -730,3 +733,4 @@ window.addEventListener('resize', () => {
 // ===== 시작 =====
 initStage1();
 animate();
+```
