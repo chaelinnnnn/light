@@ -490,7 +490,6 @@ class LightBeam {
 let stage1Blobs = {};
 let stage2Blobs = {};
 let centerLight;
-let targetShapeBlob = null;
 let isDragging = false;
 let isAnimating = false;
 let guideShown = false;
@@ -523,14 +522,17 @@ function initStage1() {
   setTimeout(() => showDragGuide(), 500);
 }
 
-// Stage 2 Initialization (Bottom Layout)
+// Stage 2 Initialization (Bottom Layout - Gray Icons)
 function initStage2() {
   leftImage.src = 'art2.png';
   
   stage2Blobs = {};
   const selectedColors = stage1Data[userChoices.time].colors;
   
-  // Bottom center layout - 4 shapes in a row
+  // Gray colors for bottom shape icons
+  const grayColors = ['#999999', '#777777', '#555555'];
+  
+  // Bottom center layout - 4 shapes in a row (GRAY)
   const shapeY = canvas.height * 0.72;
   const shapeRadius = 50;
   
@@ -538,7 +540,7 @@ function initStage2() {
     canvas.width * 0.25,
     shapeY,
     shapeRadius,
-    selectedColors,
+    grayColors,
     '',
     'clover'
   );
@@ -547,7 +549,7 @@ function initStage2() {
     canvas.width * 0.42,
     shapeY,
     shapeRadius,
-    selectedColors,
+    grayColors,
     '',
     'star'
   );
@@ -556,7 +558,7 @@ function initStage2() {
     canvas.width * 0.58,
     shapeY,
     shapeRadius,
-    selectedColors,
+    grayColors,
     '',
     'heart'
   );
@@ -565,12 +567,12 @@ function initStage2() {
     canvas.width * 0.75,
     shapeY,
     shapeRadius,
-    selectedColors,
+    grayColors,
     '',
     'triangle'
   );
   
-  // Center light larger and higher
+  // Center light larger and higher (with selected color)
   centerLight = new EnhancedBlob(
     canvas.width / 2,
     canvas.height * 0.35,
@@ -817,11 +819,10 @@ function returnToCenter(x, y, radius) {
   animateReturn();
 }
 
-// Stage 2: Shoot Light (3-phase animation)
+// Stage 2: Shoot Light (Simplified - only center changes)
 function shootLight(shapeKey, targetBlob) {
   isAnimating = true;
   userChoices.shape = shapeKey;
-  targetShapeBlob = targetBlob;
   
   // Phase 1: Shoot beam (1.5s)
   lightBeam = new LightBeam(
@@ -841,61 +842,28 @@ function shootLight(shapeKey, targetBlob) {
     if (!isComplete) {
       requestAnimationFrame(animatePhase1);
     } else {
-      // Phase 2: Illuminate shape (1s)
+      lightBeam = null;
+      // Phase 2: Transform center light (1s)
       setTimeout(() => {
-        animatePhase2();
+        animatePhase2(shapeKey);
       }, 200);
     }
   }
   
-  function animatePhase2() {
+  function animatePhase2(shapeKey) {
     const duration = 1000;
-    const startTime = Date.now();
-    
-    function illuminate() {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Shape brightens
-      targetShapeBlob.glowIntensity = 1.0 + progress * 1.5;
-      
-      // Center light dims
-      centerLight.glowIntensity = 1.0 - progress * 0.6;
-      
-      if (progress < 1) {
-        requestAnimationFrame(illuminate);
-      } else {
-        lightBeam = null;
-        // Phase 3: Transform (0.8s)
-        setTimeout(() => {
-          animatePhase3(shapeKey);
-        }, 300);
-      }
-    }
-    
-    illuminate();
-  }
-  
-  function animatePhase3(shapeKey) {
-    const duration = 800;
     const startTime = Date.now();
     
     function transform() {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
+      // Only center light changes
       centerLight.shapeType = shapeKey;
-      centerLight.glowIntensity = 0.4 + progress * 0.6;
-      targetShapeBlob.glowIntensity = 2.5 - progress * 1.5;
       
       if (progress < 1) {
         requestAnimationFrame(transform);
       } else {
-        // Reset
-        centerLight.glowIntensity = 1.0;
-        targetShapeBlob.glowIntensity = 1.0;
-        targetShapeBlob = null;
-        
         isAnimating = false;
         nextBtn.disabled = false;
       }
