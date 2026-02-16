@@ -41,7 +41,7 @@ const stage1Labels = {
 
 // Enhanced Blob Class
 class EnhancedBlob {
-  constructor(x, y, radius, colors, label, shapeType = 'circle') {
+  constructor(x, y, radius, colors, label, shapeType = 'circle', isBottomIcon = false) {
     this.x = x;
     this.y = y;
     this.baseRadius = radius;
@@ -51,6 +51,7 @@ class EnhancedBlob {
     this.shapeType = shapeType;
     this.offset = Math.random() * Math.PI * 2;
     this.glowIntensity = 1.0;
+    this.isBottomIcon = isBottomIcon;
   }
   
   update(time) {
@@ -84,63 +85,121 @@ class EnhancedBlob {
     }
   }
   
-  // Stage 1: Circle (soft blur)
+  // Circle - depends on stage and icon type
   drawCircle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     
     const intensity = this.glowIntensity;
     
-    // Outer glow
-    ctx.filter = 'blur(60px)';
-    const glowGradient = ctx.createRadialGradient(
-      this.x, this.y, 0,
-      this.x, this.y, this.radius * 1.8
-    );
-    glowGradient.addColorStop(0, this.colors[0] + Math.floor(102 * intensity).toString(16).padStart(2, '0'));
-    glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
-    glowGradient.addColorStop(1, this.colors[2] + '00');
-    
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius * 1.8, 0, Math.PI * 2);
-    ctx.fillStyle = glowGradient;
-    ctx.fill();
-    
-    // Mid layer
-    ctx.filter = 'blur(35px)';
-    const midGradient = ctx.createRadialGradient(
-      this.x, this.y, 0,
-      this.x, this.y, this.radius * 1.2
-    );
-    midGradient.addColorStop(0, this.colors[0] + Math.floor(221 * intensity).toString(16).padStart(2, '0'));
-    midGradient.addColorStop(0.7, this.colors[1] + Math.floor(170 * intensity).toString(16).padStart(2, '0'));
-    midGradient.addColorStop(1, this.colors[2] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
-    
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius * 1.2, 0, Math.PI * 2);
-    ctx.fillStyle = midGradient;
-    ctx.fill();
-    
-    // Core
-    ctx.filter = 'blur(20px)';
-    const coreGradient = ctx.createRadialGradient(
-      this.x, this.y, 0,
-      this.x, this.y, this.radius * 0.9
-    );
-    coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
-    coreGradient.addColorStop(0.7, this.colors[1] + Math.floor(238 * intensity).toString(16).padStart(2, '0'));
-    coreGradient.addColorStop(1, this.colors[2] + Math.floor(153 * intensity).toString(16).padStart(2, '0'));
-    
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius * 0.9, 0, Math.PI * 2);
-    ctx.fillStyle = coreGradient;
-    ctx.fill();
+    if (this.isBottomIcon) {
+      // Bottom icon: sharp and clear
+      ctx.filter = 'blur(8px)';
+      const gradient = ctx.createRadialGradient(
+        this.x, this.y, 0,
+        this.x, this.y, this.radius * 1.2
+      );
+      gradient.addColorStop(0, '#eeeeee');
+      gradient.addColorStop(0.7, '#aaaaaa');
+      gradient.addColorStop(1, '#55555500');
+      
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius * 1.2, 0, Math.PI * 2);
+      ctx.fillStyle = gradient;
+      ctx.fill();
+    } else if (currentStage === 2) {
+      // Stage 2 center light: sharper
+      ctx.filter = 'blur(25px)';
+      const glowGradient = ctx.createRadialGradient(
+        this.x, this.y, 0,
+        this.x, this.y, this.radius * 1.5
+      );
+      glowGradient.addColorStop(0, this.colors[0] + Math.floor(102 * intensity).toString(16).padStart(2, '0'));
+      glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
+      glowGradient.addColorStop(1, this.colors[2] + '00');
+      
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius * 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = glowGradient;
+      ctx.fill();
+      
+      ctx.filter = 'blur(15px)';
+      const midGradient = ctx.createRadialGradient(
+        this.x, this.y, 0,
+        this.x, this.y, this.radius * 1.1
+      );
+      midGradient.addColorStop(0, this.colors[0] + Math.floor(221 * intensity).toString(16).padStart(2, '0'));
+      midGradient.addColorStop(0.7, this.colors[1] + Math.floor(170 * intensity).toString(16).padStart(2, '0'));
+      midGradient.addColorStop(1, this.colors[2] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
+      
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius * 1.1, 0, Math.PI * 2);
+      ctx.fillStyle = midGradient;
+      ctx.fill();
+      
+      ctx.filter = 'blur(10px)';
+      const coreGradient = ctx.createRadialGradient(
+        this.x, this.y, 0,
+        this.x, this.y, this.radius * 0.9
+      );
+      coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+      coreGradient.addColorStop(0.7, this.colors[1] + Math.floor(238 * intensity).toString(16).padStart(2, '0'));
+      coreGradient.addColorStop(1, this.colors[2] + Math.floor(153 * intensity).toString(16).padStart(2, '0'));
+      
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius * 0.9, 0, Math.PI * 2);
+      ctx.fillStyle = coreGradient;
+      ctx.fill();
+    } else {
+      // Stage 1: original soft blur
+      ctx.filter = 'blur(60px)';
+      const glowGradient = ctx.createRadialGradient(
+        this.x, this.y, 0,
+        this.x, this.y, this.radius * 1.8
+      );
+      glowGradient.addColorStop(0, this.colors[0] + Math.floor(102 * intensity).toString(16).padStart(2, '0'));
+      glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
+      glowGradient.addColorStop(1, this.colors[2] + '00');
+      
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius * 1.8, 0, Math.PI * 2);
+      ctx.fillStyle = glowGradient;
+      ctx.fill();
+      
+      ctx.filter = 'blur(35px)';
+      const midGradient = ctx.createRadialGradient(
+        this.x, this.y, 0,
+        this.x, this.y, this.radius * 1.2
+      );
+      midGradient.addColorStop(0, this.colors[0] + Math.floor(221 * intensity).toString(16).padStart(2, '0'));
+      midGradient.addColorStop(0.7, this.colors[1] + Math.floor(170 * intensity).toString(16).padStart(2, '0'));
+      midGradient.addColorStop(1, this.colors[2] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
+      
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius * 1.2, 0, Math.PI * 2);
+      ctx.fillStyle = midGradient;
+      ctx.fill();
+      
+      ctx.filter = 'blur(20px)';
+      const coreGradient = ctx.createRadialGradient(
+        this.x, this.y, 0,
+        this.x, this.y, this.radius * 0.9
+      );
+      coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+      coreGradient.addColorStop(0.7, this.colors[1] + Math.floor(238 * intensity).toString(16).padStart(2, '0'));
+      coreGradient.addColorStop(1, this.colors[2] + Math.floor(153 * intensity).toString(16).padStart(2, '0'));
+      
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius * 0.9, 0, Math.PI * 2);
+      ctx.fillStyle = coreGradient;
+      ctx.fill();
+    }
     
     ctx.filter = 'none';
     ctx.restore();
   }
   
-  // Stage 2-1: Clover
+  // Clover
   drawClover() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -157,15 +216,22 @@ class EnhancedBlob {
     this.drawClearLeaf(this.x + leafRadius * 1.4, this.y + leafRadius * 0.2, leafRadius);
     
     // Stem
-    ctx.filter = 'blur(10px)';
+    const blurAmount = this.isBottomIcon ? 'blur(5px)' : 'blur(10px)';
+    ctx.filter = blurAmount;
     ctx.save();
     ctx.translate(this.x, this.y + leafRadius * 1.8);
     ctx.scale(0.4, 1);
     
     const stemGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, leafRadius * 1.2);
-    stemGradient.addColorStop(0, this.colors[0] + 'ff');
-    stemGradient.addColorStop(0.8, this.colors[1] + 'cc');
-    stemGradient.addColorStop(1, this.colors[2] + '00');
+    if (this.isBottomIcon) {
+      stemGradient.addColorStop(0, '#eeeeee');
+      stemGradient.addColorStop(0.8, '#aaaaaa');
+      stemGradient.addColorStop(1, '#55555500');
+    } else {
+      stemGradient.addColorStop(0, this.colors[0] + 'ff');
+      stemGradient.addColorStop(0.8, this.colors[1] + 'cc');
+      stemGradient.addColorStop(1, this.colors[2] + '00');
+    }
     
     ctx.beginPath();
     ctx.arc(0, 0, leafRadius * 1.2, 0, Math.PI * 2);
@@ -179,25 +245,39 @@ class EnhancedBlob {
   
   drawClearLeaf(x, y, r) {
     const intensity = this.glowIntensity;
+    const blurAmount = this.isBottomIcon ? 'blur(8px)' : (currentStage === 2 ? 'blur(12px)' : 'blur(25px)');
     
-    // Outer glow
-    ctx.filter = 'blur(25px)';
-    const glowGradient = ctx.createRadialGradient(x, y, 0, x, y, r * 1.8);
-    glowGradient.addColorStop(0, this.colors[0] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
-    glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
-    glowGradient.addColorStop(1, this.colors[2] + '00');
+    // Glow
+    ctx.filter = blurAmount;
+    const glowGradient = ctx.createRadialGradient(x, y, 0, x, y, r * 1.5);
+    if (this.isBottomIcon) {
+      glowGradient.addColorStop(0, '#dddddd');
+      glowGradient.addColorStop(0.5, '#999999');
+      glowGradient.addColorStop(1, '#55555500');
+    } else {
+      glowGradient.addColorStop(0, this.colors[0] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
+      glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
+      glowGradient.addColorStop(1, this.colors[2] + '00');
+    }
     
     ctx.beginPath();
-    ctx.arc(x, y, r * 1.8, 0, Math.PI * 2);
+    ctx.arc(x, y, r * 1.5, 0, Math.PI * 2);
     ctx.fillStyle = glowGradient;
     ctx.fill();
     
-    // Solid core
-    ctx.filter = 'blur(8px)';
+    // Core
+    const coreBlur = this.isBottomIcon ? 'blur(4px)' : (currentStage === 2 ? 'blur(6px)' : 'blur(8px)');
+    ctx.filter = coreBlur;
     const coreGradient = ctx.createRadialGradient(x, y, 0, x, y, r * 1.2);
-    coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
-    coreGradient.addColorStop(0.5, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
-    coreGradient.addColorStop(1, this.colors[2] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
+    if (this.isBottomIcon) {
+      coreGradient.addColorStop(0, '#ffffff');
+      coreGradient.addColorStop(0.5, '#cccccc');
+      coreGradient.addColorStop(1, '#888888');
+    } else {
+      coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+      coreGradient.addColorStop(0.5, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+      coreGradient.addColorStop(1, this.colors[2] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
+    }
     
     ctx.beginPath();
     ctx.arc(x, y, r * 1.2, 0, Math.PI * 2);
@@ -205,68 +285,94 @@ class EnhancedBlob {
     ctx.fill();
   }
   
-  // Stage 2-2: Heart
+  // Heart
   drawHeart() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     
     const size = this.radius * 0.8;
     const intensity = this.glowIntensity;
+    const blurAmount = this.isBottomIcon ? 'blur(8px)' : (currentStage === 2 ? 'blur(12px)' : 'blur(25px)');
+    const coreBlur = this.isBottomIcon ? 'blur(4px)' : (currentStage === 2 ? 'blur(6px)' : 'blur(8px)');
     
-    // Left circle - outer glow
-    ctx.filter = 'blur(25px)';
+    // Left circle - glow
+    ctx.filter = blurAmount;
     const glow1 = ctx.createRadialGradient(
       this.x - size * 0.5, this.y - size * 0.3, 0,
       this.x - size * 0.5, this.y - size * 0.3, size * 1.0
     );
-    glow1.addColorStop(0, this.colors[0] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
-    glow1.addColorStop(0.5, this.colors[1] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
-    glow1.addColorStop(1, this.colors[2] + '00');
+    if (this.isBottomIcon) {
+      glow1.addColorStop(0, '#dddddd');
+      glow1.addColorStop(0.5, '#999999');
+      glow1.addColorStop(1, '#55555500');
+    } else {
+      glow1.addColorStop(0, this.colors[0] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
+      glow1.addColorStop(0.5, this.colors[1] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
+      glow1.addColorStop(1, this.colors[2] + '00');
+    }
     
     ctx.beginPath();
     ctx.arc(this.x - size * 0.5, this.y - size * 0.3, size * 1.0, 0, Math.PI * 2);
     ctx.fillStyle = glow1;
     ctx.fill();
     
-    // Left circle - solid core
-    ctx.filter = 'blur(8px)';
+    // Left circle - core
+    ctx.filter = coreBlur;
     const core1 = ctx.createRadialGradient(
       this.x - size * 0.5, this.y - size * 0.3, 0,
       this.x - size * 0.5, this.y - size * 0.3, size * 0.65
     );
-    core1.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
-    core1.addColorStop(0.6, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
-    core1.addColorStop(1, this.colors[2] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
+    if (this.isBottomIcon) {
+      core1.addColorStop(0, '#ffffff');
+      core1.addColorStop(0.6, '#cccccc');
+      core1.addColorStop(1, '#888888');
+    } else {
+      core1.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+      core1.addColorStop(0.6, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+      core1.addColorStop(1, this.colors[2] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
+    }
     
     ctx.beginPath();
     ctx.arc(this.x - size * 0.5, this.y - size * 0.3, size * 0.65, 0, Math.PI * 2);
     ctx.fillStyle = core1;
     ctx.fill();
     
-    // Right circle - outer glow
-    ctx.filter = 'blur(25px)';
+    // Right circle - glow
+    ctx.filter = blurAmount;
     const glow2 = ctx.createRadialGradient(
       this.x + size * 0.5, this.y - size * 0.3, 0,
       this.x + size * 0.5, this.y - size * 0.3, size * 1.0
     );
-    glow2.addColorStop(0, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
-    glow2.addColorStop(0.5, this.colors[2] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
-    glow2.addColorStop(1, this.colors[0] + '00');
+    if (this.isBottomIcon) {
+      glow2.addColorStop(0, '#dddddd');
+      glow2.addColorStop(0.5, '#999999');
+      glow2.addColorStop(1, '#55555500');
+    } else {
+      glow2.addColorStop(0, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
+      glow2.addColorStop(0.5, this.colors[2] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
+      glow2.addColorStop(1, this.colors[0] + '00');
+    }
     
     ctx.beginPath();
     ctx.arc(this.x + size * 0.5, this.y - size * 0.3, size * 1.0, 0, Math.PI * 2);
     ctx.fillStyle = glow2;
     ctx.fill();
     
-    // Right circle - solid core
-    ctx.filter = 'blur(8px)';
+    // Right circle - core
+    ctx.filter = coreBlur;
     const core2 = ctx.createRadialGradient(
       this.x + size * 0.5, this.y - size * 0.3, 0,
       this.x + size * 0.5, this.y - size * 0.3, size * 0.65
     );
-    core2.addColorStop(0, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
-    core2.addColorStop(0.6, this.colors[2] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
-    core2.addColorStop(1, this.colors[0] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
+    if (this.isBottomIcon) {
+      core2.addColorStop(0, '#ffffff');
+      core2.addColorStop(0.6, '#cccccc');
+      core2.addColorStop(1, '#888888');
+    } else {
+      core2.addColorStop(0, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+      core2.addColorStop(0.6, this.colors[2] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+      core2.addColorStop(1, this.colors[0] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
+    }
     
     ctx.beginPath();
     ctx.arc(this.x + size * 0.5, this.y - size * 0.3, size * 0.65, 0, Math.PI * 2);
@@ -274,14 +380,20 @@ class EnhancedBlob {
     ctx.fill();
     
     // Bottom triangle - glow
-    ctx.filter = 'blur(25px)';
+    ctx.filter = blurAmount;
     const glow3 = ctx.createRadialGradient(
       this.x, this.y + size * 0.3, 0,
       this.x, this.y + size * 0.3, size * 1.5
     );
-    glow3.addColorStop(0, this.colors[2] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
-    glow3.addColorStop(0.5, this.colors[0] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
-    glow3.addColorStop(1, this.colors[1] + '00');
+    if (this.isBottomIcon) {
+      glow3.addColorStop(0, '#dddddd');
+      glow3.addColorStop(0.5, '#999999');
+      glow3.addColorStop(1, '#55555500');
+    } else {
+      glow3.addColorStop(0, this.colors[2] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
+      glow3.addColorStop(0.5, this.colors[0] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
+      glow3.addColorStop(1, this.colors[1] + '00');
+    }
     
     ctx.beginPath();
     ctx.moveTo(this.x - size * 1.3, this.y - size * 0.2);
@@ -291,15 +403,21 @@ class EnhancedBlob {
     ctx.fillStyle = glow3;
     ctx.fill();
     
-    // Bottom triangle - solid
-    ctx.filter = 'blur(10px)';
+    // Bottom triangle - core
+    ctx.filter = coreBlur;
     const core3 = ctx.createRadialGradient(
       this.x, this.y + size * 0.3, 0,
       this.x, this.y + size * 0.3, size * 1.0
     );
-    core3.addColorStop(0, this.colors[2] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
-    core3.addColorStop(0.5, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
-    core3.addColorStop(1, this.colors[1] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
+    if (this.isBottomIcon) {
+      core3.addColorStop(0, '#ffffff');
+      core3.addColorStop(0.5, '#cccccc');
+      core3.addColorStop(1, '#888888');
+    } else {
+      core3.addColorStop(0, this.colors[2] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+      core3.addColorStop(0.5, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+      core3.addColorStop(1, this.colors[1] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
+    }
     
     ctx.beginPath();
     ctx.moveTo(this.x - size * 1.0, this.y - size * 0.1);
@@ -313,7 +431,7 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  // Stage 2-3: Star
+  // Star
   drawStar() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -322,16 +440,24 @@ class EnhancedBlob {
     const outerRadius = this.radius * 0.9;
     const innerRadius = this.radius * 0.4;
     const intensity = this.glowIntensity;
+    const blurAmount = this.isBottomIcon ? 'blur(10px)' : (currentStage === 2 ? 'blur(15px)' : 'blur(30px)');
+    const coreBlur = this.isBottomIcon ? 'blur(5px)' : (currentStage === 2 ? 'blur(6px)' : 'blur(8px)');
     
-    // Outer glow
-    ctx.filter = 'blur(30px)';
+    // Glow
+    ctx.filter = blurAmount;
     const glowGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
       this.x, this.y, outerRadius * 1.5
     );
-    glowGradient.addColorStop(0, this.colors[0] + Math.floor(85 * intensity).toString(16).padStart(2, '0'));
-    glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
-    glowGradient.addColorStop(1, this.colors[2] + '00');
+    if (this.isBottomIcon) {
+      glowGradient.addColorStop(0, '#eeeeee');
+      glowGradient.addColorStop(0.5, '#aaaaaa');
+      glowGradient.addColorStop(1, '#55555500');
+    } else {
+      glowGradient.addColorStop(0, this.colors[0] + Math.floor(85 * intensity).toString(16).padStart(2, '0'));
+      glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
+      glowGradient.addColorStop(1, this.colors[2] + '00');
+    }
     
     ctx.beginPath();
     for (let i = 0; i < spikes * 2; i++) {
@@ -350,16 +476,23 @@ class EnhancedBlob {
     ctx.fillStyle = glowGradient;
     ctx.fill();
     
-    // Solid core
-    ctx.filter = 'blur(8px)';
+    // Core
+    ctx.filter = coreBlur;
     const coreGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
       this.x, this.y, outerRadius * 1.1
     );
-    coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
-    coreGradient.addColorStop(0.4, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
-    coreGradient.addColorStop(0.8, this.colors[2] + Math.floor(238 * intensity).toString(16).padStart(2, '0'));
-    coreGradient.addColorStop(1, this.colors[0] + '00');
+    if (this.isBottomIcon) {
+      coreGradient.addColorStop(0, '#ffffff');
+      coreGradient.addColorStop(0.4, '#dddddd');
+      coreGradient.addColorStop(0.8, '#aaaaaa');
+      coreGradient.addColorStop(1, '#55555500');
+    } else {
+      coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+      coreGradient.addColorStop(0.4, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+      coreGradient.addColorStop(0.8, this.colors[2] + Math.floor(238 * intensity).toString(16).padStart(2, '0'));
+      coreGradient.addColorStop(1, this.colors[0] + '00');
+    }
     
     ctx.beginPath();
     for (let i = 0; i < spikes * 2; i++) {
@@ -382,23 +515,31 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  // Stage 2-4: Triangle
+  // Triangle
   drawTriangle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     
     const size = this.radius * 1.2;
     const intensity = this.glowIntensity;
+    const blurAmount = this.isBottomIcon ? 'blur(10px)' : (currentStage === 2 ? 'blur(15px)' : 'blur(30px)');
+    const coreBlur = this.isBottomIcon ? 'blur(5px)' : (currentStage === 2 ? 'blur(8px)' : 'blur(10px)');
     
-    // Outer glow
-    ctx.filter = 'blur(30px)';
+    // Glow
+    ctx.filter = blurAmount;
     const glowGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
       this.x, this.y, size * 1.5
     );
-    glowGradient.addColorStop(0, this.colors[0] + Math.floor(85 * intensity).toString(16).padStart(2, '0'));
-    glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
-    glowGradient.addColorStop(1, this.colors[2] + '00');
+    if (this.isBottomIcon) {
+      glowGradient.addColorStop(0, '#eeeeee');
+      glowGradient.addColorStop(0.5, '#aaaaaa');
+      glowGradient.addColorStop(1, '#55555500');
+    } else {
+      glowGradient.addColorStop(0, this.colors[0] + Math.floor(85 * intensity).toString(16).padStart(2, '0'));
+      glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
+      glowGradient.addColorStop(1, this.colors[2] + '00');
+    }
     
     ctx.beginPath();
     ctx.moveTo(this.x, this.y - size * 1.3);
@@ -408,16 +549,23 @@ class EnhancedBlob {
     ctx.fillStyle = glowGradient;
     ctx.fill();
     
-    // Solid core
-    ctx.filter = 'blur(10px)';
+    // Core
+    ctx.filter = coreBlur;
     const coreGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
       this.x, this.y, size * 1.0
     );
-    coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
-    coreGradient.addColorStop(0.4, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
-    coreGradient.addColorStop(0.8, this.colors[2] + Math.floor(238 * intensity).toString(16).padStart(2, '0'));
-    coreGradient.addColorStop(1, this.colors[0] + '00');
+    if (this.isBottomIcon) {
+      coreGradient.addColorStop(0, '#ffffff');
+      coreGradient.addColorStop(0.4, '#dddddd');
+      coreGradient.addColorStop(0.8, '#aaaaaa');
+      coreGradient.addColorStop(1, '#55555500');
+    } else {
+      coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+      coreGradient.addColorStop(0.4, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
+      coreGradient.addColorStop(0.8, this.colors[2] + Math.floor(238 * intensity).toString(16).padStart(2, '0'));
+      coreGradient.addColorStop(1, this.colors[0] + '00');
+    }
     
     ctx.beginPath();
     ctx.moveTo(this.x, this.y - size);
@@ -506,7 +654,8 @@ function initStage1() {
       85,
       data.colors,
       stage1Labels[key],
-      'circle'
+      'circle',
+      false
     );
   }
   
@@ -516,13 +665,14 @@ function initStage1() {
     70,
     ['#FFFFFF', '#F5F5F5', '#E0E0E0'],
     '',
-    'circle'
+    'circle',
+    false
   );
   
   setTimeout(() => showDragGuide(), 500);
 }
 
-// Stage 2 Initialization (Bottom Layout - Gray Icons)
+// Stage 2 Initialization (Bottom Layout - Sharp Gray Icons)
 function initStage2() {
   leftImage.src = 'art2.png';
   
@@ -532,7 +682,7 @@ function initStage2() {
   // Gray colors for bottom shape icons
   const grayColors = ['#999999', '#777777', '#555555'];
   
-  // Bottom center layout - 4 shapes in a row (GRAY)
+  // Bottom center layout - 4 shapes in a row (GRAY + SHARP)
   const shapeY = canvas.height * 0.72;
   const shapeRadius = 50;
   
@@ -542,7 +692,8 @@ function initStage2() {
     shapeRadius,
     grayColors,
     '',
-    'clover'
+    'clover',
+    true
   );
   
   stage2Blobs['star'] = new EnhancedBlob(
@@ -551,7 +702,8 @@ function initStage2() {
     shapeRadius,
     grayColors,
     '',
-    'star'
+    'star',
+    true
   );
   
   stage2Blobs['heart'] = new EnhancedBlob(
@@ -560,7 +712,8 @@ function initStage2() {
     shapeRadius,
     grayColors,
     '',
-    'heart'
+    'heart',
+    true
   );
   
   stage2Blobs['triangle'] = new EnhancedBlob(
@@ -569,17 +722,19 @@ function initStage2() {
     shapeRadius,
     grayColors,
     '',
-    'triangle'
+    'triangle',
+    true
   );
   
-  // Center light larger and higher (with selected color)
+  // Center light larger and higher (with selected color, sharper)
   centerLight = new EnhancedBlob(
     canvas.width / 2,
     canvas.height * 0.35,
     90,
     selectedColors,
     '',
-    'circle'
+    'circle',
+    false
   );
   
   nextBtn.disabled = true;
