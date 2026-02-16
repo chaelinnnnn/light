@@ -42,33 +42,33 @@ const stage1Labels = {
 
 // ===== Stage 2 데이터 =====
 const stage2Data = {
-  circle: {
+  clover: {
     name: '하나의 완전한 형태',
     position: { x: canvas.width * 0.3, y: canvas.height * 0.25 },
-    type: 'circle'
+    type: 'clover'
   },
-  dots: {
+  heart: {
     name: '흩어진 조각들',
     position: { x: canvas.width * 0.7, y: canvas.height * 0.25 },
-    type: 'dots'
+    type: 'heart'
   },
   star: {
     name: '날카롭게 빛나는 선들',
     position: { x: canvas.width * 0.3, y: canvas.height * 0.6 },
     type: 'star'
   },
-  soft: {
+  triangle: {
     name: '부드럽게 번지는 색',
     position: { x: canvas.width * 0.7, y: canvas.height * 0.6 },
-    type: 'soft'
+    type: 'triangle'
   }
 };
 
 const stage2Labels = {
-  circle: '(1) 하나의 완전한 형태',
-  dots: '(2) 흩어진 조각들',
+  clover: '(1) 하나의 완전한 형태',
+  heart: '(2) 흩어진 조각들',
   star: '(3) 날카롭게 빛나는 선들',
-  soft: '(4) 부드럽게 번지는 색'
+  triangle: '(4) 부드럽게 번지는 색'
 };
 
 // ===== Blob 클래스 =====
@@ -91,12 +91,14 @@ class EnhancedBlob {
   draw() {
     if (this.shapeType === 'circle') {
       this.drawCircle();
-    } else if (this.shapeType === 'dots') {
-      this.drawDots();
+    } else if (this.shapeType === 'clover') {
+      this.drawClover();
+    } else if (this.shapeType === 'heart') {
+      this.drawHeart();
     } else if (this.shapeType === 'star') {
       this.drawStar();
-    } else if (this.shapeType === 'soft') {
-      this.drawSoft();
+    } else if (this.shapeType === 'triangle') {
+      this.drawTriangle();
     }
     
     // 라벨
@@ -113,11 +115,11 @@ class EnhancedBlob {
     }
   }
   
+  // Stage 1: 기본 원
   drawCircle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     
-    // 외곽 glow
     ctx.filter = 'blur(60px)';
     for (let i = 0; i < 2; i++) {
       const glowRadius = this.radius * 1.3;
@@ -136,7 +138,6 @@ class EnhancedBlob {
       ctx.fill();
     }
     
-    // 중간 레이어
     ctx.filter = 'blur(40px)';
     const midGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
@@ -151,7 +152,6 @@ class EnhancedBlob {
     ctx.fillStyle = midGradient;
     ctx.fill();
     
-    // 코어
     ctx.filter = 'blur(25px)';
     const coreGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
@@ -170,95 +170,174 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  drawDots() {
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.filter = 'blur(50px)';
-    
-    // 위 타원
-    ctx.save();
-    ctx.translate(this.x, this.y - 30);
-    ctx.scale(1, 0.6);
-    
-    const gradient1 = ctx.createRadialGradient(0, 0, 0, 0, 0, this.radius * 0.7);
-    gradient1.addColorStop(0, this.colors[0] + 'ff');
-    gradient1.addColorStop(0.5, this.colors[1] + '99');
-    gradient1.addColorStop(1, this.colors[2] + '00');
-    
-    ctx.beginPath();
-    ctx.arc(0, 0, this.radius * 0.7, 0, Math.PI * 2);
-    ctx.fillStyle = gradient1;
-    ctx.fill();
-    ctx.restore();
-    
-    // 아래 타원
-    ctx.save();
-    ctx.translate(this.x, this.y + 30);
-    ctx.scale(1, 0.6);
-    
-    const gradient2 = ctx.createRadialGradient(0, 0, 0, 0, 0, this.radius * 0.7);
-    gradient2.addColorStop(0, this.colors[1] + 'ff');
-    gradient2.addColorStop(0.5, this.colors[2] + '99');
-    gradient2.addColorStop(1, this.colors[0] + '00');
-    
-    ctx.beginPath();
-    ctx.arc(0, 0, this.radius * 0.7, 0, Math.PI * 2);
-    ctx.fillStyle = gradient2;
-    ctx.fill();
-    ctx.restore();
-    
-    ctx.filter = 'none';
-    ctx.restore();
-  }
-  
-  drawStar() {
+  // Stage 2-1: 클로버 ♣
+  drawClover() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     ctx.filter = 'blur(45px)';
     
-    // 대각선 그라데이션
-    const gradient = ctx.createLinearGradient(
-      this.x - this.radius, this.y - this.radius,
-      this.x + this.radius, this.y + this.radius
-    );
-    gradient.addColorStop(0, this.colors[0] + 'ff');
-    gradient.addColorStop(0.5, this.colors[1] + 'cc');
-    gradient.addColorStop(1, this.colors[2] + 'ff');
+    const leafRadius = this.radius * 0.35;
     
-    // 대각선 사각형
+    // 위쪽 잎
+    this.drawLeaf(this.x, this.y - leafRadius * 1.6, leafRadius);
+    
+    // 왼쪽 잎
+    this.drawLeaf(this.x - leafRadius * 1.4, this.y + leafRadius * 0.2, leafRadius);
+    
+    // 오른쪽 잎
+    this.drawLeaf(this.x + leafRadius * 1.4, this.y + leafRadius * 0.2, leafRadius);
+    
+    // 줄기 (작은 타원)
+    ctx.filter = 'blur(35px)';
     ctx.save();
-    ctx.translate(this.x, this.y);
-    ctx.rotate(Math.PI / 4);
-    ctx.fillStyle = gradient;
-    ctx.fillRect(-this.radius * 0.8, -this.radius * 0.8, this.radius * 1.6, this.radius * 1.6);
+    ctx.translate(this.x, this.y + leafRadius * 1.8);
+    ctx.scale(0.4, 1);
+    
+    const stemGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, leafRadius * 0.8);
+    stemGradient.addColorStop(0, this.colors[0] + 'ff');
+    stemGradient.addColorStop(1, this.colors[1] + '00');
+    
+    ctx.beginPath();
+    ctx.arc(0, 0, leafRadius * 0.8, 0, Math.PI * 2);
+    ctx.fillStyle = stemGradient;
+    ctx.fill();
     ctx.restore();
     
     ctx.filter = 'none';
     ctx.restore();
   }
   
-  drawSoft() {
+  drawLeaf(x, y, r) {
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, r * 1.5);
+    gradient.addColorStop(0, this.colors[0] + 'ff');
+    gradient.addColorStop(0.5, this.colors[1] + 'dd');
+    gradient.addColorStop(1, this.colors[2] + '00');
+    
+    ctx.beginPath();
+    ctx.arc(x, y, r * 1.5, 0, Math.PI * 2);
+    ctx.fillStyle = gradient;
+    ctx.fill();
+  }
+  
+  // Stage 2-2: 하트 ♥
+  drawHeart() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.filter = 'blur(55px)';
+    ctx.filter = 'blur(50px)';
+    
+    const size = this.radius * 0.8;
+    
+    // 왼쪽 반원
+    const gradient1 = ctx.createRadialGradient(
+      this.x - size * 0.5, this.y - size * 0.3, 0,
+      this.x - size * 0.5, this.y - size * 0.3, size * 0.7
+    );
+    gradient1.addColorStop(0, this.colors[0] + 'ff');
+    gradient1.addColorStop(0.6, this.colors[1] + 'cc');
+    gradient1.addColorStop(1, this.colors[2] + '00');
+    
+    ctx.beginPath();
+    ctx.arc(this.x - size * 0.5, this.y - size * 0.3, size * 0.7, 0, Math.PI * 2);
+    ctx.fillStyle = gradient1;
+    ctx.fill();
+    
+    // 오른쪽 반원
+    const gradient2 = ctx.createRadialGradient(
+      this.x + size * 0.5, this.y - size * 0.3, 0,
+      this.x + size * 0.5, this.y - size * 0.3, size * 0.7
+    );
+    gradient2.addColorStop(0, this.colors[1] + 'ff');
+    gradient2.addColorStop(0.6, this.colors[2] + 'cc');
+    gradient2.addColorStop(1, this.colors[0] + '00');
+    
+    ctx.beginPath();
+    ctx.arc(this.x + size * 0.5, this.y - size * 0.3, size * 0.7, 0, Math.PI * 2);
+    ctx.fillStyle = gradient2;
+    ctx.fill();
+    
+    // 아래 삼각형
+    const gradient3 = ctx.createRadialGradient(
+      this.x, this.y + size * 0.3, 0,
+      this.x, this.y + size * 0.3, size * 1.2
+    );
+    gradient3.addColorStop(0, this.colors[2] + 'ff');
+    gradient3.addColorStop(0.5, this.colors[0] + 'aa');
+    gradient3.addColorStop(1, this.colors[1] + '00');
+    
+    ctx.beginPath();
+    ctx.moveTo(this.x - size * 1.2, this.y - size * 0.2);
+    ctx.lineTo(this.x + size * 1.2, this.y - size * 0.2);
+    ctx.lineTo(this.x, this.y + size * 1.5);
+    ctx.closePath();
+    ctx.fillStyle = gradient3;
+    ctx.fill();
+    
+    ctx.filter = 'none';
+    ctx.restore();
+  }
+  
+  // Stage 2-3: 둥근 별 ✦
+  drawStar() {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.filter = 'blur(40px)';
+    
+    const spikes = 5;
+    const outerRadius = this.radius * 0.9;
+    const innerRadius = this.radius * 0.4;
     
     const gradient = ctx.createRadialGradient(
       this.x, this.y, 0,
-      this.x, this.y, this.radius
+      this.x, this.y, outerRadius * 1.3
     );
     gradient.addColorStop(0, this.colors[0] + 'ff');
-    gradient.addColorStop(0.5, this.colors[1] + 'aa');
-    gradient.addColorStop(1, this.colors[2] + '00');
+    gradient.addColorStop(0.4, this.colors[1] + 'ee');
+    gradient.addColorStop(0.7, this.colors[2] + 'aa');
+    gradient.addColorStop(1, this.colors[0] + '00');
     
-    // 둥근 사각형
     ctx.beginPath();
-    ctx.roundRect(
-      this.x - this.radius * 0.8,
-      this.y - this.radius * 0.8,
-      this.radius * 1.6,
-      this.radius * 1.6,
-      this.radius * 0.3
+    for (let i = 0; i < spikes * 2; i++) {
+      const angle = (Math.PI * i) / spikes - Math.PI / 2;
+      const radius = i % 2 === 0 ? outerRadius : innerRadius;
+      const x = this.x + Math.cos(angle) * radius;
+      const y = this.y + Math.sin(angle) * radius;
+      
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.closePath();
+    ctx.fillStyle = gradient;
+    ctx.fill();
+    
+    ctx.filter = 'none';
+    ctx.restore();
+  }
+  
+  // Stage 2-4: 세모 △
+  drawTriangle() {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.filter = 'blur(50px)';
+    
+    const size = this.radius * 1.2;
+    
+    const gradient = ctx.createRadialGradient(
+      this.x, this.y, 0,
+      this.x, this.y, size * 1.2
     );
+    gradient.addColorStop(0, this.colors[0] + 'ff');
+    gradient.addColorStop(0.4, this.colors[1] + 'dd');
+    gradient.addColorStop(0.7, this.colors[2] + '99');
+    gradient.addColorStop(1, this.colors[0] + '00');
+    
+    ctx.beginPath();
+    ctx.moveTo(this.x, this.y - size);
+    ctx.lineTo(this.x - size * 0.9, this.y + size * 0.6);
+    ctx.lineTo(this.x + size * 0.9, this.y + size * 0.6);
+    ctx.closePath();
     ctx.fillStyle = gradient;
     ctx.fill();
     
