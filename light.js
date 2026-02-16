@@ -388,16 +388,42 @@ function initStage2() {
   stage2Blobs = {};
   const selectedColors = stage1Data[userChoices.time].colors;
   
-  for (const [key, data] of Object.entries(stage2Data)) {
-    stage2Blobs[key] = new EnhancedBlob(
-      data.position.x,
-      data.position.y,
-      110,
-      selectedColors,
-      stage2Labels[key],
-      data.type
-    );
-  }
+  // 각 형태별로 명확하게 생성
+  stage2Blobs['clover'] = new EnhancedBlob(
+    canvas.width * 0.3,
+    canvas.height * 0.25,
+    110,
+    selectedColors,
+    '(1) 하나의 완전한 형태',
+    'clover'  // ← 명시적으로
+  );
+  
+  stage2Blobs['heart'] = new EnhancedBlob(
+    canvas.width * 0.7,
+    canvas.height * 0.25,
+    110,
+    selectedColors,
+    '(2) 흩어진 조각들',
+    'heart'
+  );
+  
+  stage2Blobs['star'] = new EnhancedBlob(
+    canvas.width * 0.3,
+    canvas.height * 0.6,
+    110,
+    selectedColors,
+    '(3) 날카롭게 빛나는 선들',
+    'star'
+  );
+  
+  stage2Blobs['triangle'] = new EnhancedBlob(
+    canvas.width * 0.7,
+    canvas.height * 0.6,
+    110,
+    selectedColors,
+    '(4) 부드럽게 번지는 색',
+    'triangle'
+  );
   
   centerLight = new EnhancedBlob(
     canvas.width / 2,
