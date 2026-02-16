@@ -9,8 +9,7 @@ canvas.height = canvas.offsetHeight;
 let currentStage = 1;
 let userChoices = {
   time: null,
-  shape: null,
-  movement: null
+  shape: null
 };
 
 // ===== Stage 1 데이터 =====
@@ -38,37 +37,6 @@ const stage1Labels = {
   '5pm': '(2) 5:00 pm',
   '11pm': '(3) 11:00 pm',
   '7am': '(4) 7:00 am'
-};
-
-// ===== Stage 2 데이터 =====
-const stage2Data = {
-  clover: {
-    name: '하나의 완전한 형태',
-    position: { x: canvas.width * 0.3, y: canvas.height * 0.25 },
-    type: 'clover'
-  },
-  heart: {
-    name: '흩어진 조각들',
-    position: { x: canvas.width * 0.7, y: canvas.height * 0.25 },
-    type: 'heart'
-  },
-  star: {
-    name: '날카롭게 빛나는 선들',
-    position: { x: canvas.width * 0.3, y: canvas.height * 0.6 },
-    type: 'star'
-  },
-  triangle: {
-    name: '부드럽게 번지는 색',
-    position: { x: canvas.width * 0.7, y: canvas.height * 0.6 },
-    type: 'triangle'
-  }
-};
-
-const stage2Labels = {
-  clover: '(1) 하나의 완전한 형태',
-  heart: '(2) 흩어진 조각들',
-  star: '(3) 날카롭게 빛나는 선들',
-  triangle: '(4) 부드럽게 번지는 색'
 };
 
 // ===== Blob 클래스 =====
@@ -187,7 +155,7 @@ class EnhancedBlob {
     // 오른쪽 잎
     this.drawLeaf(this.x + leafRadius * 1.4, this.y + leafRadius * 0.2, leafRadius);
     
-    // 줄기 (작은 타원)
+    // 줄기
     ctx.filter = 'blur(35px)';
     ctx.save();
     ctx.translate(this.x, this.y + leafRadius * 1.8);
@@ -346,7 +314,7 @@ class EnhancedBlob {
   }
 }
 
-// ===== Stage 변수 =====
+// ===== 전역 변수 =====
 let stage1Blobs = {};
 let stage2Blobs = {};
 let centerLight;
@@ -388,14 +356,13 @@ function initStage2() {
   stage2Blobs = {};
   const selectedColors = stage1Data[userChoices.time].colors;
   
-  // 각 형태별로 명확하게 생성
   stage2Blobs['clover'] = new EnhancedBlob(
     canvas.width * 0.3,
     canvas.height * 0.25,
     110,
     selectedColors,
     '(1) 하나의 완전한 형태',
-    'clover'  // ← 명시적으로
+    'clover'
   );
   
   stage2Blobs['heart'] = new EnhancedBlob(
@@ -435,6 +402,7 @@ function initStage2() {
   );
   
   nextBtn.disabled = true;
+  guideShown = false;
   setTimeout(() => showDragGuide(), 500);
 }
 
@@ -643,7 +611,7 @@ function absorbShape(shapeKey, targetBlob) {
 }
 
 function changeShape(shapeKey, originalX, originalY, originalRadius) {
-  const newShapeType = stage2Data[shapeKey].type;
+  const newShapeType = shapeKey; // 'clover', 'heart', 'star', 'triangle'
   const duration = 1000;
   const startTime = Date.now();
   
@@ -730,7 +698,6 @@ nextBtn.disabled = true;
 nextBtn.addEventListener('click', () => {
   if (currentStage === 1) {
     currentStage = 2;
-    guideShown = false;
     initStage2();
   } else if (currentStage === 2) {
     console.log('Stage 3로!');
