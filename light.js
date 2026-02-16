@@ -424,6 +424,51 @@ class EnhancedBlob {
   }
 }
 
+// Light Beam Class
+class LightBeam {
+  constructor(startX, startY, endX, endY, colors) {
+    this.startX = startX;
+    this.startY = startY;
+    this.endX = endX;
+    this.endY = endY;
+    this.colors = colors;
+    this.progress = 0;
+  }
+  
+  update(delta) {
+    this.progress += delta * 0.003;
+    return this.progress >= 1;
+  }
+  
+  draw() {
+    const currentX = this.startX + (this.endX - this.startX) * this.progress;
+    const currentY = this.startY + (this.endY - this.startY) * this.progress;
+    
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    
+    // Light beam
+    ctx.filter = 'blur(20px)';
+    const gradient = ctx.createLinearGradient(
+      this.startX, this.startY,
+      currentX, currentY
+    );
+    gradient.addColorStop(0, this.colors[0] + 'ff');
+    gradient.addColorStop(0.5, this.colors[1] + 'ff');
+    gradient.addColorStop(1, this.colors[2] + 'ff');
+    
+    ctx.strokeStyle = gradient;
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(this.startX, this.startY);
+    ctx.lineTo(currentX, currentY);
+    ctx.stroke();
+    
+    ctx.filter = 'none';
+    ctx.restore();
+  }
+}
+
 // Global Variables
 let stage1Blobs = {};
 let stage2Blobs = {};
@@ -431,6 +476,7 @@ let centerLight;
 let isDragging = false;
 let isAnimating = false;
 let guideShown = false;
+let lightBeam = null;
 
 // Stage 1 Initialization
 function initStage1() {
@@ -512,7 +558,6 @@ function initStage2() {
   );
   
   nextBtn.disabled = true;
-  guideShown = false;
   setTimeout(() => showDragGuide(), 500);
 }
 
@@ -523,10 +568,17 @@ function showDragGuide() {
   
   const guide = document.createElement('div');
   guide.className = 'drag-guide';
-  guide.innerHTML = `
-    <div class="drag-guide-text">Drag the light to ${currentStage === 1 ? 'a time' : 'a shape'}</div>
-    <div class="drag-arrow">↕</div>
-  `;
+  
+  if (currentStage === 1) {
+    guide.innerHTML = `
+      <div class="drag-guide-text">Drag the light to a time</div>
+      <div class="drag-arrow">↕</div>
+    `;
+  } else {
+    guide.innerHTML = `
+      <div class="drag-guide-text">Click a shape</div>
+    `;
+  }
   
   document.getElementById('right-panel').appendChild(guide);
   
@@ -535,9 +587,9 @@ function showDragGuide() {
   }, 3000);
 }
 
-// Mouse Events
+// Stage 1: Mouse Events (Drag)
 canvas.addEventListener('mousedown', (e) => {
-  if (isAnimating) return;
+  if (currentStage !== 1 || isAnimating) return;
   
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
@@ -551,7 +603,7 @@ canvas.addEventListener('mousedown', (e) => {
 });
 
 canvas.addEventListener('mousemove', (e) => {
-  if (isAnimating) return;
+  if (currentStage !== 1 || isAnimating) return;
   
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
@@ -571,10 +623,29 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 canvas.addEventListener('mouseup', (e) => {
-  if (isDragging && !isAnimating) {
-    isDragging = false;
-    canvas.style.cursor = 'default';
-    checkDrop();
+  if (currentStage !== 1 || !isDragging || isAnimating) return;
+  
+  isDragging = false;
+  canvas.style.cursor = 'default';
+  checkDrop();
+});
+
+// Stage 2: Click Events (Shoot Light)
+canvas.addEventListener('click', (e) => {
+  if (currentStage !== 2 || isAnimating) return;
+  
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  
+  // Check if clicked on a shape
+  for (const [key, blob] of Object.entries(stage2Blobs)) {
+    const dist = Math.sqrt((x - blob.x) ** 2 + (y - blob.y) ** 2);
+    
+    if (dist < blob.radius + 20) {
+      shootLight(key, blob);
+      return;
+    }
   }
 });
 
@@ -588,14 +659,25 @@ canvas.addEventListener('touchstart', (e) => {
   const x = touch.clientX - rect.left;
   const y = touch.clientY - rect.top;
   
-  const dist = Math.sqrt((x - centerLight.x) ** 2 + (y - centerLight.y) ** 2);
-  if (dist < centerLight.radius) {
-    isDragging = true;
+  if (currentStage === 1) {
+    const dist = Math.sqrt((x - centerLight.x) ** 2 + (y - centerLight.y) ** 2);
+    if (dist < centerLight.radius) {
+      isDragging = true;
+    }
+  } else if (currentStage === 2) {
+    // Check shapes
+    for (const [key, blob] of Object.entries(stage2Blobs)) {
+      const dist = Math.sqrt((x - blob.x) ** 2 + (y - blob.y) ** 2);
+      if (dist < blob.radius + 20) {
+        shootLight(key, blob);
+        return;
+      }
+    }
   }
 });
 
 canvas.addEventListener('touchmove', (e) => {
-  if (isDragging && !isAnimating) {
+  if (currentStage === 1 && isDragging && !isAnimating) {
     e.preventDefault();
     const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
@@ -605,16 +687,16 @@ canvas.addEventListener('touchmove', (e) => {
 });
 
 canvas.addEventListener('touchend', (e) => {
-  if (isDragging && !isAnimating) {
+  if (currentStage === 1 && isDragging && !isAnimating) {
     e.preventDefault();
     isDragging = false;
     checkDrop();
   }
 });
 
-// Drop Detection
+// Stage 1: Drop Detection
 function checkDrop() {
-  const blobs = currentStage === 1 ? stage1Blobs : stage2Blobs;
+  const blobs = stage1Blobs;
   
   for (const [key, blob] of Object.entries(blobs)) {
     const dist = Math.sqrt(
@@ -622,11 +704,7 @@ function checkDrop() {
     );
     
     if (dist < blob.radius + centerLight.radius) {
-      if (currentStage === 1) {
-        absorbColor(key, blob);
-      } else {
-        absorbShape(key, blob);
-      }
+      absorbColor(key, blob);
       return;
     }
   }
@@ -688,63 +766,6 @@ function changeColor(timeKey, originalX, originalY, originalRadius) {
   animateColor();
 }
 
-// Stage 2: Shape Absorption
-function absorbShape(shapeKey, targetBlob) {
-  isAnimating = true;
-  userChoices.shape = shapeKey;
-  
-  const startX = centerLight.x;
-  const startY = centerLight.y;
-  const startRadius = centerLight.radius;
-  const duration = 800;
-  const startTime = Date.now();
-  
-  function animateAbsorb() {
-    const elapsed = Date.now() - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const eased = easeInOutCubic(progress);
-    
-    centerLight.x = startX + (targetBlob.x - startX) * eased;
-    centerLight.y = startY + (targetBlob.y - startY) * eased;
-    centerLight.radius = startRadius * (1 - eased * 0.4);
-    
-    if (progress < 1) {
-      requestAnimationFrame(animateAbsorb);
-    } else {
-      setTimeout(() => {
-        changeShape(shapeKey, startX, startY, startRadius);
-      }, 300);
-    }
-  }
-  
-  animateAbsorb();
-}
-
-function changeShape(shapeKey, originalX, originalY, originalRadius) {
-  const newShapeType = shapeKey;
-  const duration = 1000;
-  const startTime = Date.now();
-  
-  function animateShape() {
-    const elapsed = Date.now() - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    
-    centerLight.shapeType = newShapeType;
-    centerLight.radius = originalRadius * (0.6 + progress * 0.4);
-    
-    if (progress < 1) {
-      requestAnimationFrame(animateShape);
-    } else {
-      setTimeout(() => {
-        returnToCenter(originalX, originalY, originalRadius);
-      }, 200);
-    }
-  }
-  
-  animateShape();
-}
-
-// Return to Center
 function returnToCenter(x, y, radius) {
   const duration = 600;
   const startTime = Date.now();
@@ -773,6 +794,61 @@ function returnToCenter(x, y, radius) {
   animateReturn();
 }
 
+// Stage 2: Shoot Light
+function shootLight(shapeKey, targetBlob) {
+  isAnimating = true;
+  userChoices.shape = shapeKey;
+  
+  // Create light beam
+  lightBeam = new LightBeam(
+    centerLight.x,
+    centerLight.y,
+    targetBlob.x,
+    targetBlob.y,
+    centerLight.colors
+  );
+  
+  const startTime = Date.now();
+  
+  function animateBeam() {
+    const elapsed = Date.now() - startTime;
+    const isComplete = lightBeam.update(elapsed);
+    
+    if (!isComplete) {
+      requestAnimationFrame(animateBeam);
+    } else {
+      lightBeam = null;
+      setTimeout(() => {
+        changeShape(shapeKey);
+      }, 200);
+    }
+  }
+  
+  animateBeam();
+}
+
+function changeShape(shapeKey) {
+  const newShapeType = shapeKey;
+  const duration = 1000;
+  const startTime = Date.now();
+  
+  function animateShape() {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    centerLight.shapeType = newShapeType;
+    
+    if (progress < 1) {
+      requestAnimationFrame(animateShape);
+    } else {
+      isAnimating = false;
+      nextBtn.disabled = false;
+    }
+  }
+  
+  animateShape();
+}
+
 // Easing Function
 function easeInOutCubic(t) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -785,6 +861,7 @@ function animate() {
   
   const time = Date.now();
   
+  // Draw blobs
   if (currentStage === 1) {
     Object.values(stage1Blobs).forEach(blob => {
       blob.update(time);
@@ -797,6 +874,12 @@ function animate() {
     });
   }
   
+  // Draw light beam
+  if (lightBeam) {
+    lightBeam.draw();
+  }
+  
+  // Draw center light
   centerLight.update(time);
   centerLight.draw();
   
@@ -808,6 +891,7 @@ nextBtn.disabled = true;
 nextBtn.addEventListener('click', () => {
   if (currentStage === 1) {
     currentStage = 2;
+    guideShown = false;
     initStage2();
   } else if (currentStage === 2) {
     console.log('Stage 3');
