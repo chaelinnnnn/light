@@ -39,7 +39,7 @@ const stage1Labels = {
   '7am': '(4) 7:00 am'
 };
 
-// Blob Class
+// Enhanced Blob Class
 class EnhancedBlob {
   constructor(x, y, radius, colors, label, shapeType = 'circle') {
     this.x = x;
@@ -83,57 +83,38 @@ class EnhancedBlob {
     }
   }
   
-  // Stage 1: Basic Circle
+  // Stage 1: Circle - Clear outline
   drawCircle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     
-    // Outer glow
+    // Outer glow (soft)
     ctx.filter = 'blur(40px)';
-    for (let i = 0; i < 2; i++) {
-      const glowRadius = this.radius * 1.3;
-      const gradient = ctx.createRadialGradient(
-        this.x, this.y, 0,
-        this.x, this.y, glowRadius
-      );
-      
-      gradient.addColorStop(0, this.colors[0] + '66');
-      gradient.addColorStop(0.5, this.colors[1] + '33');
-      gradient.addColorStop(1, this.colors[2] + '00');
-      
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, glowRadius, 0, Math.PI * 2);
-      ctx.fillStyle = gradient;
-      ctx.fill();
-    }
-    
-    // Mid layer
-    ctx.filter = 'blur(30px)';
-    const midGradient = ctx.createRadialGradient(
+    const glowGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
-      this.x, this.y, this.radius
+      this.x, this.y, this.radius * 1.6
     );
-    midGradient.addColorStop(0, this.colors[0] + 'dd');
-    midGradient.addColorStop(0.6, this.colors[1] + '99');
-    midGradient.addColorStop(1, this.colors[2] + '00');
+    glowGradient.addColorStop(0, this.colors[0] + '44');
+    glowGradient.addColorStop(0.5, this.colors[1] + '22');
+    glowGradient.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = midGradient;
+    ctx.arc(this.x, this.y, this.radius * 1.6, 0, Math.PI * 2);
+    ctx.fillStyle = glowGradient;
     ctx.fill();
     
-    // Core
-    ctx.filter = 'blur(20px)';
+    // Solid core (clear)
+    ctx.filter = 'blur(15px)';
     const coreGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
-      this.x, this.y, this.radius * 0.7
+      this.x, this.y, this.radius * 0.9
     );
     coreGradient.addColorStop(0, this.colors[0] + 'ff');
-    coreGradient.addColorStop(0.7, this.colors[1] + 'cc');
-    coreGradient.addColorStop(1, this.colors[2] + '00');
+    coreGradient.addColorStop(0.7, this.colors[1] + 'ff');
+    coreGradient.addColorStop(1, this.colors[2] + 'aa');
     
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius * 0.7, 0, Math.PI * 2);
+    ctx.arc(this.x, this.y, this.radius * 0.9, 0, Math.PI * 2);
     ctx.fillStyle = coreGradient;
     ctx.fill();
     
@@ -141,35 +122,35 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  // Stage 2-1: Clover
+  // Stage 2-1: Clover - Clear outline
   drawClover() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.filter = 'blur(30px)';
     
     const leafRadius = this.radius * 0.35;
     
     // Top leaf
-    this.drawLeaf(this.x, this.y - leafRadius * 1.6, leafRadius);
+    this.drawClearLeaf(this.x, this.y - leafRadius * 1.6, leafRadius);
     
     // Left leaf
-    this.drawLeaf(this.x - leafRadius * 1.4, this.y + leafRadius * 0.2, leafRadius);
+    this.drawClearLeaf(this.x - leafRadius * 1.4, this.y + leafRadius * 0.2, leafRadius);
     
     // Right leaf
-    this.drawLeaf(this.x + leafRadius * 1.4, this.y + leafRadius * 0.2, leafRadius);
+    this.drawClearLeaf(this.x + leafRadius * 1.4, this.y + leafRadius * 0.2, leafRadius);
     
     // Stem
-    ctx.filter = 'blur(25px)';
+    ctx.filter = 'blur(15px)';
     ctx.save();
     ctx.translate(this.x, this.y + leafRadius * 1.8);
     ctx.scale(0.4, 1);
     
-    const stemGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, leafRadius * 0.8);
+    const stemGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, leafRadius * 1.2);
     stemGradient.addColorStop(0, this.colors[0] + 'ff');
-    stemGradient.addColorStop(1, this.colors[1] + '00');
+    stemGradient.addColorStop(0.8, this.colors[1] + 'aa');
+    stemGradient.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
-    ctx.arc(0, 0, leafRadius * 0.8, 0, Math.PI * 2);
+    ctx.arc(0, 0, leafRadius * 1.2, 0, Math.PI * 2);
     ctx.fillStyle = stemGradient;
     ctx.fill();
     ctx.restore();
@@ -178,93 +159,185 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  drawLeaf(x, y, r) {
-    const gradient = ctx.createRadialGradient(x, y, 0, x, y, r * 1.5);
-    gradient.addColorStop(0, this.colors[0] + 'ff');
-    gradient.addColorStop(0.5, this.colors[1] + 'dd');
-    gradient.addColorStop(1, this.colors[2] + '00');
+  drawClearLeaf(x, y, r) {
+    // Outer glow
+    ctx.filter = 'blur(30px)';
+    const glowGradient = ctx.createRadialGradient(x, y, 0, x, y, r * 1.8);
+    glowGradient.addColorStop(0, this.colors[0] + '33');
+    glowGradient.addColorStop(0.5, this.colors[1] + '22');
+    glowGradient.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
-    ctx.arc(x, y, r * 1.5, 0, Math.PI * 2);
-    ctx.fillStyle = gradient;
+    ctx.arc(x, y, r * 1.8, 0, Math.PI * 2);
+    ctx.fillStyle = glowGradient;
+    ctx.fill();
+    
+    // Solid core
+    ctx.filter = 'blur(12px)';
+    const coreGradient = ctx.createRadialGradient(x, y, 0, x, y, r * 1.2);
+    coreGradient.addColorStop(0, this.colors[0] + 'ff');
+    coreGradient.addColorStop(0.6, this.colors[1] + 'ff');
+    coreGradient.addColorStop(1, this.colors[2] + 'aa');
+    
+    ctx.beginPath();
+    ctx.arc(x, y, r * 1.2, 0, Math.PI * 2);
+    ctx.fillStyle = coreGradient;
     ctx.fill();
   }
   
-  // Stage 2-2: Heart
+  // Stage 2-2: Heart - Clear outline
   drawHeart() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.filter = 'blur(35px)';
     
     const size = this.radius * 0.8;
     
-    // Left circle
-    const gradient1 = ctx.createRadialGradient(
+    // Left circle - outer glow
+    ctx.filter = 'blur(30px)';
+    const glow1 = ctx.createRadialGradient(
       this.x - size * 0.5, this.y - size * 0.3, 0,
-      this.x - size * 0.5, this.y - size * 0.3, size * 0.7
+      this.x - size * 0.5, this.y - size * 0.3, size * 1.0
     );
-    gradient1.addColorStop(0, this.colors[0] + 'ff');
-    gradient1.addColorStop(0.6, this.colors[1] + 'cc');
-    gradient1.addColorStop(1, this.colors[2] + '00');
+    glow1.addColorStop(0, this.colors[0] + '33');
+    glow1.addColorStop(0.5, this.colors[1] + '22');
+    glow1.addColorStop(1, this.colors[2] + '00');
     
     ctx.beginPath();
-    ctx.arc(this.x - size * 0.5, this.y - size * 0.3, size * 0.7, 0, Math.PI * 2);
-    ctx.fillStyle = gradient1;
+    ctx.arc(this.x - size * 0.5, this.y - size * 0.3, size * 1.0, 0, Math.PI * 2);
+    ctx.fillStyle = glow1;
     ctx.fill();
     
-    // Right circle
-    const gradient2 = ctx.createRadialGradient(
+    // Left circle - solid core
+    ctx.filter = 'blur(12px)';
+    const core1 = ctx.createRadialGradient(
+      this.x - size * 0.5, this.y - size * 0.3, 0,
+      this.x - size * 0.5, this.y - size * 0.3, size * 0.65
+    );
+    core1.addColorStop(0, this.colors[0] + 'ff');
+    core1.addColorStop(0.7, this.colors[1] + 'ff');
+    core1.addColorStop(1, this.colors[2] + 'aa');
+    
+    ctx.beginPath();
+    ctx.arc(this.x - size * 0.5, this.y - size * 0.3, size * 0.65, 0, Math.PI * 2);
+    ctx.fillStyle = core1;
+    ctx.fill();
+    
+    // Right circle - outer glow
+    ctx.filter = 'blur(30px)';
+    const glow2 = ctx.createRadialGradient(
       this.x + size * 0.5, this.y - size * 0.3, 0,
-      this.x + size * 0.5, this.y - size * 0.3, size * 0.7
+      this.x + size * 0.5, this.y - size * 0.3, size * 1.0
     );
-    gradient2.addColorStop(0, this.colors[1] + 'ff');
-    gradient2.addColorStop(0.6, this.colors[2] + 'cc');
-    gradient2.addColorStop(1, this.colors[0] + '00');
+    glow2.addColorStop(0, this.colors[1] + '33');
+    glow2.addColorStop(0.5, this.colors[2] + '22');
+    glow2.addColorStop(1, this.colors[0] + '00');
     
     ctx.beginPath();
-    ctx.arc(this.x + size * 0.5, this.y - size * 0.3, size * 0.7, 0, Math.PI * 2);
-    ctx.fillStyle = gradient2;
+    ctx.arc(this.x + size * 0.5, this.y - size * 0.3, size * 1.0, 0, Math.PI * 2);
+    ctx.fillStyle = glow2;
     ctx.fill();
     
-    // Bottom triangle
-    const gradient3 = ctx.createRadialGradient(
-      this.x, this.y + size * 0.3, 0,
-      this.x, this.y + size * 0.3, size * 1.2
+    // Right circle - solid core
+    ctx.filter = 'blur(12px)';
+    const core2 = ctx.createRadialGradient(
+      this.x + size * 0.5, this.y - size * 0.3, 0,
+      this.x + size * 0.5, this.y - size * 0.3, size * 0.65
     );
-    gradient3.addColorStop(0, this.colors[2] + 'ff');
-    gradient3.addColorStop(0.5, this.colors[0] + 'aa');
-    gradient3.addColorStop(1, this.colors[1] + '00');
+    core2.addColorStop(0, this.colors[1] + 'ff');
+    core2.addColorStop(0.7, this.colors[2] + 'ff');
+    core2.addColorStop(1, this.colors[0] + 'aa');
     
     ctx.beginPath();
-    ctx.moveTo(this.x - size * 1.2, this.y - size * 0.2);
-    ctx.lineTo(this.x + size * 1.2, this.y - size * 0.2);
-    ctx.lineTo(this.x, this.y + size * 1.5);
+    ctx.arc(this.x + size * 0.5, this.y - size * 0.3, size * 0.65, 0, Math.PI * 2);
+    ctx.fillStyle = core2;
+    ctx.fill();
+    
+    // Bottom triangle - glow
+    ctx.filter = 'blur(30px)';
+    const glow3 = ctx.createRadialGradient(
+      this.x, this.y + size * 0.3, 0,
+      this.x, this.y + size * 0.3, size * 1.5
+    );
+    glow3.addColorStop(0, this.colors[2] + '33');
+    glow3.addColorStop(0.5, this.colors[0] + '22');
+    glow3.addColorStop(1, this.colors[1] + '00');
+    
+    ctx.beginPath();
+    ctx.moveTo(this.x - size * 1.3, this.y - size * 0.2);
+    ctx.lineTo(this.x + size * 1.3, this.y - size * 0.2);
+    ctx.lineTo(this.x, this.y + size * 1.6);
     ctx.closePath();
-    ctx.fillStyle = gradient3;
+    ctx.fillStyle = glow3;
+    ctx.fill();
+    
+    // Bottom triangle - solid
+    ctx.filter = 'blur(15px)';
+    const core3 = ctx.createRadialGradient(
+      this.x, this.y + size * 0.3, 0,
+      this.x, this.y + size * 0.3, size * 1.0
+    );
+    core3.addColorStop(0, this.colors[2] + 'ff');
+    core3.addColorStop(0.5, this.colors[0] + 'ff');
+    core3.addColorStop(1, this.colors[1] + 'aa');
+    
+    ctx.beginPath();
+    ctx.moveTo(this.x - size * 1.0, this.y - size * 0.1);
+    ctx.lineTo(this.x + size * 1.0, this.y - size * 0.1);
+    ctx.lineTo(this.x, this.y + size * 1.3);
+    ctx.closePath();
+    ctx.fillStyle = core3;
     ctx.fill();
     
     ctx.filter = 'none';
     ctx.restore();
   }
   
-  // Stage 2-3: Star
+  // Stage 2-3: Star - Clear outline
   drawStar() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.filter = 'blur(25px)';
     
     const spikes = 5;
     const outerRadius = this.radius * 0.9;
     const innerRadius = this.radius * 0.4;
     
-    const gradient = ctx.createRadialGradient(
+    // Outer glow
+    ctx.filter = 'blur(35px)';
+    const glowGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
-      this.x, this.y, outerRadius * 1.3
+      this.x, this.y, outerRadius * 1.5
     );
-    gradient.addColorStop(0, this.colors[0] + 'ff');
-    gradient.addColorStop(0.4, this.colors[1] + 'ee');
-    gradient.addColorStop(0.7, this.colors[2] + 'aa');
-    gradient.addColorStop(1, this.colors[0] + '00');
+    glowGradient.addColorStop(0, this.colors[0] + '44');
+    glowGradient.addColorStop(0.5, this.colors[1] + '33');
+    glowGradient.addColorStop(1, this.colors[2] + '00');
+    
+    ctx.beginPath();
+    for (let i = 0; i < spikes * 2; i++) {
+      const angle = (Math.PI * i) / spikes - Math.PI / 2;
+      const radius = i % 2 === 0 ? outerRadius * 1.5 : innerRadius * 1.5;
+      const x = this.x + Math.cos(angle) * radius;
+      const y = this.y + Math.sin(angle) * radius;
+      
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.closePath();
+    ctx.fillStyle = glowGradient;
+    ctx.fill();
+    
+    // Solid core
+    ctx.filter = 'blur(12px)';
+    const coreGradient = ctx.createRadialGradient(
+      this.x, this.y, 0,
+      this.x, this.y, outerRadius * 1.1
+    );
+    coreGradient.addColorStop(0, this.colors[0] + 'ff');
+    coreGradient.addColorStop(0.4, this.colors[1] + 'ff');
+    coreGradient.addColorStop(0.8, this.colors[2] + 'dd');
+    coreGradient.addColorStop(1, this.colors[0] + '00');
     
     ctx.beginPath();
     for (let i = 0; i < spikes * 2; i++) {
@@ -280,36 +353,55 @@ class EnhancedBlob {
       }
     }
     ctx.closePath();
-    ctx.fillStyle = gradient;
+    ctx.fillStyle = coreGradient;
     ctx.fill();
     
     ctx.filter = 'none';
     ctx.restore();
   }
   
-  // Stage 2-4: Triangle
+  // Stage 2-4: Triangle - Clear outline
   drawTriangle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.filter = 'blur(35px)';
     
     const size = this.radius * 1.2;
     
-    const gradient = ctx.createRadialGradient(
+    // Outer glow
+    ctx.filter = 'blur(35px)';
+    const glowGradient = ctx.createRadialGradient(
       this.x, this.y, 0,
-      this.x, this.y, size * 1.2
+      this.x, this.y, size * 1.5
     );
-    gradient.addColorStop(0, this.colors[0] + 'ff');
-    gradient.addColorStop(0.4, this.colors[1] + 'dd');
-    gradient.addColorStop(0.7, this.colors[2] + '99');
-    gradient.addColorStop(1, this.colors[0] + '00');
+    glowGradient.addColorStop(0, this.colors[0] + '44');
+    glowGradient.addColorStop(0.5, this.colors[1] + '33');
+    glowGradient.addColorStop(1, this.colors[2] + '00');
+    
+    ctx.beginPath();
+    ctx.moveTo(this.x, this.y - size * 1.3);
+    ctx.lineTo(this.x - size * 1.2, this.y + size * 0.8);
+    ctx.lineTo(this.x + size * 1.2, this.y + size * 0.8);
+    ctx.closePath();
+    ctx.fillStyle = glowGradient;
+    ctx.fill();
+    
+    // Solid core
+    ctx.filter = 'blur(15px)';
+    const coreGradient = ctx.createRadialGradient(
+      this.x, this.y, 0,
+      this.x, this.y, size * 1.0
+    );
+    coreGradient.addColorStop(0, this.colors[0] + 'ff');
+    coreGradient.addColorStop(0.4, this.colors[1] + 'ff');
+    coreGradient.addColorStop(0.8, this.colors[2] + 'dd');
+    coreGradient.addColorStop(1, this.colors[0] + '00');
     
     ctx.beginPath();
     ctx.moveTo(this.x, this.y - size);
     ctx.lineTo(this.x - size * 0.9, this.y + size * 0.6);
     ctx.lineTo(this.x + size * 0.9, this.y + size * 0.6);
     ctx.closePath();
-    ctx.fillStyle = gradient;
+    ctx.fillStyle = coreGradient;
     ctx.fill();
     
     ctx.filter = 'none';
