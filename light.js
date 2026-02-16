@@ -1,43 +1,86 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const nextBtn = document.getElementById('nextBtn');
+const leftImage = document.getElementById('leftImage');
 
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
 
-// 시간대별 색상 & 위치
-const timeData = {
+let currentStage = 1;
+let userChoices = {
+  time: null,
+  shape: null,
+  movement: null
+};
+
+// ===== Stage 1 데이터 =====
+const stage1Data = {
   '1pm': {
     colors: ['#FF6B9D', '#E91E63', '#C2185B'],
-    position: { x: canvas.width * 0.3, y: canvas.height * 0.25 },
-    type: 'single'
+    position: { x: canvas.width * 0.3, y: canvas.height * 0.25 }
   },
   '5pm': {
     colors: ['#FFEAA7', '#FDD835', '#F9A825'],
-    position: { x: canvas.width * 0.7, y: canvas.height * 0.25 },
-    type: 'single'
+    position: { x: canvas.width * 0.7, y: canvas.height * 0.25 }
   },
   '11pm': {
     colors: ['#FFB6C1', '#F8BBD0', '#E1BEE7'],
-    position: { x: canvas.width * 0.3, y: canvas.height * 0.6 },
-    type: 'single'
+    position: { x: canvas.width * 0.3, y: canvas.height * 0.6 }
   },
   '7am': {
     colors: ['#74B9FF', '#42A5F5', '#1E88E5'],
-    position: { x: canvas.width * 0.7, y: canvas.height * 0.6 },
-    type: 'single'
+    position: { x: canvas.width * 0.7, y: canvas.height * 0.6 }
   }
 };
 
-// Blob 클래스
+const stage1Labels = {
+  '1pm': '(1) 1:00 pm',
+  '5pm': '(2) 5:00 pm',
+  '11pm': '(3) 11:00 pm',
+  '7am': '(4) 7:00 am'
+};
+
+// ===== Stage 2 데이터 =====
+const stage2Data = {
+  circle: {
+    name: '하나의 완전한 형태',
+    position: { x: canvas.width * 0.3, y: canvas.height * 0.25 },
+    type: 'circle'
+  },
+  dots: {
+    name: '흩어진 조각들',
+    position: { x: canvas.width * 0.7, y: canvas.height * 0.25 },
+    type: 'dots'
+  },
+  star: {
+    name: '날카롭게 빛나는 선들',
+    position: { x: canvas.width * 0.3, y: canvas.height * 0.6 },
+    type: 'star'
+  },
+  soft: {
+    name: '부드럽게 번지는 색',
+    position: { x: canvas.width * 0.7, y: canvas.height * 0.6 },
+    type: 'soft'
+  }
+};
+
+const stage2Labels = {
+  circle: '(1) 하나의 완전한 형태',
+  dots: '(2) 흩어진 조각들',
+  star: '(3) 날카롭게 빛나는 선들',
+  soft: '(4) 부드럽게 번지는 색'
+};
+
+// ===== Blob 클래스 =====
 class EnhancedBlob {
-  constructor(x, y, radius, colors, label) {
+  constructor(x, y, radius, colors, label, shapeType = 'circle') {
     this.x = x;
     this.y = y;
     this.baseRadius = radius;
     this.radius = radius;
     this.colors = colors;
     this.label = label;
+    this.shapeType = shapeType;
     this.offset = Math.random() * Math.PI * 2;
   }
   
@@ -46,6 +89,31 @@ class EnhancedBlob {
   }
   
   draw() {
+    if (this.shapeType === 'circle') {
+      this.drawCircle();
+    } else if (this.shapeType === 'dots') {
+      this.drawDots();
+    } else if (this.shapeType === 'star') {
+      this.drawStar();
+    } else if (this.shapeType === 'soft') {
+      this.drawSoft();
+    }
+    
+    // 라벨
+    if (this.label) {
+      ctx.save();
+      ctx.fillStyle = 'white';
+      ctx.font = '14px Helvetica Neue, Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+      ctx.shadowBlur = 10;
+      ctx.fillText(this.label, this.x, this.y + this.radius + 40);
+      ctx.restore();
+    }
+  }
+  
+  drawCircle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     
@@ -100,57 +168,171 @@ class EnhancedBlob {
     
     ctx.filter = 'none';
     ctx.restore();
+  }
+  
+  drawDots() {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.filter = 'blur(50px)';
     
-    // 라벨
-    if (this.label) {
-      ctx.save();
-      ctx.fillStyle = 'white';
-      ctx.font = '16px Helvetica Neue, Arial';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-      ctx.shadowBlur = 10;
-      ctx.fillText(this.label, this.x, this.y + this.radius + 35);
-      ctx.restore();
-    }
+    // 위 타원
+    ctx.save();
+    ctx.translate(this.x, this.y - 30);
+    ctx.scale(1, 0.6);
+    
+    const gradient1 = ctx.createRadialGradient(0, 0, 0, 0, 0, this.radius * 0.7);
+    gradient1.addColorStop(0, this.colors[0] + 'ff');
+    gradient1.addColorStop(0.5, this.colors[1] + '99');
+    gradient1.addColorStop(1, this.colors[2] + '00');
+    
+    ctx.beginPath();
+    ctx.arc(0, 0, this.radius * 0.7, 0, Math.PI * 2);
+    ctx.fillStyle = gradient1;
+    ctx.fill();
+    ctx.restore();
+    
+    // 아래 타원
+    ctx.save();
+    ctx.translate(this.x, this.y + 30);
+    ctx.scale(1, 0.6);
+    
+    const gradient2 = ctx.createRadialGradient(0, 0, 0, 0, 0, this.radius * 0.7);
+    gradient2.addColorStop(0, this.colors[1] + 'ff');
+    gradient2.addColorStop(0.5, this.colors[2] + '99');
+    gradient2.addColorStop(1, this.colors[0] + '00');
+    
+    ctx.beginPath();
+    ctx.arc(0, 0, this.radius * 0.7, 0, Math.PI * 2);
+    ctx.fillStyle = gradient2;
+    ctx.fill();
+    ctx.restore();
+    
+    ctx.filter = 'none';
+    ctx.restore();
+  }
+  
+  drawStar() {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.filter = 'blur(45px)';
+    
+    // 대각선 그라데이션
+    const gradient = ctx.createLinearGradient(
+      this.x - this.radius, this.y - this.radius,
+      this.x + this.radius, this.y + this.radius
+    );
+    gradient.addColorStop(0, this.colors[0] + 'ff');
+    gradient.addColorStop(0.5, this.colors[1] + 'cc');
+    gradient.addColorStop(1, this.colors[2] + 'ff');
+    
+    // 대각선 사각형
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(Math.PI / 4);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(-this.radius * 0.8, -this.radius * 0.8, this.radius * 1.6, this.radius * 1.6);
+    ctx.restore();
+    
+    ctx.filter = 'none';
+    ctx.restore();
+  }
+  
+  drawSoft() {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.filter = 'blur(55px)';
+    
+    const gradient = ctx.createRadialGradient(
+      this.x, this.y, 0,
+      this.x, this.y, this.radius
+    );
+    gradient.addColorStop(0, this.colors[0] + 'ff');
+    gradient.addColorStop(0.5, this.colors[1] + 'aa');
+    gradient.addColorStop(1, this.colors[2] + '00');
+    
+    // 둥근 사각형
+    ctx.beginPath();
+    ctx.roundRect(
+      this.x - this.radius * 0.8,
+      this.y - this.radius * 0.8,
+      this.radius * 1.6,
+      this.radius * 1.6,
+      this.radius * 0.3
+    );
+    ctx.fillStyle = gradient;
+    ctx.fill();
+    
+    ctx.filter = 'none';
+    ctx.restore();
   }
 }
 
-// 4개 시간대 blobs 생성
-const timeBlobs = {};
-const labels = {
-  '1pm': '(1) 1:00 pm',
-  '5pm': '(2) 5:00 pm',
-  '11pm': '(3) 11:00 pm',
-  '7am': '(4) 7:00 am'
-};
-
-for (const [key, data] of Object.entries(timeData)) {
-  timeBlobs[key] = new EnhancedBlob(
-    data.position.x,
-    data.position.y,
-    110,
-    data.colors,
-    labels[key]
-  );
-}
-
-// 중앙 흰 빛
-const centerLight = new EnhancedBlob(
-  canvas.width / 2,
-  canvas.height * 0.42,
-  85,
-  ['#FFFFFF', '#F5F5F5', '#E0E0E0'],
-  ''
-);
-centerLight.draggable = true;
-
+// ===== Stage 1 초기화 =====
+let stage1Blobs = {};
+let stage2Blobs = {};
+let centerLight;
 let isDragging = false;
-let selectedTime = null;
 let isAnimating = false;
 let guideShown = false;
 
-// 드래그 가이드 표시
+function initStage1() {
+  stage1Blobs = {};
+  
+  for (const [key, data] of Object.entries(stage1Data)) {
+    stage1Blobs[key] = new EnhancedBlob(
+      data.position.x,
+      data.position.y,
+      110,
+      data.colors,
+      stage1Labels[key],
+      'circle'
+    );
+  }
+  
+  centerLight = new EnhancedBlob(
+    canvas.width / 2,
+    canvas.height * 0.42,
+    85,
+    ['#FFFFFF', '#F5F5F5', '#E0E0E0'],
+    '',
+    'circle'
+  );
+  
+  setTimeout(() => showDragGuide(), 500);
+}
+
+// ===== Stage 2 초기화 =====
+function initStage2() {
+  leftImage.src = 'light2.png';
+  
+  stage2Blobs = {};
+  const selectedColors = stage1Data[userChoices.time].colors;
+  
+  for (const [key, data] of Object.entries(stage2Data)) {
+    stage2Blobs[key] = new EnhancedBlob(
+      data.position.x,
+      data.position.y,
+      110,
+      selectedColors,
+      stage2Labels[key],
+      data.type
+    );
+  }
+  
+  centerLight = new EnhancedBlob(
+    canvas.width / 2,
+    canvas.height * 0.42,
+    85,
+    selectedColors,
+    '',
+    'circle'
+  );
+  
+  nextBtn.disabled = true;
+  setTimeout(() => showDragGuide(), 500);
+}
+
+// ===== 드래그 가이드 =====
 function showDragGuide() {
   if (guideShown) return;
   guideShown = true;
@@ -158,7 +340,7 @@ function showDragGuide() {
   const guide = document.createElement('div');
   guide.className = 'drag-guide';
   guide.innerHTML = `
-    <div class="drag-guide-text">Drag the light to a time</div>
+    <div class="drag-guide-text">Drag the light to ${currentStage === 1 ? 'a time' : 'a shape'}</div>
     <div class="drag-arrow">↕</div>
   `;
   
@@ -169,11 +351,7 @@ function showDragGuide() {
   }, 3000);
 }
 
-setTimeout(() => {
-  showDragGuide();
-}, 500);
-
-// 마우스 이벤트
+// ===== 드래그 이벤트 =====
 canvas.addEventListener('mousedown', (e) => {
   if (isAnimating) return;
   
@@ -216,7 +394,7 @@ canvas.addEventListener('mouseup', (e) => {
   }
 });
 
-// 터치 이벤트
+// ===== 터치 이벤트 =====
 canvas.addEventListener('touchstart', (e) => {
   if (isAnimating) return;
   e.preventDefault();
@@ -250,24 +428,30 @@ canvas.addEventListener('touchend', (e) => {
   }
 });
 
-// 드롭 감지
+// ===== 드롭 감지 =====
 function checkDrop() {
-  for (const [key, blob] of Object.entries(timeBlobs)) {
+  const blobs = currentStage === 1 ? stage1Blobs : stage2Blobs;
+  
+  for (const [key, blob] of Object.entries(blobs)) {
     const dist = Math.sqrt(
       (centerLight.x - blob.x) ** 2 + (centerLight.y - blob.y) ** 2
     );
     
     if (dist < blob.radius + centerLight.radius) {
-      absorbColor(key, blob);
+      if (currentStage === 1) {
+        absorbColor(key, blob);
+      } else {
+        absorbShape(key, blob);
+      }
       return;
     }
   }
 }
 
-// 색 흡수 애니메이션
+// ===== Stage 1: 색 흡수 =====
 function absorbColor(timeKey, targetBlob) {
   isAnimating = true;
-  selectedTime = timeKey;
+  userChoices.time = timeKey;
   
   const startX = centerLight.x;
   const startY = centerLight.y;
@@ -296,9 +480,8 @@ function absorbColor(timeKey, targetBlob) {
   animateAbsorb();
 }
 
-// 색 변환
 function changeColor(timeKey, originalX, originalY, originalRadius) {
-  const newColors = timeData[timeKey].colors;
+  const newColors = stage1Data[timeKey].colors;
   const duration = 1000;
   const startTime = Date.now();
   
@@ -321,7 +504,63 @@ function changeColor(timeKey, originalX, originalY, originalRadius) {
   animateColor();
 }
 
-// 원래 위치로
+// ===== Stage 2: 형태 흡수 =====
+function absorbShape(shapeKey, targetBlob) {
+  isAnimating = true;
+  userChoices.shape = shapeKey;
+  
+  const startX = centerLight.x;
+  const startY = centerLight.y;
+  const startRadius = centerLight.radius;
+  const duration = 800;
+  const startTime = Date.now();
+  
+  function animateAbsorb() {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = easeInOutCubic(progress);
+    
+    centerLight.x = startX + (targetBlob.x - startX) * eased;
+    centerLight.y = startY + (targetBlob.y - startY) * eased;
+    centerLight.radius = startRadius * (1 - eased * 0.4);
+    
+    if (progress < 1) {
+      requestAnimationFrame(animateAbsorb);
+    } else {
+      setTimeout(() => {
+        changeShape(shapeKey, startX, startY, startRadius);
+      }, 300);
+    }
+  }
+  
+  animateAbsorb();
+}
+
+function changeShape(shapeKey, originalX, originalY, originalRadius) {
+  const newShapeType = stage2Data[shapeKey].type;
+  const duration = 1000;
+  const startTime = Date.now();
+  
+  function animateShape() {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    centerLight.shapeType = newShapeType;
+    centerLight.radius = originalRadius * (0.6 + progress * 0.4);
+    
+    if (progress < 1) {
+      requestAnimationFrame(animateShape);
+    } else {
+      setTimeout(() => {
+        returnToCenter(originalX, originalY, originalRadius);
+      }, 200);
+    }
+  }
+  
+  animateShape();
+}
+
+// ===== 원래 위치로 =====
 function returnToCenter(x, y, radius) {
   const duration = 600;
   const startTime = Date.now();
@@ -350,22 +589,29 @@ function returnToCenter(x, y, radius) {
   animateReturn();
 }
 
-// Easing 함수
+// ===== Easing =====
 function easeInOutCubic(t) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-// 애니메이션 루프
+// ===== 애니메이션 루프 =====
 function animate() {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
   const time = Date.now();
   
-  Object.values(timeBlobs).forEach(blob => {
-    blob.update(time);
-    blob.draw();
-  });
+  if (currentStage === 1) {
+    Object.values(stage1Blobs).forEach(blob => {
+      blob.update(time);
+      blob.draw();
+    });
+  } else if (currentStage === 2) {
+    Object.values(stage2Blobs).forEach(blob => {
+      blob.update(time);
+      blob.draw();
+    });
+  }
   
   centerLight.update(time);
   centerLight.draw();
@@ -373,16 +619,19 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-animate();
-
-// Next 버튼
+// ===== Next 버튼 =====
 nextBtn.disabled = true;
 nextBtn.addEventListener('click', () => {
-  console.log('Selected time:', selectedTime);
-  alert(`다음 Stage로! 선택: ${selectedTime}`);
+  if (currentStage === 1) {
+    currentStage = 2;
+    guideShown = false;
+    initStage2();
+  } else if (currentStage === 2) {
+    alert(`Stage 3로! 시간: ${userChoices.time}, 형태: ${userChoices.shape}`);
+  }
 });
 
-// 리사이즈
+// ===== 리사이즈 =====
 window.addEventListener('resize', () => {
   const oldWidth = canvas.width;
   const oldHeight = canvas.height;
@@ -393,7 +642,8 @@ window.addEventListener('resize', () => {
   const scaleX = canvas.width / oldWidth;
   const scaleY = canvas.height / oldHeight;
   
-  for (const blob of Object.values(timeBlobs)) {
+  const blobs = currentStage === 1 ? stage1Blobs : stage2Blobs;
+  for (const blob of Object.values(blobs)) {
     blob.x *= scaleX;
     blob.y *= scaleY;
   }
@@ -401,3 +651,7 @@ window.addEventListener('resize', () => {
   centerLight.x = canvas.width / 2;
   centerLight.y = canvas.height * 0.42;
 });
+
+// ===== 시작 =====
+initStage1();
+animate();
