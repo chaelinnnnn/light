@@ -198,7 +198,7 @@ function showPopup() {
 
   const input = document.createElement('input');
   input.type = 'text';
-  input.placeholder = '키워드를 입력하십시오';
+  input.placeholder = 'Please enter a keyword';
   input.style.cssText = `
     font-size:18px;padding:10px 20px;border:2px solid #fff;
     background:transparent;color:#fff;outline:none;
@@ -484,23 +484,58 @@ class LightBeam {
 /* =========================================================
    Guide
 ========================================================= */
+function showGuideOverlay(html) {
+  // 기존 가이드 제거
+  document.querySelectorAll('.guide-overlay').forEach(el => el.remove());
+  const el = document.createElement('div');
+  el.className = 'guide-overlay';
+  el.style.cssText = `
+    position:fixed;
+    top:32px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:7000;
+    pointer-events:none;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    opacity:0;
+    transition:opacity 0.5s ease;
+  `;
+  el.innerHTML = html;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => { el.style.opacity = '1'; });
+  setTimeout(() => {
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 500);
+  }, 4000);
+}
+
 function showDragGuide() {
   if (guideShown) return;
   guideShown = true;
-  const guide = document.createElement('div');
-  guide.className = 'drag-guide';
-  guide.innerHTML = currentStage===1
-    ? `<div class="drag-guide-text">Drag the light to a time</div><div class="drag-arrow">↕</div>`
-    : `<div class="drag-guide-text">Click a shape</div>`;
-  document.getElementById('right-panel').appendChild(guide);
-  setTimeout(() => guide.remove(), 3000);
+  if (currentStage === 1) {
+    showGuideOverlay(`
+      <div style="color:rgba(255,255,255,0.9);font-size:15px;letter-spacing:0.18em;text-align:center;text-shadow:0 0 20px rgba(255,255,255,0.6);">
+        DRAG THE LIGHT TO A TIME
+      </div>
+    `);
+  } else {
+    showGuideOverlay(`
+      <div style="color:rgba(255,255,255,0.9);font-size:15px;letter-spacing:0.18em;text-align:center;text-shadow:0 0 20px rgba(255,255,255,0.6);">
+        CLICK A SHAPE
+      </div>
+    `);
+  }
 }
+
 function showSliderGuide() {
-  const guide = document.createElement('div');
-  guide.className = 'drag-guide';
-  guide.innerHTML = `<div class="drag-guide-text">Drag the slider to adjust intensity</div>`;
-  document.getElementById('right-panel').appendChild(guide);
-  setTimeout(() => guide.remove(), 3000);
+  showGuideOverlay(`
+    <div style="color:rgba(255,255,255,0.9);font-size:15px;letter-spacing:0.18em;text-align:center;text-shadow:0 0 20px rgba(255,255,255,0.6);">
+      DRAG THE SLIDER TO ADJUST INTENSITY
+    </div>
+  `);
 }
 
 /* =========================================================
@@ -979,6 +1014,9 @@ function showGallery(currentEntry) {
 function startOpening() {
   clearTimeout(directive2Timer);
 
+  // 오프닝부터 배경음악(change.mp3) 재생
+  startBGM();
+
   const overlay = document.createElement('div');
   overlay.id = 'opening-overlay';
   overlay.style.cssText = `
@@ -992,47 +1030,39 @@ function startOpening() {
   img.style.cssText = `max-width:100%;max-height:100%;object-fit:contain;display:block;`;
   overlay.appendChild(img);
 
-  const audio = new Audio('light.mp3');
-
-  // SKIP 버튼
-  const skipBtn = document.createElement('button');
-  skipBtn.textContent = 'SKIP';
-  skipBtn.style.cssText = `
-    position:absolute;bottom:32px;right:36px;
-    background:transparent;border:1px solid rgba(255,255,255,0.4);
-    color:rgba(255,255,255,0.6);font-size:12px;
-    letter-spacing:0.14em;padding:8px 22px;cursor:pointer;
-    transition:border-color 0.2s,color 0.2s;
+  // I UNDERSTAND 버튼
+  const understandBtn = document.createElement('button');
+  understandBtn.textContent = 'I UNDERSTAND';
+  understandBtn.style.cssText = `
+    position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
+    background:transparent;border:1.5px solid rgba(255,255,255,0.55);
+    color:rgba(255,255,255,0.8);font-size:13px;
+    letter-spacing:0.22em;padding:12px 36px;cursor:pointer;
+    transition:border-color 0.25s,color 0.25s,background 0.25s;
+    white-space:nowrap;
   `;
-  skipBtn.onmouseenter = () => {
-    skipBtn.style.borderColor = 'rgba(255,255,255,0.9)';
-    skipBtn.style.color = '#fff';
+  understandBtn.onmouseenter = () => {
+    understandBtn.style.borderColor = 'rgba(255,255,255,1)';
+    understandBtn.style.color = '#fff';
+    understandBtn.style.background = 'rgba(255,255,255,0.08)';
   };
-  skipBtn.onmouseleave = () => {
-    skipBtn.style.borderColor = 'rgba(255,255,255,0.4)';
-    skipBtn.style.color = 'rgba(255,255,255,0.6)';
+  understandBtn.onmouseleave = () => {
+    understandBtn.style.borderColor = 'rgba(255,255,255,0.55)';
+    understandBtn.style.color = 'rgba(255,255,255,0.8)';
+    understandBtn.style.background = 'transparent';
   };
 
-  function launchStage1() {
-    audio.pause();
+  understandBtn.addEventListener('click', () => {
     overlay.style.opacity = '0';
     setTimeout(() => {
       overlay.remove();
-      startBGM();
       initStage1();
       animate();
     }, 800);
-  }
-
-  skipBtn.addEventListener('click', launchStage1);
-  overlay.appendChild(skipBtn);
-  document.body.appendChild(overlay);
-
-  audio.play().catch(() => {
-    overlay.style.cursor = 'pointer';
-    overlay.addEventListener('click', () => audio.play(), { once: true });
   });
-  audio.addEventListener('ended', launchStage1);
+
+  overlay.appendChild(understandBtn);
+  document.body.appendChild(overlay);
 }
 
 /* CSS 주입 */
