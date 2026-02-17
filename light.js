@@ -13,7 +13,6 @@ let userChoices = {
   intensity: null
 };
 
-// Stage 1 Data
 const stage1Data = {
   '1pm': {
     colors: ['#FF6B9D', '#E91E63', '#C2185B'],
@@ -40,7 +39,6 @@ const stage1Labels = {
   '7am': '(4) 7:00 am'
 };
 
-// Enhanced Blob Class
 class EnhancedBlob {
   constructor(x, y, radius, colors, label, shapeType = 'circle', isBottomIcon = false) {
     this.x = x;
@@ -72,7 +70,6 @@ class EnhancedBlob {
       this.drawTriangle();
     }
     
-    // Label
     if (this.label) {
       ctx.save();
       ctx.fillStyle = 'white';
@@ -86,107 +83,77 @@ class EnhancedBlob {
     }
   }
   
-  // Circle
   drawCircle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    
     const intensity = this.glowIntensity;
     
     if (this.isBottomIcon) {
       ctx.filter = 'blur(8px)';
-      const gradient = ctx.createRadialGradient(
-        this.x, this.y, 0,
-        this.x, this.y, this.radius * 1.2
-      );
+      const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 1.2);
       gradient.addColorStop(0, '#eeeeee');
       gradient.addColorStop(0.7, '#aaaaaa');
       gradient.addColorStop(1, '#55555500');
-      
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.radius * 1.2, 0, Math.PI * 2);
       ctx.fillStyle = gradient;
       ctx.fill();
     } else if (currentStage === 2) {
       ctx.filter = 'blur(25px)';
-      const glowGradient = ctx.createRadialGradient(
-        this.x, this.y, 0,
-        this.x, this.y, this.radius * 1.5
-      );
+      const glowGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 1.5);
       glowGradient.addColorStop(0, this.colors[0] + Math.floor(102 * intensity).toString(16).padStart(2, '0'));
       glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
       glowGradient.addColorStop(1, this.colors[2] + '00');
-      
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.radius * 1.5, 0, Math.PI * 2);
       ctx.fillStyle = glowGradient;
       ctx.fill();
       
       ctx.filter = 'blur(15px)';
-      const midGradient = ctx.createRadialGradient(
-        this.x, this.y, 0,
-        this.x, this.y, this.radius * 1.1
-      );
+      const midGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 1.1);
       midGradient.addColorStop(0, this.colors[0] + Math.floor(221 * intensity).toString(16).padStart(2, '0'));
       midGradient.addColorStop(0.7, this.colors[1] + Math.floor(170 * intensity).toString(16).padStart(2, '0'));
       midGradient.addColorStop(1, this.colors[2] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
-      
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.radius * 1.1, 0, Math.PI * 2);
       ctx.fillStyle = midGradient;
       ctx.fill();
       
       ctx.filter = 'blur(10px)';
-      const coreGradient = ctx.createRadialGradient(
-        this.x, this.y, 0,
-        this.x, this.y, this.radius * 0.9
-      );
+      const coreGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 0.9);
       coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
       coreGradient.addColorStop(0.7, this.colors[1] + Math.floor(238 * intensity).toString(16).padStart(2, '0'));
       coreGradient.addColorStop(1, this.colors[2] + Math.floor(153 * intensity).toString(16).padStart(2, '0'));
-      
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.radius * 0.9, 0, Math.PI * 2);
       ctx.fillStyle = coreGradient;
       ctx.fill();
     } else {
       ctx.filter = 'blur(60px)';
-      const glowGradient = ctx.createRadialGradient(
-        this.x, this.y, 0,
-        this.x, this.y, this.radius * 1.8
-      );
+      const glowGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 1.8);
       glowGradient.addColorStop(0, this.colors[0] + Math.floor(102 * intensity).toString(16).padStart(2, '0'));
       glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
       glowGradient.addColorStop(1, this.colors[2] + '00');
-      
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.radius * 1.8, 0, Math.PI * 2);
       ctx.fillStyle = glowGradient;
       ctx.fill();
       
       ctx.filter = 'blur(35px)';
-      const midGradient = ctx.createRadialGradient(
-        this.x, this.y, 0,
-        this.x, this.y, this.radius * 1.2
-      );
+      const midGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 1.2);
       midGradient.addColorStop(0, this.colors[0] + Math.floor(221 * intensity).toString(16).padStart(2, '0'));
       midGradient.addColorStop(0.7, this.colors[1] + Math.floor(170 * intensity).toString(16).padStart(2, '0'));
       midGradient.addColorStop(1, this.colors[2] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
-      
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.radius * 1.2, 0, Math.PI * 2);
       ctx.fillStyle = midGradient;
       ctx.fill();
       
       ctx.filter = 'blur(20px)';
-      const coreGradient = ctx.createRadialGradient(
-        this.x, this.y, 0,
-        this.x, this.y, this.radius * 0.9
-      );
+      const coreGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 0.9);
       coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
       coreGradient.addColorStop(0.7, this.colors[1] + Math.floor(238 * intensity).toString(16).padStart(2, '0'));
       coreGradient.addColorStop(1, this.colors[2] + Math.floor(153 * intensity).toString(16).padStart(2, '0'));
-      
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.radius * 0.9, 0, Math.PI * 2);
       ctx.fillStyle = coreGradient;
@@ -197,11 +164,9 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  // Clover
   drawClover() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    
     const leafRadius = this.radius * 0.35;
     
     this.drawClearLeaf(this.x, this.y - leafRadius * 1.6, leafRadius);
@@ -230,7 +195,6 @@ class EnhancedBlob {
     ctx.fillStyle = stemGradient;
     ctx.fill();
     ctx.restore();
-    
     ctx.filter = 'none';
     ctx.restore();
   }
@@ -250,7 +214,6 @@ class EnhancedBlob {
       glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
       glowGradient.addColorStop(1, this.colors[2] + '00');
     }
-    
     ctx.beginPath();
     ctx.arc(x, y, r * 1.5, 0, Math.PI * 2);
     ctx.fillStyle = glowGradient;
@@ -268,28 +231,22 @@ class EnhancedBlob {
       coreGradient.addColorStop(0.5, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
       coreGradient.addColorStop(1, this.colors[2] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
     }
-    
     ctx.beginPath();
     ctx.arc(x, y, r * 1.2, 0, Math.PI * 2);
     ctx.fillStyle = coreGradient;
     ctx.fill();
   }
   
-  // Heart
   drawHeart() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    
     const size = this.radius * 0.8;
     const intensity = this.glowIntensity;
     const blurAmount = this.isBottomIcon ? 'blur(8px)' : (currentStage === 2 ? 'blur(12px)' : 'blur(25px)');
     const coreBlur = this.isBottomIcon ? 'blur(4px)' : (currentStage === 2 ? 'blur(6px)' : 'blur(8px)');
     
     ctx.filter = blurAmount;
-    const glow1 = ctx.createRadialGradient(
-      this.x - size * 0.5, this.y - size * 0.3, 0,
-      this.x - size * 0.5, this.y - size * 0.3, size * 1.0
-    );
+    const glow1 = ctx.createRadialGradient(this.x - size * 0.5, this.y - size * 0.3, 0, this.x - size * 0.5, this.y - size * 0.3, size * 1.0);
     if (this.isBottomIcon) {
       glow1.addColorStop(0, '#dddddd');
       glow1.addColorStop(0.5, '#999999');
@@ -299,17 +256,13 @@ class EnhancedBlob {
       glow1.addColorStop(0.5, this.colors[1] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
       glow1.addColorStop(1, this.colors[2] + '00');
     }
-    
     ctx.beginPath();
     ctx.arc(this.x - size * 0.5, this.y - size * 0.3, size * 1.0, 0, Math.PI * 2);
     ctx.fillStyle = glow1;
     ctx.fill();
     
     ctx.filter = coreBlur;
-    const core1 = ctx.createRadialGradient(
-      this.x - size * 0.5, this.y - size * 0.3, 0,
-      this.x - size * 0.5, this.y - size * 0.3, size * 0.65
-    );
+    const core1 = ctx.createRadialGradient(this.x - size * 0.5, this.y - size * 0.3, 0, this.x - size * 0.5, this.y - size * 0.3, size * 0.65);
     if (this.isBottomIcon) {
       core1.addColorStop(0, '#ffffff');
       core1.addColorStop(0.6, '#cccccc');
@@ -319,17 +272,13 @@ class EnhancedBlob {
       core1.addColorStop(0.6, this.colors[1] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
       core1.addColorStop(1, this.colors[2] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
     }
-    
     ctx.beginPath();
     ctx.arc(this.x - size * 0.5, this.y - size * 0.3, size * 0.65, 0, Math.PI * 2);
     ctx.fillStyle = core1;
     ctx.fill();
     
     ctx.filter = blurAmount;
-    const glow2 = ctx.createRadialGradient(
-      this.x + size * 0.5, this.y - size * 0.3, 0,
-      this.x + size * 0.5, this.y - size * 0.3, size * 1.0
-    );
+    const glow2 = ctx.createRadialGradient(this.x + size * 0.5, this.y - size * 0.3, 0, this.x + size * 0.5, this.y - size * 0.3, size * 1.0);
     if (this.isBottomIcon) {
       glow2.addColorStop(0, '#dddddd');
       glow2.addColorStop(0.5, '#999999');
@@ -339,17 +288,13 @@ class EnhancedBlob {
       glow2.addColorStop(0.5, this.colors[2] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
       glow2.addColorStop(1, this.colors[0] + '00');
     }
-    
     ctx.beginPath();
     ctx.arc(this.x + size * 0.5, this.y - size * 0.3, size * 1.0, 0, Math.PI * 2);
     ctx.fillStyle = glow2;
     ctx.fill();
     
     ctx.filter = coreBlur;
-    const core2 = ctx.createRadialGradient(
-      this.x + size * 0.5, this.y - size * 0.3, 0,
-      this.x + size * 0.5, this.y - size * 0.3, size * 0.65
-    );
+    const core2 = ctx.createRadialGradient(this.x + size * 0.5, this.y - size * 0.3, 0, this.x + size * 0.5, this.y - size * 0.3, size * 0.65);
     if (this.isBottomIcon) {
       core2.addColorStop(0, '#ffffff');
       core2.addColorStop(0.6, '#cccccc');
@@ -359,17 +304,13 @@ class EnhancedBlob {
       core2.addColorStop(0.6, this.colors[2] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
       core2.addColorStop(1, this.colors[0] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
     }
-    
     ctx.beginPath();
     ctx.arc(this.x + size * 0.5, this.y - size * 0.3, size * 0.65, 0, Math.PI * 2);
     ctx.fillStyle = core2;
     ctx.fill();
     
     ctx.filter = blurAmount;
-    const glow3 = ctx.createRadialGradient(
-      this.x, this.y + size * 0.3, 0,
-      this.x, this.y + size * 0.3, size * 1.5
-    );
+    const glow3 = ctx.createRadialGradient(this.x, this.y + size * 0.3, 0, this.x, this.y + size * 0.3, size * 1.5);
     if (this.isBottomIcon) {
       glow3.addColorStop(0, '#dddddd');
       glow3.addColorStop(0.5, '#999999');
@@ -379,7 +320,6 @@ class EnhancedBlob {
       glow3.addColorStop(0.5, this.colors[0] + Math.floor(51 * intensity).toString(16).padStart(2, '0'));
       glow3.addColorStop(1, this.colors[1] + '00');
     }
-    
     ctx.beginPath();
     ctx.moveTo(this.x - size * 1.3, this.y - size * 0.2);
     ctx.lineTo(this.x + size * 1.3, this.y - size * 0.2);
@@ -389,10 +329,7 @@ class EnhancedBlob {
     ctx.fill();
     
     ctx.filter = coreBlur;
-    const core3 = ctx.createRadialGradient(
-      this.x, this.y + size * 0.3, 0,
-      this.x, this.y + size * 0.3, size * 1.0
-    );
+    const core3 = ctx.createRadialGradient(this.x, this.y + size * 0.3, 0, this.x, this.y + size * 0.3, size * 1.0);
     if (this.isBottomIcon) {
       core3.addColorStop(0, '#ffffff');
       core3.addColorStop(0.5, '#cccccc');
@@ -402,7 +339,6 @@ class EnhancedBlob {
       core3.addColorStop(0.5, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
       core3.addColorStop(1, this.colors[1] + Math.floor(204 * intensity).toString(16).padStart(2, '0'));
     }
-    
     ctx.beginPath();
     ctx.moveTo(this.x - size * 1.0, this.y - size * 0.1);
     ctx.lineTo(this.x + size * 1.0, this.y - size * 0.1);
@@ -415,11 +351,9 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  // Star
   drawStar() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    
     const spikes = 5;
     const outerRadius = this.radius * 0.9;
     const innerRadius = this.radius * 0.4;
@@ -428,10 +362,7 @@ class EnhancedBlob {
     const coreBlur = this.isBottomIcon ? 'blur(5px)' : (currentStage === 2 ? 'blur(6px)' : 'blur(8px)');
     
     ctx.filter = blurAmount;
-    const glowGradient = ctx.createRadialGradient(
-      this.x, this.y, 0,
-      this.x, this.y, outerRadius * 1.5
-    );
+    const glowGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, outerRadius * 1.5);
     if (this.isBottomIcon) {
       glowGradient.addColorStop(0, '#eeeeee');
       glowGradient.addColorStop(0.5, '#aaaaaa');
@@ -441,29 +372,20 @@ class EnhancedBlob {
       glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
       glowGradient.addColorStop(1, this.colors[2] + '00');
     }
-    
     ctx.beginPath();
     for (let i = 0; i < spikes * 2; i++) {
       const angle = (Math.PI * i) / spikes - Math.PI / 2;
       const radius = i % 2 === 0 ? outerRadius * 1.5 : innerRadius * 1.5;
       const x = this.x + Math.cos(angle) * radius;
       const y = this.y + Math.sin(angle) * radius;
-      
-      if (i === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
+      if (i === 0) { ctx.moveTo(x, y); } else { ctx.lineTo(x, y); }
     }
     ctx.closePath();
     ctx.fillStyle = glowGradient;
     ctx.fill();
     
     ctx.filter = coreBlur;
-    const coreGradient = ctx.createRadialGradient(
-      this.x, this.y, 0,
-      this.x, this.y, outerRadius * 1.1
-    );
+    const coreGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, outerRadius * 1.1);
     if (this.isBottomIcon) {
       coreGradient.addColorStop(0, '#ffffff');
       coreGradient.addColorStop(0.4, '#dddddd');
@@ -475,19 +397,13 @@ class EnhancedBlob {
       coreGradient.addColorStop(0.8, this.colors[2] + Math.floor(238 * intensity).toString(16).padStart(2, '0'));
       coreGradient.addColorStop(1, this.colors[0] + '00');
     }
-    
     ctx.beginPath();
     for (let i = 0; i < spikes * 2; i++) {
       const angle = (Math.PI * i) / spikes - Math.PI / 2;
       const radius = i % 2 === 0 ? outerRadius : innerRadius;
       const x = this.x + Math.cos(angle) * radius;
       const y = this.y + Math.sin(angle) * radius;
-      
-      if (i === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
+      if (i === 0) { ctx.moveTo(x, y); } else { ctx.lineTo(x, y); }
     }
     ctx.closePath();
     ctx.fillStyle = coreGradient;
@@ -497,21 +413,16 @@ class EnhancedBlob {
     ctx.restore();
   }
   
-  // Triangle
   drawTriangle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    
     const size = this.radius * 1.2;
     const intensity = this.glowIntensity;
     const blurAmount = this.isBottomIcon ? 'blur(10px)' : (currentStage === 2 ? 'blur(15px)' : 'blur(30px)');
     const coreBlur = this.isBottomIcon ? 'blur(5px)' : (currentStage === 2 ? 'blur(8px)' : 'blur(10px)');
     
     ctx.filter = blurAmount;
-    const glowGradient = ctx.createRadialGradient(
-      this.x, this.y, 0,
-      this.x, this.y, size * 1.5
-    );
+    const glowGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, size * 1.5);
     if (this.isBottomIcon) {
       glowGradient.addColorStop(0, '#eeeeee');
       glowGradient.addColorStop(0.5, '#aaaaaa');
@@ -521,7 +432,6 @@ class EnhancedBlob {
       glowGradient.addColorStop(0.5, this.colors[1] + Math.floor(68 * intensity).toString(16).padStart(2, '0'));
       glowGradient.addColorStop(1, this.colors[2] + '00');
     }
-    
     ctx.beginPath();
     ctx.moveTo(this.x, this.y - size * 1.3);
     ctx.lineTo(this.x - size * 1.2, this.y + size * 0.8);
@@ -531,10 +441,7 @@ class EnhancedBlob {
     ctx.fill();
     
     ctx.filter = coreBlur;
-    const coreGradient = ctx.createRadialGradient(
-      this.x, this.y, 0,
-      this.x, this.y, size * 1.0
-    );
+    const coreGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, size * 1.0);
     if (this.isBottomIcon) {
       coreGradient.addColorStop(0, '#ffffff');
       coreGradient.addColorStop(0.4, '#dddddd');
@@ -546,7 +453,6 @@ class EnhancedBlob {
       coreGradient.addColorStop(0.8, this.colors[2] + Math.floor(238 * intensity).toString(16).padStart(2, '0'));
       coreGradient.addColorStop(1, this.colors[0] + '00');
     }
-    
     ctx.beginPath();
     ctx.moveTo(this.x, this.y - size);
     ctx.lineTo(this.x - size * 0.9, this.y + size * 0.6);
@@ -560,7 +466,6 @@ class EnhancedBlob {
   }
 }
 
-// Light Beam Class
 class LightBeam {
   constructor(startX, startY, endX, endY, colors) {
     this.startX = startX;
@@ -582,16 +487,11 @@ class LightBeam {
     
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    
     ctx.filter = 'blur(30px)';
-    const gradient = ctx.createLinearGradient(
-      this.startX, this.startY,
-      currentX, currentY
-    );
+    const gradient = ctx.createLinearGradient(this.startX, this.startY, currentX, currentY);
     gradient.addColorStop(0, this.colors[0] + 'ff');
     gradient.addColorStop(0.5, this.colors[1] + 'ff');
     gradient.addColorStop(1, this.colors[2] + 'ff');
-    
     ctx.strokeStyle = gradient;
     ctx.lineWidth = 15;
     ctx.beginPath();
@@ -600,7 +500,6 @@ class LightBeam {
     ctx.stroke();
     
     ctx.filter = 'blur(10px)';
-    ctx.strokeStyle = gradient;
     ctx.lineWidth = 8;
     ctx.beginPath();
     ctx.moveTo(this.startX, this.startY);
@@ -612,7 +511,6 @@ class LightBeam {
   }
 }
 
-// Global Variables
 let stage1Blobs = {};
 let stage2Blobs = {};
 let centerLight;
@@ -624,231 +522,109 @@ let lightIntensity = 0.5;
 let sliderDragging = false;
 let sliderX = 0;
 
-// Stage 1 Initialization
 function initStage1() {
   stage1Blobs = {};
-  
   for (const [key, data] of Object.entries(stage1Data)) {
-    stage1Blobs[key] = new EnhancedBlob(
-      data.position.x,
-      data.position.y,
-      85,
-      data.colors,
-      stage1Labels[key],
-      'circle',
-      false
-    );
+    stage1Blobs[key] = new EnhancedBlob(data.position.x, data.position.y, 85, data.colors, stage1Labels[key], 'circle', false);
   }
-  
-  centerLight = new EnhancedBlob(
-    canvas.width / 2,
-    canvas.height * 0.45,
-    70,
-    ['#FFFFFF', '#F5F5F5', '#E0E0E0'],
-    '',
-    'circle',
-    false
-  );
-  
+  centerLight = new EnhancedBlob(canvas.width / 2, canvas.height * 0.45, 70, ['#FFFFFF', '#F5F5F5', '#E0E0E0'], '', 'circle', false);
   setTimeout(() => showDragGuide(), 500);
 }
 
-// Stage 2 Initialization
 function initStage2() {
   leftImage.src = 'art2.png';
-  
   stage2Blobs = {};
   const selectedColors = stage1Data[userChoices.time].colors;
   const grayColors = ['#999999', '#777777', '#555555'];
-  
   const shapeY = canvas.height * 0.72;
   const shapeRadius = 50;
   
-  stage2Blobs['clover'] = new EnhancedBlob(
-    canvas.width * 0.25,
-    shapeY,
-    shapeRadius,
-    grayColors,
-    '',
-    'clover',
-    true
-  );
-  
-  stage2Blobs['star'] = new EnhancedBlob(
-    canvas.width * 0.42,
-    shapeY,
-    shapeRadius,
-    grayColors,
-    '',
-    'star',
-    true
-  );
-  
-  stage2Blobs['heart'] = new EnhancedBlob(
-    canvas.width * 0.58,
-    shapeY,
-    shapeRadius,
-    grayColors,
-    '',
-    'heart',
-    true
-  );
-  
-  stage2Blobs['triangle'] = new EnhancedBlob(
-    canvas.width * 0.75,
-    shapeY,
-    shapeRadius,
-    grayColors,
-    '',
-    'triangle',
-    true
-  );
-  
-  centerLight = new EnhancedBlob(
-    canvas.width / 2,
-    canvas.height * 0.35,
-    90,
-    selectedColors,
-    '',
-    'circle',
-    false
-  );
-  
+  stage2Blobs['clover'] = new EnhancedBlob(canvas.width * 0.25, shapeY, shapeRadius, grayColors, '', 'clover', true);
+  stage2Blobs['star'] = new EnhancedBlob(canvas.width * 0.42, shapeY, shapeRadius, grayColors, '', 'star', true);
+  stage2Blobs['heart'] = new EnhancedBlob(canvas.width * 0.58, shapeY, shapeRadius, grayColors, '', 'heart', true);
+  stage2Blobs['triangle'] = new EnhancedBlob(canvas.width * 0.75, shapeY, shapeRadius, grayColors, '', 'triangle', true);
+  centerLight = new EnhancedBlob(canvas.width / 2, canvas.height * 0.35, 90, selectedColors, '', 'circle', false);
   nextBtn.disabled = true;
   setTimeout(() => showDragGuide(), 500);
 }
 
-// Stage 3 Initialization
 function initStage3() {
   leftImage.src = 'art3.png';
-  
   const selectedColors = stage1Data[userChoices.time].colors;
   const selectedShape = userChoices.shape;
-  
-  centerLight = new EnhancedBlob(
-    canvas.width / 2,
-    canvas.height * 0.30,
-    90,
-    selectedColors,
-    '',
-    selectedShape,
-    false
-  );
-  
+  centerLight = new EnhancedBlob(canvas.width / 2, canvas.height * 0.30, 90, selectedColors, '', selectedShape, false);
   lightIntensity = 0.5;
   centerLight.glowIntensity = 1.0;
-  
   nextBtn.disabled = true;
-  
   setTimeout(() => showSliderGuide(), 500);
 }
 
-// Drag Guide
 function showDragGuide() {
   if (guideShown) return;
   guideShown = true;
-  
   const guide = document.createElement('div');
   guide.className = 'drag-guide';
-  
   if (currentStage === 1) {
-    guide.innerHTML = `
-      <div class="drag-guide-text">Drag the light to a time</div>
-      <div class="drag-arrow">↕</div>
-    `;
+    guide.innerHTML = `<div class="drag-guide-text">Drag the light to a time</div><div class="drag-arrow">↕</div>`;
   } else {
-    guide.innerHTML = `
-      <div class="drag-guide-text">Click a shape</div>
-    `;
+    guide.innerHTML = `<div class="drag-guide-text">Click a shape</div>`;
   }
-  
   document.getElementById('right-panel').appendChild(guide);
-  
-  setTimeout(() => {
-    guide.remove();
-  }, 3000);
+  setTimeout(() => guide.remove(), 3000);
 }
 
-// Slider Guide
 function showSliderGuide() {
   const guide = document.createElement('div');
   guide.className = 'drag-guide';
-  guide.innerHTML = `
-    <div class="drag-guide-text">Drag the slider to adjust intensity</div>
-  `;
-  
+  guide.innerHTML = `<div class="drag-guide-text">Drag the slider to adjust intensity</div>`;
   document.getElementById('right-panel').appendChild(guide);
-  
-  setTimeout(() => {
-    guide.remove();
-  }, 3000);
+  setTimeout(() => guide.remove(), 3000);
 }
 
-// Draw Slider
 function drawSlider() {
   const sliderY = canvas.height * 0.75;
   const sliderWidth = canvas.width * 0.6;
   const sliderLeft = canvas.width * 0.2;
   const sliderRight = sliderLeft + sliderWidth;
-  
   ctx.save();
-  
   ctx.strokeStyle = '#444444';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(sliderLeft, sliderY);
   ctx.lineTo(sliderRight, sliderY);
   ctx.stroke();
-  
   ctx.fillStyle = 'white';
   ctx.font = '14px Helvetica Neue, Arial';
   ctx.textAlign = 'left';
   ctx.fillText('Calm, Decisive', sliderLeft, sliderY - 20);
   ctx.textAlign = 'right';
   ctx.fillText('Vibrant, Nuanced', sliderRight, sliderY - 20);
-  
   sliderX = sliderLeft + lightIntensity * sliderWidth;
-  
   ctx.fillStyle = '#ffffff';
   ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
   ctx.shadowBlur = 10;
   ctx.beginPath();
   ctx.arc(sliderX, sliderY, 8, 0, Math.PI * 2);
   ctx.fill();
-  
   ctx.restore();
 }
 
-// Update Intensity
 function updateIntensity(value) {
   lightIntensity = Math.max(0, Math.min(1, value));
-  
   centerLight.glowIntensity = 0.4 + lightIntensity * 1.1;
   centerLight.baseRadius = 70 + lightIntensity * 35;
-  
   nextBtn.disabled = false;
-  
   userChoices.intensity = lightIntensity;
 }
 
-// Draw Example Lights
 function drawExampleLights() {
   const exampleY = canvas.height * 0.30;
   const exampleRadius = 30;
   const spacing = 45;
-  
   const time = Date.now();
   
   for (let i = 0; i < 4; i++) {
-    const blob = new EnhancedBlob(
-      canvas.width * 0.15 + i * spacing,
-      exampleY,
-      exampleRadius * 0.7,
-      stage1Data[userChoices.time].colors,
-      '',
-      userChoices.shape,
-      false
-    );
+    const blob = new EnhancedBlob(canvas.width * 0.15 + i * spacing, exampleY, exampleRadius * 0.7, stage1Data[userChoices.time].colors, '', userChoices.shape, false);
     blob.glowIntensity = 0.4;
     blob.baseRadius = exampleRadius * 0.7;
     blob.update(time);
@@ -856,15 +632,7 @@ function drawExampleLights() {
   }
   
   for (let i = 0; i < 5; i++) {
-    const blob = new EnhancedBlob(
-      canvas.width * 0.68 + i * spacing,
-      exampleY,
-      exampleRadius,
-      stage1Data[userChoices.time].colors,
-      '',
-      userChoices.shape,
-      false
-    );
+    const blob = new EnhancedBlob(canvas.width * 0.68 + i * spacing, exampleY, exampleRadius, stage1Data[userChoices.time].colors, '', userChoices.shape, false);
     blob.glowIntensity = 1.5;
     blob.baseRadius = exampleRadius;
     blob.update(time);
@@ -872,50 +640,39 @@ function drawExampleLights() {
   }
 }
 
-// Slider Events
 function handleSliderClick(e) {
   if (currentStage !== 3) return;
-  
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
-  
   const sliderY = canvas.height * 0.75;
   const sliderWidth = canvas.width * 0.6;
   const sliderLeft = canvas.width * 0.2;
   const sliderRight = sliderLeft + sliderWidth;
-  
   if (y >= sliderY - 20 && y <= sliderY + 20 && x >= sliderLeft && x <= sliderRight) {
     sliderDragging = true;
-    const newValue = (x - sliderLeft) / sliderWidth;
-    updateIntensity(newValue);
+    updateIntensity((x - sliderLeft) / sliderWidth);
   }
 }
 
 function handleSliderMove(e) {
   if (currentStage !== 3 || !sliderDragging) return;
-  
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
-  
   const sliderWidth = canvas.width * 0.6;
   const sliderLeft = canvas.width * 0.2;
-  
-  const newValue = (x - sliderLeft) / sliderWidth;
-  updateIntensity(newValue);
+  updateIntensity((x - sliderLeft) / sliderWidth);
 }
 
 function handleSliderRelease() {
   sliderDragging = false;
 }
 
-// Event Listeners
 canvas.addEventListener('mousedown', (e) => {
   if (currentStage === 1 && !isAnimating) {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
     const dist = Math.sqrt((x - centerLight.x) ** 2 + (y - centerLight.y) ** 2);
     if (dist < centerLight.radius) {
       isDragging = true;
@@ -931,14 +688,12 @@ canvas.addEventListener('mousemove', (e) => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
     const dist = Math.sqrt((x - centerLight.x) ** 2 + (y - centerLight.y) ** 2);
     if (dist < centerLight.radius && !isDragging) {
       canvas.style.cursor = 'grab';
     } else if (!isDragging) {
       canvas.style.cursor = 'default';
     }
-    
     if (isDragging) {
       centerLight.x = e.clientX - rect.left;
       centerLight.y = e.clientY - rect.top;
@@ -960,14 +715,11 @@ canvas.addEventListener('mouseup', (e) => {
 
 canvas.addEventListener('click', (e) => {
   if (currentStage !== 2 || isAnimating) return;
-  
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
-  
   for (const [key, blob] of Object.entries(stage2Blobs)) {
     const dist = Math.sqrt((x - blob.x) ** 2 + (y - blob.y) ** 2);
-    
     if (dist < blob.radius + 30) {
       shootLight(key, blob);
       return;
@@ -978,17 +730,13 @@ canvas.addEventListener('click', (e) => {
 canvas.addEventListener('touchstart', (e) => {
   if (isAnimating) return;
   e.preventDefault();
-  
   const rect = canvas.getBoundingClientRect();
   const touch = e.touches[0];
   const x = touch.clientX - rect.left;
   const y = touch.clientY - rect.top;
-  
   if (currentStage === 1) {
     const dist = Math.sqrt((x - centerLight.x) ** 2 + (y - centerLight.y) ** 2);
-    if (dist < centerLight.radius) {
-      isDragging = true;
-    }
+    if (dist < centerLight.radius) isDragging = true;
   } else if (currentStage === 2) {
     for (const [key, blob] of Object.entries(stage2Blobs)) {
       const dist = Math.sqrt((x - blob.x) ** 2 + (y - blob.y) ** 2);
@@ -1002,11 +750,9 @@ canvas.addEventListener('touchstart', (e) => {
     const sliderWidth = canvas.width * 0.6;
     const sliderLeft = canvas.width * 0.2;
     const sliderRight = sliderLeft + sliderWidth;
-    
     if (y >= sliderY - 20 && y <= sliderY + 20 && x >= sliderLeft && x <= sliderRight) {
       sliderDragging = true;
-      const newValue = (x - sliderLeft) / sliderWidth;
-      updateIntensity(newValue);
+      updateIntensity((x - sliderLeft) / sliderWidth);
     }
   }
 });
@@ -1023,12 +769,9 @@ canvas.addEventListener('touchmove', (e) => {
     const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
     const x = touch.clientX - rect.left;
-    
     const sliderWidth = canvas.width * 0.6;
     const sliderLeft = canvas.width * 0.2;
-    
-    const newValue = (x - sliderLeft) / sliderWidth;
-    updateIntensity(newValue);
+    updateIntensity((x - sliderLeft) / sliderWidth);
   }
 });
 
@@ -1043,15 +786,9 @@ canvas.addEventListener('touchend', (e) => {
   }
 });
 
-// Stage 1: Drop Detection
 function checkDrop() {
-  const blobs = stage1Blobs;
-  
-  for (const [key, blob] of Object.entries(blobs)) {
-    const dist = Math.sqrt(
-      (centerLight.x - blob.x) ** 2 + (centerLight.y - blob.y) ** 2
-    );
-    
+  for (const [key, blob] of Object.entries(stage1Blobs)) {
+    const dist = Math.sqrt((centerLight.x - blob.x) ** 2 + (centerLight.y - blob.y) ** 2);
     if (dist < blob.radius + centerLight.radius) {
       absorbColor(key, blob);
       return;
@@ -1059,11 +796,9 @@ function checkDrop() {
   }
 }
 
-// Stage 1: Color Absorption
 function absorbColor(timeKey, targetBlob) {
   isAnimating = true;
   userChoices.time = timeKey;
-  
   const startX = centerLight.x;
   const startY = centerLight.y;
   const startRadius = centerLight.radius;
@@ -1074,20 +809,15 @@ function absorbColor(timeKey, targetBlob) {
     const elapsed = Date.now() - startTime;
     const progress = Math.min(elapsed / duration, 1);
     const eased = easeInOutCubic(progress);
-    
     centerLight.x = startX + (targetBlob.x - startX) * eased;
     centerLight.y = startY + (targetBlob.y - startY) * eased;
     centerLight.radius = startRadius * (1 - eased * 0.4);
-    
     if (progress < 1) {
       requestAnimationFrame(animateAbsorb);
     } else {
-      setTimeout(() => {
-        changeColor(timeKey, startX, startY, startRadius);
-      }, 300);
+      setTimeout(() => changeColor(timeKey, startX, startY, startRadius), 300);
     }
   }
-  
   animateAbsorb();
 }
 
@@ -1099,19 +829,14 @@ function changeColor(timeKey, originalX, originalY, originalRadius) {
   function animateColor() {
     const elapsed = Date.now() - startTime;
     const progress = Math.min(elapsed / duration, 1);
-    
     centerLight.colors = newColors;
     centerLight.radius = originalRadius * (0.6 + progress * 0.4);
-    
     if (progress < 1) {
       requestAnimationFrame(animateColor);
     } else {
-      setTimeout(() => {
-        returnToCenter(originalX, originalY, originalRadius);
-      }, 200);
+      setTimeout(() => returnToCenter(originalX, originalY, originalRadius), 200);
     }
   }
-  
   animateColor();
 }
 
@@ -1127,11 +852,9 @@ function returnToCenter(x, y, radius) {
     const elapsed = Date.now() - startTime;
     const progress = Math.min(elapsed / duration, 1);
     const eased = easeInOutCubic(progress);
-    
     centerLight.x = startX + (centerX - startX) * eased;
     centerLight.y = startY + (centerY - startY) * eased;
     centerLight.radius = radius;
-    
     if (progress < 1) {
       requestAnimationFrame(animateReturn);
     } else {
@@ -1139,49 +862,33 @@ function returnToCenter(x, y, radius) {
       nextBtn.disabled = false;
     }
   }
-  
   animateReturn();
 }
 
-// Stage 2: Shoot Light
 function shootLight(shapeKey, targetBlob) {
   isAnimating = true;
   userChoices.shape = shapeKey;
-  
-  lightBeam = new LightBeam(
-    centerLight.x,
-    centerLight.y,
-    targetBlob.x,
-    targetBlob.y,
-    centerLight.colors
-  );
-  
+  lightBeam = new LightBeam(centerLight.x, centerLight.y, targetBlob.x, targetBlob.y, centerLight.colors);
   const phase1Start = Date.now();
   
   function animatePhase1() {
     const elapsed = Date.now() - phase1Start;
     const isComplete = lightBeam.update(elapsed);
-    
     if (!isComplete) {
       requestAnimationFrame(animatePhase1);
     } else {
       lightBeam = null;
-      setTimeout(() => {
-        animatePhase2(shapeKey);
-      }, 200);
+      setTimeout(() => animatePhase2(shapeKey), 200);
     }
   }
   
   function animatePhase2(shapeKey) {
     const duration = 1000;
     const startTime = Date.now();
-    
     function transform() {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      
       centerLight.shapeType = shapeKey;
-      
       if (progress < 1) {
         requestAnimationFrame(transform);
       } else {
@@ -1189,23 +896,18 @@ function shootLight(shapeKey, targetBlob) {
         nextBtn.disabled = false;
       }
     }
-    
     transform();
   }
-  
   animatePhase1();
 }
 
-// Easing Function
 function easeInOutCubic(t) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-// Animation Loop (FIXED)
 function animate() {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
   const time = Date.now();
   
   if (currentStage === 1) {
@@ -1213,7 +915,6 @@ function animate() {
       blob.update(time);
       blob.draw();
     });
-    
     centerLight.update(time);
     centerLight.draw();
   } else if (currentStage === 2) {
@@ -1221,14 +922,11 @@ function animate() {
       blob.update(time);
       blob.draw();
     });
-    
     centerLight.update(time);
     centerLight.draw();
   } else if (currentStage === 3) {
-    // Stage 3: Center light first, then examples
     centerLight.update(time);
     centerLight.draw();
-    
     drawExampleLights();
     drawSlider();
   }
@@ -1240,7 +938,6 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-// Next Button
 nextBtn.disabled = true;
 nextBtn.addEventListener('click', () => {
   if (currentStage === 1) {
@@ -1252,20 +949,16 @@ nextBtn.addEventListener('click', () => {
     guideShown = false;
     initStage3();
   } else if (currentStage === 3) {
-    console.log('Final Result!');
-    console.log('User Choices:', userChoices);
+    console.log('Final Result:', userChoices);
     alert(`Complete!\nTime: ${userChoices.time}\nShape: ${userChoices.shape}\nIntensity: ${userChoices.intensity.toFixed(2)}`);
   }
 });
 
-// Resize Handler
 window.addEventListener('resize', () => {
   const oldWidth = canvas.width;
   const oldHeight = canvas.height;
-  
   canvas.width = canvas.offsetWidth;
   canvas.height = canvas.offsetHeight;
-  
   const scaleX = canvas.width / oldWidth;
   const scaleY = canvas.height / oldHeight;
   
@@ -1289,23 +982,5 @@ window.addEventListener('resize', () => {
   }
 });
 
-// Start
 initStage1();
 animate();
-```
-
----
-
-## ✅ 최종 완성!
-
-**수정 사항:**
-1. ✅ `animate()` 함수 그리기 순서 수정
-2. ✅ Stage 3: 중앙 빛 → 예시 빛 → 슬라이더 순서
-3. ✅ `drawExampleLights()` blob.update(time) 추가
-
-**Stage 3 렌더링 순서:**
-```
-1. 중앙 빛 (맨 뒤)
-2. 좌측 Calm 예시 (4개)
-3. 우측 Vibrant 예시 (5개)
-4. 슬라이더 (맨 앞)
