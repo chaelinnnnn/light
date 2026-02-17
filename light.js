@@ -582,6 +582,8 @@ function showSliderGuide() {
 }
 
 function drawSlider() {
+  ctx.globalCompositeOperation = 'source-over';  // ← 이 줄 추가!
+  
   const sliderY = canvas.height * 0.68;
   const sliderWidth = canvas.width * 0.5;
   const sliderLeft = canvas.width * 0.25;
@@ -913,11 +915,17 @@ function animate() {
   } else if (currentStage === 3) {
     centerLight.update(time);
     centerLight.draw();
-    drawSlider();
   }
   
   if (lightBeam) {
     lightBeam.draw();
+  }
+  
+  // ✅ 슬라이더를 맨 마지막에! (Stage 3에서만)
+  if (currentStage === 3) {
+    // globalCompositeOperation 초기화 후 그리기
+    ctx.globalCompositeOperation = 'source-over';
+    drawSlider();
   }
   
   requestAnimationFrame(animate);
