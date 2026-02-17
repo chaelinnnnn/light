@@ -94,7 +94,6 @@ class EnhancedBlob {
     const intensity = this.glowIntensity;
     
     if (this.isBottomIcon) {
-      // Bottom icon: sharp and clear
       ctx.filter = 'blur(8px)';
       const gradient = ctx.createRadialGradient(
         this.x, this.y, 0,
@@ -109,7 +108,6 @@ class EnhancedBlob {
       ctx.fillStyle = gradient;
       ctx.fill();
     } else if (currentStage === 2) {
-      // Stage 2 center light: sharper
       ctx.filter = 'blur(25px)';
       const glowGradient = ctx.createRadialGradient(
         this.x, this.y, 0,
@@ -152,7 +150,6 @@ class EnhancedBlob {
       ctx.fillStyle = coreGradient;
       ctx.fill();
     } else {
-      // Stage 1 & 3: original soft blur
       ctx.filter = 'blur(60px)';
       const glowGradient = ctx.createRadialGradient(
         this.x, this.y, 0,
@@ -840,6 +837,8 @@ function drawExampleLights() {
   const exampleRadius = 30;
   const spacing = 45;
   
+  const time = Date.now();
+  
   for (let i = 0; i < 4; i++) {
     const blob = new EnhancedBlob(
       canvas.width * 0.15 + i * spacing,
@@ -852,6 +851,7 @@ function drawExampleLights() {
     );
     blob.glowIntensity = 0.4;
     blob.baseRadius = exampleRadius * 0.7;
+    blob.update(time);
     blob.draw();
   }
   
@@ -867,6 +867,7 @@ function drawExampleLights() {
     );
     blob.glowIntensity = 1.5;
     blob.baseRadius = exampleRadius;
+    blob.update(time);
     blob.draw();
   }
 }
@@ -1200,7 +1201,7 @@ function easeInOutCubic(t) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-// Animation Loop
+// Animation Loop (FIXED)
 function animate() {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1212,24 +1213,28 @@ function animate() {
       blob.update(time);
       blob.draw();
     });
+    
+    centerLight.update(time);
+    centerLight.draw();
   } else if (currentStage === 2) {
     Object.values(stage2Blobs).forEach(blob => {
       blob.update(time);
       blob.draw();
     });
+    
+    centerLight.update(time);
+    centerLight.draw();
   } else if (currentStage === 3) {
+    // Stage 3: Center light first, then examples
+    centerLight.update(time);
+    centerLight.draw();
+    
     drawExampleLights();
+    drawSlider();
   }
   
   if (lightBeam) {
     lightBeam.draw();
-  }
-  
-  centerLight.update(time);
-  centerLight.draw();
-  
-  if (currentStage === 3) {
-    drawSlider();
   }
   
   requestAnimationFrame(animate);
@@ -1287,3 +1292,20 @@ window.addEventListener('resize', () => {
 // Start
 initStage1();
 animate();
+```
+
+---
+
+## ✅ 최종 완성!
+
+**수정 사항:**
+1. ✅ `animate()` 함수 그리기 순서 수정
+2. ✅ Stage 3: 중앙 빛 → 예시 빛 → 슬라이더 순서
+3. ✅ `drawExampleLights()` blob.update(time) 추가
+
+**Stage 3 렌더링 순서:**
+```
+1. 중앙 빛 (맨 뒤)
+2. 좌측 Calm 예시 (4개)
+3. 우측 Vibrant 예시 (5개)
+4. 슬라이더 (맨 앞)
