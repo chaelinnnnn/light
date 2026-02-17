@@ -52,11 +52,11 @@ class EnhancedBlob {
     this.glowIntensity = 1.0;
     this.isBottomIcon = isBottomIcon;
   }
-  
+
   update(time) {
     this.radius = this.baseRadius + Math.sin(time * 0.001 + this.offset) * 6;
   }
-  
+
   draw() {
     if (this.shapeType === 'circle') {
       this.drawCircle();
@@ -69,7 +69,7 @@ class EnhancedBlob {
     } else if (this.shapeType === 'triangle') {
       this.drawTriangle();
     }
-    
+
     if (this.label) {
       ctx.save();
       ctx.fillStyle = 'white';
@@ -82,12 +82,12 @@ class EnhancedBlob {
       ctx.restore();
     }
   }
-  
+
   drawCircle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     const intensity = this.glowIntensity;
-    
+
     if (this.isBottomIcon) {
       ctx.filter = 'blur(8px)';
       const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 1.2);
@@ -108,7 +108,7 @@ class EnhancedBlob {
       ctx.arc(this.x, this.y, this.radius * 1.5, 0, Math.PI * 2);
       ctx.fillStyle = glowGradient;
       ctx.fill();
-      
+
       ctx.filter = 'blur(15px)';
       const midGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 1.1);
       midGradient.addColorStop(0, this.colors[0] + Math.floor(221 * intensity).toString(16).padStart(2, '0'));
@@ -118,7 +118,7 @@ class EnhancedBlob {
       ctx.arc(this.x, this.y, this.radius * 1.1, 0, Math.PI * 2);
       ctx.fillStyle = midGradient;
       ctx.fill();
-      
+
       ctx.filter = 'blur(10px)';
       const coreGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 0.9);
       coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
@@ -138,7 +138,7 @@ class EnhancedBlob {
       ctx.arc(this.x, this.y, this.radius * 1.8, 0, Math.PI * 2);
       ctx.fillStyle = glowGradient;
       ctx.fill();
-      
+
       ctx.filter = 'blur(35px)';
       const midGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 1.2);
       midGradient.addColorStop(0, this.colors[0] + Math.floor(221 * intensity).toString(16).padStart(2, '0'));
@@ -148,7 +148,7 @@ class EnhancedBlob {
       ctx.arc(this.x, this.y, this.radius * 1.2, 0, Math.PI * 2);
       ctx.fillStyle = midGradient;
       ctx.fill();
-      
+
       ctx.filter = 'blur(20px)';
       const coreGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 0.9);
       coreGradient.addColorStop(0, this.colors[0] + Math.floor(255 * intensity).toString(16).padStart(2, '0'));
@@ -159,26 +159,26 @@ class EnhancedBlob {
       ctx.fillStyle = coreGradient;
       ctx.fill();
     }
-    
+
     ctx.filter = 'none';
     ctx.restore();
   }
-  
+
   drawClover() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     const leafRadius = this.radius * 0.35;
-    
+
     this.drawClearLeaf(this.x, this.y - leafRadius * 1.6, leafRadius);
     this.drawClearLeaf(this.x - leafRadius * 1.4, this.y + leafRadius * 0.2, leafRadius);
     this.drawClearLeaf(this.x + leafRadius * 1.4, this.y + leafRadius * 0.2, leafRadius);
-    
+
     const blurAmount = this.isBottomIcon ? 'blur(5px)' : 'blur(10px)';
     ctx.filter = blurAmount;
     ctx.save();
     ctx.translate(this.x, this.y + leafRadius * 1.8);
     ctx.scale(0.4, 1);
-    
+
     const stemGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, leafRadius * 1.2);
     if (this.isBottomIcon) {
       stemGradient.addColorStop(0, '#eeeeee');
@@ -189,7 +189,7 @@ class EnhancedBlob {
       stemGradient.addColorStop(0.8, this.colors[1] + 'cc');
       stemGradient.addColorStop(1, this.colors[2] + '00');
     }
-    
+
     ctx.beginPath();
     ctx.arc(0, 0, leafRadius * 1.2, 0, Math.PI * 2);
     ctx.fillStyle = stemGradient;
@@ -198,11 +198,11 @@ class EnhancedBlob {
     ctx.filter = 'none';
     ctx.restore();
   }
-  
+
   drawClearLeaf(x, y, r) {
     const intensity = this.glowIntensity;
     const blurAmount = this.isBottomIcon ? 'blur(8px)' : (currentStage === 2 ? 'blur(12px)' : 'blur(25px)');
-    
+
     ctx.filter = blurAmount;
     const glowGradient = ctx.createRadialGradient(x, y, 0, x, y, r * 1.5);
     if (this.isBottomIcon) {
@@ -218,7 +218,7 @@ class EnhancedBlob {
     ctx.arc(x, y, r * 1.5, 0, Math.PI * 2);
     ctx.fillStyle = glowGradient;
     ctx.fill();
-    
+
     const coreBlur = this.isBottomIcon ? 'blur(4px)' : (currentStage === 2 ? 'blur(6px)' : 'blur(8px)');
     ctx.filter = coreBlur;
     const coreGradient = ctx.createRadialGradient(x, y, 0, x, y, r * 1.2);
@@ -236,7 +236,7 @@ class EnhancedBlob {
     ctx.fillStyle = coreGradient;
     ctx.fill();
   }
-  
+
   drawHeart() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -244,7 +244,7 @@ class EnhancedBlob {
     const intensity = this.glowIntensity;
     const blurAmount = this.isBottomIcon ? 'blur(8px)' : (currentStage === 2 ? 'blur(12px)' : 'blur(25px)');
     const coreBlur = this.isBottomIcon ? 'blur(4px)' : (currentStage === 2 ? 'blur(6px)' : 'blur(8px)');
-    
+
     ctx.filter = blurAmount;
     const glow1 = ctx.createRadialGradient(this.x - size * 0.5, this.y - size * 0.3, 0, this.x - size * 0.5, this.y - size * 0.3, size * 1.0);
     if (this.isBottomIcon) {
@@ -260,7 +260,7 @@ class EnhancedBlob {
     ctx.arc(this.x - size * 0.5, this.y - size * 0.3, size * 1.0, 0, Math.PI * 2);
     ctx.fillStyle = glow1;
     ctx.fill();
-    
+
     ctx.filter = coreBlur;
     const core1 = ctx.createRadialGradient(this.x - size * 0.5, this.y - size * 0.3, 0, this.x - size * 0.5, this.y - size * 0.3, size * 0.65);
     if (this.isBottomIcon) {
@@ -276,7 +276,7 @@ class EnhancedBlob {
     ctx.arc(this.x - size * 0.5, this.y - size * 0.3, size * 0.65, 0, Math.PI * 2);
     ctx.fillStyle = core1;
     ctx.fill();
-    
+
     ctx.filter = blurAmount;
     const glow2 = ctx.createRadialGradient(this.x + size * 0.5, this.y - size * 0.3, 0, this.x + size * 0.5, this.y - size * 0.3, size * 1.0);
     if (this.isBottomIcon) {
@@ -292,7 +292,7 @@ class EnhancedBlob {
     ctx.arc(this.x + size * 0.5, this.y - size * 0.3, size * 1.0, 0, Math.PI * 2);
     ctx.fillStyle = glow2;
     ctx.fill();
-    
+
     ctx.filter = coreBlur;
     const core2 = ctx.createRadialGradient(this.x + size * 0.5, this.y - size * 0.3, 0, this.x + size * 0.5, this.y - size * 0.3, size * 0.65);
     if (this.isBottomIcon) {
@@ -308,7 +308,7 @@ class EnhancedBlob {
     ctx.arc(this.x + size * 0.5, this.y - size * 0.3, size * 0.65, 0, Math.PI * 2);
     ctx.fillStyle = core2;
     ctx.fill();
-    
+
     ctx.filter = blurAmount;
     const glow3 = ctx.createRadialGradient(this.x, this.y + size * 0.3, 0, this.x, this.y + size * 0.3, size * 1.5);
     if (this.isBottomIcon) {
@@ -327,7 +327,7 @@ class EnhancedBlob {
     ctx.closePath();
     ctx.fillStyle = glow3;
     ctx.fill();
-    
+
     ctx.filter = coreBlur;
     const core3 = ctx.createRadialGradient(this.x, this.y + size * 0.3, 0, this.x, this.y + size * 0.3, size * 1.0);
     if (this.isBottomIcon) {
@@ -346,11 +346,11 @@ class EnhancedBlob {
     ctx.closePath();
     ctx.fillStyle = core3;
     ctx.fill();
-    
+
     ctx.filter = 'none';
     ctx.restore();
   }
-  
+
   drawStar() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -360,7 +360,7 @@ class EnhancedBlob {
     const intensity = this.glowIntensity;
     const blurAmount = this.isBottomIcon ? 'blur(10px)' : (currentStage === 2 ? 'blur(15px)' : 'blur(30px)');
     const coreBlur = this.isBottomIcon ? 'blur(5px)' : (currentStage === 2 ? 'blur(6px)' : 'blur(8px)');
-    
+
     ctx.filter = blurAmount;
     const glowGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, outerRadius * 1.5);
     if (this.isBottomIcon) {
@@ -383,7 +383,7 @@ class EnhancedBlob {
     ctx.closePath();
     ctx.fillStyle = glowGradient;
     ctx.fill();
-    
+
     ctx.filter = coreBlur;
     const coreGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, outerRadius * 1.1);
     if (this.isBottomIcon) {
@@ -408,11 +408,11 @@ class EnhancedBlob {
     ctx.closePath();
     ctx.fillStyle = coreGradient;
     ctx.fill();
-    
+
     ctx.filter = 'none';
     ctx.restore();
   }
-  
+
   drawTriangle() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
@@ -420,7 +420,7 @@ class EnhancedBlob {
     const intensity = this.glowIntensity;
     const blurAmount = this.isBottomIcon ? 'blur(10px)' : (currentStage === 2 ? 'blur(15px)' : 'blur(30px)');
     const coreBlur = this.isBottomIcon ? 'blur(5px)' : (currentStage === 2 ? 'blur(8px)' : 'blur(10px)');
-    
+
     ctx.filter = blurAmount;
     const glowGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, size * 1.5);
     if (this.isBottomIcon) {
@@ -439,7 +439,7 @@ class EnhancedBlob {
     ctx.closePath();
     ctx.fillStyle = glowGradient;
     ctx.fill();
-    
+
     ctx.filter = coreBlur;
     const coreGradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, size * 1.0);
     if (this.isBottomIcon) {
@@ -460,7 +460,7 @@ class EnhancedBlob {
     ctx.closePath();
     ctx.fillStyle = coreGradient;
     ctx.fill();
-    
+
     ctx.filter = 'none';
     ctx.restore();
   }
@@ -475,16 +475,16 @@ class LightBeam {
     this.colors = colors;
     this.progress = 0;
   }
-  
+
   update(delta) {
     this.progress += delta * 0.0008;
     return this.progress >= 1;
   }
-  
+
   draw() {
     const currentX = this.startX + (this.endX - this.startX) * this.progress;
     const currentY = this.startY + (this.endY - this.startY) * this.progress;
-    
+
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     ctx.filter = 'blur(30px)';
@@ -498,14 +498,14 @@ class LightBeam {
     ctx.moveTo(this.startX, this.startY);
     ctx.lineTo(currentX, currentY);
     ctx.stroke();
-    
+
     ctx.filter = 'blur(10px)';
     ctx.lineWidth = 8;
     ctx.beginPath();
     ctx.moveTo(this.startX, this.startY);
     ctx.lineTo(currentX, currentY);
     ctx.stroke();
-    
+
     ctx.filter = 'none';
     ctx.restore();
   }
@@ -538,7 +538,7 @@ function initStage2() {
   const grayColors = ['#999999', '#777777', '#555555'];
   const shapeY = canvas.height * 0.72;
   const shapeRadius = 50;
-  
+
   stage2Blobs['clover'] = new EnhancedBlob(canvas.width * 0.25, shapeY, shapeRadius, grayColors, '', 'clover', true);
   stage2Blobs['star'] = new EnhancedBlob(canvas.width * 0.42, shapeY, shapeRadius, grayColors, '', 'star', true);
   stage2Blobs['heart'] = new EnhancedBlob(canvas.width * 0.58, shapeY, shapeRadius, grayColors, '', 'heart', true);
@@ -553,8 +553,10 @@ function initStage3() {
   const selectedColors = stage1Data[userChoices.time].colors;
   const selectedShape = userChoices.shape;
   centerLight = new EnhancedBlob(canvas.width / 2, canvas.height * 0.35, 120, selectedColors, '', selectedShape, false);
+
   lightIntensity = 0.5;
   centerLight.glowIntensity = 1.0;
+
   nextBtn.disabled = true;
   setTimeout(() => showSliderGuide(), 500);
 }
@@ -581,49 +583,65 @@ function showSliderGuide() {
   setTimeout(() => guide.remove(), 3000);
 }
 
+/* =========================================================
+   ✅ Stage3 슬라이더: UI 레이어로 항상 위에 보이게 고정
+   - 합성모드/필터/알파 강제 초기화
+   - save/restore로 상태 오염 방지
+========================================================= */
 function drawSlider() {
-  ctx.globalCompositeOperation = 'source-over';  // ← 이 줄 추가!
-  
+  ctx.save();
+
+  // ✅ UI는 무조건 기본 상태로
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.filter = 'none';
+  ctx.globalAlpha = 1;
+
   const sliderY = canvas.height * 0.68;
   const sliderWidth = canvas.width * 0.5;
   const sliderLeft = canvas.width * 0.25;
   const sliderRight = sliderLeft + sliderWidth;
-  
-  ctx.save();
-  
+
   ctx.strokeStyle = '#ffffff';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(sliderLeft, sliderY);
   ctx.lineTo(sliderRight, sliderY);
   ctx.stroke();
-  
+
   sliderX = sliderLeft + lightIntensity * sliderWidth;
-  
+
   ctx.fillStyle = '#ffffff';
   ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
   ctx.shadowBlur = 8;
+
   ctx.beginPath();
   ctx.arc(sliderLeft, sliderY, 8, 0, Math.PI * 2);
   ctx.fill();
-  
+
   ctx.beginPath();
   ctx.arc(sliderRight, sliderY, 8, 0, Math.PI * 2);
   ctx.fill();
-  
+
   ctx.fillStyle = '#888888';
   ctx.shadowBlur = 4;
   ctx.beginPath();
   ctx.arc(sliderX, sliderY, 5, 0, Math.PI * 2);
   ctx.fill();
-  
+
   ctx.restore();
 }
 
 function updateIntensity(value) {
   lightIntensity = Math.max(0, Math.min(1, value));
+
+  // glow만 조절 (Stage3에서 baseRadius 크게 늘리면 슬라이더 가려보일 수 있음)
   centerLight.glowIntensity = 0.3 + lightIntensity * 1.4;
-  centerLight.baseRadius = 90 + lightIntensity * 60;
+
+  // ✅ Stage3에서는 baseRadius(실제 크기) 과도하게 키우지 않기 (슬라이더 가림 방지)
+  if (currentStage !== 3) {
+    centerLight.baseRadius = 90 + lightIntensity * 60;
+  }
+
   nextBtn.disabled = false;
   userChoices.intensity = lightIntensity;
 }
@@ -722,6 +740,7 @@ canvas.addEventListener('touchstart', (e) => {
   const touch = e.touches[0];
   const x = touch.clientX - rect.left;
   const y = touch.clientY - rect.top;
+
   if (currentStage === 1) {
     const dist = Math.sqrt((x - centerLight.x) ** 2 + (y - centerLight.y) ** 2);
     if (dist < centerLight.radius) isDragging = true;
@@ -792,7 +811,7 @@ function absorbColor(timeKey, targetBlob) {
   const startRadius = centerLight.radius;
   const duration = 800;
   const startTime = Date.now();
-  
+
   function animateAbsorb() {
     const elapsed = Date.now() - startTime;
     const progress = Math.min(elapsed / duration, 1);
@@ -813,7 +832,7 @@ function changeColor(timeKey, originalX, originalY, originalRadius) {
   const newColors = stage1Data[timeKey].colors;
   const duration = 1000;
   const startTime = Date.now();
-  
+
   function animateColor() {
     const elapsed = Date.now() - startTime;
     const progress = Math.min(elapsed / duration, 1);
@@ -835,7 +854,7 @@ function returnToCenter(x, y, radius) {
   const startY = centerLight.y;
   const centerX = canvas.width / 2;
   const centerY = canvas.height * 0.45;
-  
+
   function animateReturn() {
     const elapsed = Date.now() - startTime;
     const progress = Math.min(elapsed / duration, 1);
@@ -858,7 +877,7 @@ function shootLight(shapeKey, targetBlob) {
   userChoices.shape = shapeKey;
   lightBeam = new LightBeam(centerLight.x, centerLight.y, targetBlob.x, targetBlob.y, centerLight.colors);
   const phase1Start = Date.now();
-  
+
   function animatePhase1() {
     const elapsed = Date.now() - phase1Start;
     const isComplete = lightBeam.update(elapsed);
@@ -869,7 +888,7 @@ function shootLight(shapeKey, targetBlob) {
       setTimeout(() => animatePhase2(shapeKey), 200);
     }
   }
-  
+
   function animatePhase2(shapeKey) {
     const duration = 1000;
     const startTime = Date.now();
@@ -894,10 +913,17 @@ function easeInOutCubic(t) {
 }
 
 function animate() {
+  // 배경 초기화
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.filter = 'none';
+  ctx.globalAlpha = 1;
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.restore();
+
   const time = Date.now();
-  
+
   if (currentStage === 1) {
     Object.values(stage1Blobs).forEach(blob => {
       blob.update(time);
@@ -916,18 +942,21 @@ function animate() {
     centerLight.update(time);
     centerLight.draw();
   }
-  
+
   if (lightBeam) {
     lightBeam.draw();
   }
-  
-  // ✅ 슬라이더를 맨 마지막에! (Stage 3에서만)
+
+  // ✅ Stage3 슬라이더는 항상 "진짜 마지막"에 UI 상태 리셋 후 그리기
   if (currentStage === 3) {
-    // globalCompositeOperation 초기화 후 그리기
+    ctx.save();
     ctx.globalCompositeOperation = 'source-over';
+    ctx.filter = 'none';
+    ctx.globalAlpha = 1;
     drawSlider();
+    ctx.restore();
   }
-  
+
   requestAnimationFrame(animate);
 }
 
@@ -950,11 +979,13 @@ nextBtn.addEventListener('click', () => {
 window.addEventListener('resize', () => {
   const oldWidth = canvas.width;
   const oldHeight = canvas.height;
+
   canvas.width = canvas.offsetWidth;
   canvas.height = canvas.offsetHeight;
+
   const scaleX = canvas.width / oldWidth;
   const scaleY = canvas.height / oldHeight;
-  
+
   const blobs = currentStage === 1 ? stage1Blobs : stage2Blobs;
   if (currentStage <= 2) {
     for (const blob of Object.values(blobs)) {
@@ -962,7 +993,7 @@ window.addEventListener('resize', () => {
       blob.y *= scaleY;
     }
   }
-  
+
   if (currentStage === 1) {
     centerLight.x = canvas.width / 2;
     centerLight.y = canvas.height * 0.45;
