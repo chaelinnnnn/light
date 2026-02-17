@@ -490,16 +490,16 @@ function showGuideOverlay(html) {
   el.className = 'guide-overlay';
   el.style.cssText = `
     position:fixed;
-    top:32px;
-    left:0;
-    right:0;
-    margin:0 auto;
-    width:100%;
-    text-align:center;
+    left:50%;
+    top:50%;
+    transform:translate(-50%, -50%);
     z-index:7000;
     pointer-events:none;
     opacity:0;
     transition:opacity 0.5s ease;
+    display:flex;
+    justify-content:center;
+    align-items:center;
   `;
   el.innerHTML = html;
   document.body.appendChild(el);
@@ -514,29 +514,41 @@ function showDragGuide() {
   if (guideShown) return;
   guideShown = true;
   if (currentStage === 1) {
-    // Stage 1 — 고정 위치 (빛 안 따라다님)
+    // Stage 1 — 검은색 바탕 기준 중앙 고정
     document.querySelectorAll('.guide-overlay').forEach(el => el.remove());
     const el = document.createElement('div');
     el.className = 'guide-overlay';
     el.style.cssText = `
       position:fixed;
-      top:50%;
       left:50%;
-      transform:translate(-50%, 60px);
+      top:50%;
+      transform:translate(-50%, -50%);
       z-index:7000;
       pointer-events:none;
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:4px;
+      gap:6px;
       opacity:0;
       transition:opacity 0.5s ease;
     `;
     el.innerHTML = `
-      <div style="color:rgba(255,255,255,0.85);font-size:13px;letter-spacing:0.18em;text-align:center;text-shadow:0 0 16px rgba(255,255,255,0.5);white-space:nowrap;">
-        DRAG THE LIGHT TO A TIME
+      <div style="
+        background:rgba(0,0,0,0.52);
+        padding:14px 22px;
+        border-radius:14px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        gap:6px;
+      ">
+        <div style="color:rgba(255,255,255,0.85);font-size:13px;letter-spacing:0.18em;text-align:center;text-shadow:0 0 16px rgba(255,255,255,0.5);white-space:nowrap;">
+          DRAG THE LIGHT TO A TIME
+        </div>
+        <div style="color:rgba(255,255,255,0.7);font-size:22px;line-height:1;text-shadow:0 0 12px rgba(255,255,255,0.5);animation:arrowBounce 1.2s ease-in-out infinite;">
+          ↕
+        </div>
       </div>
-      <div style="color:rgba(255,255,255,0.7);font-size:22px;line-height:1;text-shadow:0 0 12px rgba(255,255,255,0.5);animation:arrowBounce 1.2s ease-in-out infinite;">↕</div>
     `;
     document.body.appendChild(el);
     requestAnimationFrame(() => { el.style.opacity = '1'; });
@@ -546,8 +558,15 @@ function showDragGuide() {
     }, 4000);
   } else {
     showGuideOverlay(`
-      <div style="color:rgba(255,255,255,0.9);font-size:15px;letter-spacing:0.18em;text-shadow:0 0 20px rgba(255,255,255,0.6);">
-        CLICK A SHAPE
+      <div style="
+        background:rgba(0,0,0,0.52);
+        padding:14px 22px;
+        border-radius:14px;
+        text-align:center;
+      ">
+        <div style="color:rgba(255,255,255,0.9);font-size:15px;letter-spacing:0.18em;text-shadow:0 0 20px rgba(255,255,255,0.6);">
+          CLICK A SHAPE
+        </div>
       </div>
     `);
   }
@@ -555,8 +574,15 @@ function showDragGuide() {
 
 function showSliderGuide() {
   showGuideOverlay(`
-    <div style="color:rgba(255,255,255,0.9);font-size:15px;letter-spacing:0.18em;text-shadow:0 0 20px rgba(255,255,255,0.6);">
-      DRAG THE SLIDER TO ADJUST INTENSITY
+    <div style="
+      background:rgba(0,0,0,0.52);
+      padding:14px 22px;
+      border-radius:14px;
+      text-align:center;
+    ">
+      <div style="color:rgba(255,255,255,0.9);font-size:15px;letter-spacing:0.18em;text-shadow:0 0 20px rgba(255,255,255,0.6);">
+        DRAG THE SLIDER TO ADJUST INTENSITY
+      </div>
     </div>
   `);
 }
@@ -1058,14 +1084,14 @@ function startOpening() {
   understandBtn.textContent = 'I UNDERSTAND';
   understandBtn.style.cssText = `
     position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
-    background:#fff;border:1px solid #fff;
-    color:#000;font-size:10px;
-    letter-spacing:0.2em;padding:7px 20px;cursor:pointer;
+    cursor:pointer;font-size:14px;padding:13px 36px;
+    border:1.5px solid rgba(255,255,255,0.6);
+    background:rgba(255,255,255,0.10);color:#fff;letter-spacing:0.12em;
     transition:background 0.2s;
     white-space:nowrap;
   `;
-  understandBtn.onmouseenter = () => { understandBtn.style.background = '#ddd'; };
-  understandBtn.onmouseleave = () => { understandBtn.style.background = '#fff'; };
+  understandBtn.onmouseenter = () => { understandBtn.style.background = 'rgba(255,255,255,0.22)'; };
+  understandBtn.onmouseleave = () => { understandBtn.style.background = 'rgba(255,255,255,0.10)'; };
 
   understandBtn.addEventListener('click', () => {
     overlay.style.opacity = '0';
