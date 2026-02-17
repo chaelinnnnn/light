@@ -37,7 +37,7 @@ function startBGM() {
   if (bgm) return;
   bgm = new Audio('change.mp3');
   bgm.loop = true;
-  bgm.volume = 0.15;
+  bgm.volume = 0.08;
   bgm.play().catch(() => {
     // 자동재생 차단 시 첫 인터랙션에서 재생
     const startOnce = () => {
@@ -66,51 +66,58 @@ let directive2Timer = null;
 /* =========================================================
    ★ 지침1 — 6초 방치 → 서서히 shrink 애니메이션 → 3초 후 인트로
 ========================================================= */
-const IDLE_TIMEOUT   = 6000;
-const SHRINK_DURATION = 3000;  // shrink 애니메이션 지속 시간
-const SHRINK_GRACE   = 3000;   // shrink 완료 후 터치 대기
+const IDLE_TIMEOUT    = 5000;   // ★ 5초
+const SHRINK_DURATION = 2500;   // shrink 애니메이션
+const SHRINK_GRACE    = 2500;   // shrink 완료 후 터치 대기
 
 let lastInteractionTime = Date.now();
 let idleWarningActive   = false;
-let idleShrinkStart     = 0;      // shrink 시작 시각
+let idleShrinkStart     = 0;
 let idleGraceTimer      = null;
-let _savedBaseRadius    = 70;
-let _savedGlowIntensity = 1.0;
+// snapshot — shrink 시작 시 딱 한 번 저장
+let _snapRadius = 70;
+let _snapGlow   = 1.0;
+let _snapSaved  = false;  // ★ 매 프레임 덮어쓰기 방지 flag
 
 function resetIdleTimer() {
   lastInteractionTime = Date.now();
   if (idleWarningActive) {
     idleWarningActive = false;
+    _snapSaved = false;
     clearTimeout(idleGraceTimer);
     idleGraceTimer = null;
-    // 빛 즉시 복구
     if (centerLight) {
-      centerLight.baseRadius    = _savedBaseRadius;
-      centerLight.glowIntensity = _savedGlowIntensity;
+      const fromR    = centerLight.baseRadius;
+      const fromGlow = centerLight.glowIntensity;
+      const dur = 600, t0 = Date.now();
+      function recover() {
+        const p = Math.min((Date.now()-t0)/dur, 1), e = easeInOutCubic(p);
+        centerLight.baseRadius    = fromR    + (_snapRadius - fromR)    * e;
+        centerLight.glowIntensity = fromGlow + (_snapGlow   - fromGlow) * e;
+        if (p < 1) requestAnimationFrame(recover);
+      }
+      recover();
     }
   }
 }
 
 function checkIdle() {
   if (idleWarningActive) {
-    // shrink 진행 중 → 애니메이션 업데이트
+    if (!_snapSaved || !centerLight) return;
     const elapsed = Date.now() - idleShrinkStart;
     const p = Math.min(elapsed / SHRINK_DURATION, 1);
     const e = easeInOutCubic(p);
-    if (centerLight) {
-      centerLight.baseRadius    = _savedBaseRadius    * (1 - e * 0.82);  // 최소 18%까지 줄어듦
-      centerLight.glowIntensity = _savedGlowIntensity * (1 - e * 0.88);  // 거의 꺼짐
-    }
+    centerLight.baseRadius    = _snapRadius * (1 - e * 0.84);
+    centerLight.glowIntensity = _snapGlow   * (1 - e * 0.90);
     return;
   }
   if (Date.now() - lastInteractionTime >= IDLE_TIMEOUT) {
+    if (!centerLight) return;
     idleWarningActive = true;
     idleShrinkStart   = Date.now();
-    if (centerLight) {
-      _savedBaseRadius    = centerLight.baseRadius;
-      _savedGlowIntensity = centerLight.glowIntensity;
-    }
-    // shrink 완료 후 대기 시간 뒤 인트로 복귀
+    _snapRadius = centerLight.baseRadius;
+    _snapGlow   = centerLight.glowIntensity;
+    _snapSaved  = true;
     idleGraceTimer = setTimeout(() => {
       if (idleWarningActive) goToIntro();
     }, SHRINK_DURATION + SHRINK_GRACE);
@@ -841,9 +848,7 @@ nextBtn.addEventListener('click', () => {
   resetIdleTimer();
   if (currentStage===1)      { currentStage=2; initStage2(); }
   else if (currentStage===2) { currentStage=3; initStage3(); }
-  else if (currentStage===3) {
-    alert(`Complete!\nTime: ${userChoices.time}\nShape: ${userChoices.shape}\nIntensity: ${(userChoices.intensity??0).toFixed(2)}`);
-  }
+  else if (currentStage===3) { showResult(); }
 });
 
 /* =========================================================
@@ -855,6 +860,222 @@ window.addEventListener('resize', () => {
   else if (currentStage===2) initStage2();
   else if (currentStage===3) initStage3();
 });
+
+/* =========================================================
+   ★ Save / Result 시스템
+   — savedLights 배열에 캔버스 스냅샷 + 메타데이터 저장
+   — showResult(): Save / Gallery / Restart 화면
+   — showGallery(): 저장된 빛들 전시
+========================================================= */
+const savedLights = [];
+
+function captureLightSnapshot() {
+  // 현재 캔버스를 작은 썸네일로 캡처 (320×320)
+  const off = document.createElement('canvas');
+  const size = 320;
+  off.width  = size;
+  off.height = size;
+  const oc  = off.getContext('2d');
+  // 검정 배경
+  oc.fillStyle = '#000';
+  oc.fillRect(0, 0, size, size);
+  // 현재 캔버스에서 중앙 정방형 크롭
+  const src   = canvas;
+  const sw    = src.width / DPR;
+  const sh    = src.height / DPR;
+  const crop  = Math.min(sw, sh) * 0.72;
+  const sx    = sw / 2 - crop / 2;
+  const sy    = sh / 2 - crop / 2;
+  oc.drawImage(src, sx * DPR, sy * DPR, crop * DPR, crop * DPR, 0, 0, size, size);
+  return off.toDataURL('image/png');
+}
+
+function showResult() {
+  // 빛 스냅샷 저장
+  const snapshot = captureLightSnapshot();
+  savedLights.push({
+    dataURL:   snapshot,
+    time:      userChoices.time,
+    shape:     userChoices.shape,
+    intensity: userChoices.intensity ?? 0,
+    savedAt:   new Date().toLocaleTimeString()
+  });
+
+  const overlay = document.createElement('div');
+  overlay.id = 'result-overlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9000;background:#000;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    opacity:0;transition:opacity 0.7s ease;
+  `;
+
+  // 미리보기 이미지
+  const previewWrap = document.createElement('div');
+  previewWrap.style.cssText = `
+    width:220px;height:220px;border-radius:50%;overflow:hidden;
+    margin-bottom:28px;box-shadow:0 0 60px rgba(255,255,255,0.15);
+  `;
+  const previewImg = document.createElement('img');
+  previewImg.src = snapshot;
+  previewImg.style.cssText = `width:100%;height:100%;object-fit:cover;`;
+  previewWrap.appendChild(previewImg);
+
+  const meta = document.createElement('div');
+  meta.style.cssText = `color:rgba(255,255,255,0.55);font-size:13px;letter-spacing:0.12em;margin-bottom:40px;text-align:center;line-height:2;`;
+  meta.innerHTML = `
+    ${userChoices.time ?? '—'} &nbsp;·&nbsp; ${userChoices.shape ?? '—'} &nbsp;·&nbsp; intensity ${((userChoices.intensity??0)*100).toFixed(0)}%
+  `;
+
+  // 버튼 그룹
+  const btns = document.createElement('div');
+  btns.style.cssText = `display:flex;gap:16px;`;
+
+  function makeBtn(label, bg) {
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.style.cssText = `
+      cursor:pointer;font-size:14px;padding:13px 36px;
+      border:1.5px solid rgba(255,255,255,0.6);
+      background:${bg};color:#fff;letter-spacing:0.12em;
+      transition:background 0.2s;
+    `;
+    b.onmouseenter = () => b.style.background = 'rgba(255,255,255,0.22)';
+    b.onmouseleave = () => b.style.background = bg;
+    return b;
+  }
+
+  const saveBtn    = makeBtn('SAVE',    'rgba(255,255,255,0.10)');
+  const galleryBtn = makeBtn('GALLERY', 'rgba(255,255,255,0.04)');
+  const restartBtn = makeBtn('RESTART', 'transparent');
+
+  saveBtn.addEventListener('click', () => {
+    // PNG 다운로드
+    const a = document.createElement('a');
+    a.href     = snapshot;
+    a.download = `my-light-${Date.now()}.png`;
+    a.click();
+  });
+
+  galleryBtn.addEventListener('click', () => {
+    overlay.remove();
+    showGallery();
+  });
+
+  restartBtn.addEventListener('click', () => {
+    overlay.remove();
+    goToIntro();
+  });
+
+  btns.appendChild(saveBtn);
+  btns.appendChild(galleryBtn);
+  btns.appendChild(restartBtn);
+
+  overlay.appendChild(previewWrap);
+  overlay.appendChild(meta);
+  overlay.appendChild(btns);
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+}
+
+function showGallery() {
+  const overlay = document.createElement('div');
+  overlay.id = 'gallery-overlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9000;background:#0a0a0a;
+    display:flex;flex-direction:column;align-items:center;
+    padding:48px 32px 32px;overflow-y:auto;
+    opacity:0;transition:opacity 0.6s ease;
+  `;
+
+  const title = document.createElement('div');
+  title.style.cssText = `color:rgba(255,255,255,0.8);font-size:16px;letter-spacing:0.2em;margin-bottom:36px;`;
+  title.textContent = 'YOUR LIGHTS';
+
+  const grid = document.createElement('div');
+  grid.style.cssText = `
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+    gap:20px;width:100%;max-width:700px;
+  `;
+
+  if (savedLights.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = `color:rgba(255,255,255,0.3);font-size:13px;letter-spacing:0.1em;grid-column:1/-1;text-align:center;margin-top:40px;`;
+    empty.textContent = '저장된 빛이 없습니다';
+    grid.appendChild(empty);
+  } else {
+    savedLights.forEach((light, i) => {
+      const card = document.createElement('div');
+      card.style.cssText = `display:flex;flex-direction:column;align-items:center;gap:8px;`;
+
+      const img = document.createElement('img');
+      img.src = light.dataURL;
+      img.style.cssText = `
+        width:100%;aspect-ratio:1;border-radius:50%;object-fit:cover;
+        box-shadow:0 0 30px rgba(255,255,255,0.08);
+        transition:box-shadow 0.2s;cursor:pointer;
+      `;
+      img.onmouseenter = () => img.style.boxShadow = '0 0 40px rgba(255,255,255,0.22)';
+      img.onmouseleave = () => img.style.boxShadow = '0 0 30px rgba(255,255,255,0.08)';
+
+      // 클릭 시 개별 다운로드
+      img.addEventListener('click', () => {
+        const a = document.createElement('a');
+        a.href     = light.dataURL;
+        a.download = `my-light-${i+1}.png`;
+        a.click();
+      });
+
+      const info = document.createElement('div');
+      info.style.cssText = `color:rgba(255,255,255,0.4);font-size:11px;letter-spacing:0.08em;text-align:center;line-height:1.6;`;
+      info.innerHTML = `${light.time ?? '—'} · ${light.shape ?? '—'}<br>${(light.intensity*100).toFixed(0)}% · ${light.savedAt}`;
+
+      card.appendChild(img);
+      card.appendChild(info);
+      grid.appendChild(card);
+    });
+  }
+
+  // 버튼 영역
+  const btnWrap = document.createElement('div');
+  btnWrap.style.cssText = `display:flex;gap:14px;margin-top:40px;`;
+
+  function makeBtn2(label) {
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.style.cssText = `
+      cursor:pointer;font-size:13px;padding:11px 30px;
+      border:1px solid rgba(255,255,255,0.45);
+      background:transparent;color:rgba(255,255,255,0.8);
+      letter-spacing:0.12em;transition:background 0.2s;
+    `;
+    b.onmouseenter = () => b.style.background = 'rgba(255,255,255,0.12)';
+    b.onmouseleave = () => b.style.background = 'transparent';
+    return b;
+  }
+
+  const backBtn    = makeBtn2('← BACK');
+  const restartBtn = makeBtn2('RESTART');
+
+  backBtn.addEventListener('click', () => {
+    overlay.remove();
+    // 결과 화면 다시 표시 (마지막 저장 빛)
+    showResult();
+  });
+  restartBtn.addEventListener('click', () => {
+    overlay.remove();
+    goToIntro();
+  });
+
+  btnWrap.appendChild(backBtn);
+  btnWrap.appendChild(restartBtn);
+
+  overlay.appendChild(title);
+  overlay.appendChild(grid);
+  overlay.appendChild(btnWrap);
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+}
 
 /* =========================================================
    Opening
