@@ -552,7 +552,7 @@ function initStage3() {
   leftImage.src = 'art3.png';
   const selectedColors = stage1Data[userChoices.time].colors;
   const selectedShape = userChoices.shape;
-  centerLight = new EnhancedBlob(canvas.width / 2, canvas.height * 0.30, 90, selectedColors, '', selectedShape, false);
+  centerLight = new EnhancedBlob(canvas.width / 2, canvas.height * 0.35, 120, selectedColors, '', selectedShape, false);
   lightIntensity = 0.5;
   centerLight.glowIntensity = 1.0;
   nextBtn.disabled = true;
@@ -582,62 +582,48 @@ function showSliderGuide() {
 }
 
 function drawSlider() {
-  const sliderY = canvas.height * 0.75;
-  const sliderWidth = canvas.width * 0.6;
-  const sliderLeft = canvas.width * 0.2;
+  const sliderY = canvas.height * 0.65;
+  const sliderWidth = canvas.width * 0.7;
+  const sliderLeft = canvas.width * 0.15;
   const sliderRight = sliderLeft + sliderWidth;
+  
   ctx.save();
-  ctx.strokeStyle = '#444444';
-  ctx.lineWidth = 2;
+  
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(sliderLeft, sliderY);
   ctx.lineTo(sliderRight, sliderY);
   ctx.stroke();
-  ctx.fillStyle = 'white';
-  ctx.font = '14px Helvetica Neue, Arial';
-  ctx.textAlign = 'left';
-  ctx.fillText('Calm, Decisive', sliderLeft, sliderY - 20);
-  ctx.textAlign = 'right';
-  ctx.fillText('Vibrant, Nuanced', sliderRight, sliderY - 20);
+  
   sliderX = sliderLeft + lightIntensity * sliderWidth;
+  
   ctx.fillStyle = '#ffffff';
   ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
   ctx.shadowBlur = 10;
   ctx.beginPath();
-  ctx.arc(sliderX, sliderY, 8, 0, Math.PI * 2);
+  ctx.arc(sliderLeft, sliderY, 12, 0, Math.PI * 2);
   ctx.fill();
+  
+  ctx.beginPath();
+  ctx.arc(sliderRight, sliderY, 12, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = '#888888';
+  ctx.shadowBlur = 5;
+  ctx.beginPath();
+  ctx.arc(sliderX, sliderY, 6, 0, Math.PI * 2);
+  ctx.fill();
+  
   ctx.restore();
 }
 
 function updateIntensity(value) {
   lightIntensity = Math.max(0, Math.min(1, value));
-  centerLight.glowIntensity = 0.4 + lightIntensity * 1.1;
-  centerLight.baseRadius = 70 + lightIntensity * 35;
+  centerLight.glowIntensity = 0.3 + lightIntensity * 1.4;
+  centerLight.baseRadius = 90 + lightIntensity * 60;
   nextBtn.disabled = false;
   userChoices.intensity = lightIntensity;
-}
-
-function drawExampleLights() {
-  const exampleY = canvas.height * 0.30;
-  const exampleRadius = 30;
-  const spacing = 45;
-  const time = Date.now();
-  
-  for (let i = 0; i < 4; i++) {
-    const blob = new EnhancedBlob(canvas.width * 0.15 + i * spacing, exampleY, exampleRadius * 0.7, stage1Data[userChoices.time].colors, '', userChoices.shape, false);
-    blob.glowIntensity = 0.4;
-    blob.baseRadius = exampleRadius * 0.7;
-    blob.update(time);
-    blob.draw();
-  }
-  
-  for (let i = 0; i < 5; i++) {
-    const blob = new EnhancedBlob(canvas.width * 0.68 + i * spacing, exampleY, exampleRadius, stage1Data[userChoices.time].colors, '', userChoices.shape, false);
-    blob.glowIntensity = 1.5;
-    blob.baseRadius = exampleRadius;
-    blob.update(time);
-    blob.draw();
-  }
 }
 
 function handleSliderClick(e) {
@@ -645,11 +631,11 @@ function handleSliderClick(e) {
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
-  const sliderY = canvas.height * 0.75;
-  const sliderWidth = canvas.width * 0.6;
-  const sliderLeft = canvas.width * 0.2;
+  const sliderY = canvas.height * 0.65;
+  const sliderWidth = canvas.width * 0.7;
+  const sliderLeft = canvas.width * 0.15;
   const sliderRight = sliderLeft + sliderWidth;
-  if (y >= sliderY - 20 && y <= sliderY + 20 && x >= sliderLeft && x <= sliderRight) {
+  if (y >= sliderY - 25 && y <= sliderY + 25 && x >= sliderLeft && x <= sliderRight) {
     sliderDragging = true;
     updateIntensity((x - sliderLeft) / sliderWidth);
   }
@@ -659,8 +645,8 @@ function handleSliderMove(e) {
   if (currentStage !== 3 || !sliderDragging) return;
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
-  const sliderWidth = canvas.width * 0.6;
-  const sliderLeft = canvas.width * 0.2;
+  const sliderWidth = canvas.width * 0.7;
+  const sliderLeft = canvas.width * 0.15;
   updateIntensity((x - sliderLeft) / sliderWidth);
 }
 
@@ -746,11 +732,11 @@ canvas.addEventListener('touchstart', (e) => {
       }
     }
   } else if (currentStage === 3) {
-    const sliderY = canvas.height * 0.75;
-    const sliderWidth = canvas.width * 0.6;
-    const sliderLeft = canvas.width * 0.2;
+    const sliderY = canvas.height * 0.65;
+    const sliderWidth = canvas.width * 0.7;
+    const sliderLeft = canvas.width * 0.15;
     const sliderRight = sliderLeft + sliderWidth;
-    if (y >= sliderY - 20 && y <= sliderY + 20 && x >= sliderLeft && x <= sliderRight) {
+    if (y >= sliderY - 25 && y <= sliderY + 25 && x >= sliderLeft && x <= sliderRight) {
       sliderDragging = true;
       updateIntensity((x - sliderLeft) / sliderWidth);
     }
@@ -769,8 +755,8 @@ canvas.addEventListener('touchmove', (e) => {
     const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
     const x = touch.clientX - rect.left;
-    const sliderWidth = canvas.width * 0.6;
-    const sliderLeft = canvas.width * 0.2;
+    const sliderWidth = canvas.width * 0.7;
+    const sliderLeft = canvas.width * 0.15;
     updateIntensity((x - sliderLeft) / sliderWidth);
   }
 });
@@ -927,7 +913,6 @@ function animate() {
   } else if (currentStage === 3) {
     centerLight.update(time);
     centerLight.draw();
-    drawExampleLights();
     drawSlider();
   }
   
@@ -978,7 +963,7 @@ window.addEventListener('resize', () => {
     centerLight.y = canvas.height * 0.35;
   } else if (currentStage === 3) {
     centerLight.x = canvas.width / 2;
-    centerLight.y = canvas.height * 0.30;
+    centerLight.y = canvas.height * 0.35;
   }
 });
 
