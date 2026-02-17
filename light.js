@@ -66,7 +66,7 @@ let directive2Timer = null;
 /* =========================================================
    ★ 지침1 — 6초 방치 → 서서히 shrink 애니메이션 → 3초 후 인트로
 ========================================================= */
-const IDLE_TIMEOUT    = 3000;   // ★ 3초
+const IDLE_TIMEOUT    = 2000;   // ★ 2초
 const SHRINK_DURATION = 2500;   // shrink 애니메이션
 const SHRINK_GRACE    = 2500;   // shrink 완료 후 터치 대기
 
@@ -139,7 +139,6 @@ function goToIntro() {
 
   idleWarningActive = false;
   directive2Fired   = false;
-  directive3Fired   = false;
   lastInteractionTime = Date.now();
 
   const overlay = document.createElement('div');
@@ -261,123 +260,17 @@ function removePopup() {
 }
 
 /* =========================================================
-   ★ 지침3 — 캔버스 바깥 흰 영역(left-panel) 클릭 시 발동
+/* =========================================================
+   지침3 — 비활성화
 ========================================================= */
 let fairyEl = null;
-let _vanishedSnapshot = null;
-
-// left-panel 클릭 감지
-document.addEventListener('DOMContentLoaded', () => {
-  const leftPanel = document.getElementById('left-panel');
-  if (leftPanel) {
-    leftPanel.addEventListener('pointerdown', () => {
-      if (!directive3Fired && currentStage === DIRECTIVE3_STAGE) {
-        directive3Fired = true;
-        vanishLight();
-      }
-    });
-  }
-});
-
-// left-panel이 없을 경우 canvas 바깥 body 클릭으로 fallback
-document.body.addEventListener('pointerdown', (e) => {
-  if (e.target === document.body || e.target === document.documentElement) {
-    if (!directive3Fired && currentStage === DIRECTIVE3_STAGE) {
-      directive3Fired = true;
-      vanishLight();
-    }
-  }
-});
-
-function vanishLight() {
-  if (!centerLight) return;
-  _vanishedSnapshot = {
-    baseRadius:    centerLight.baseRadius,
-    glowIntensity: centerLight.glowIntensity,
-  };
-  const dur = 1800, t0 = Date.now();
-  const startGlow = centerLight.glowIntensity;
-  const startR    = centerLight.baseRadius;
-  function fade() {
-    const p = Math.min((Date.now() - t0) / dur, 1);
-    centerLight.glowIntensity = startGlow * (1 - p);
-    centerLight.baseRadius    = startR    * (1 - p * 0.85);
-    if (p < 1) requestAnimationFrame(fade);
-    else showFairy();
-  }
-  fade();
-}
-
-function showFairy() {
-  if (fairyEl) return;
-  fairyEl = document.createElement('div');
-  fairyEl.style.cssText = `
-    position:fixed;inset:0;z-index:8000;
-    display:flex;flex-direction:column;
-    align-items:center;justify-content:center;
-    pointer-events:none;
-  `;
-
-  const img = document.createElement('img');
-  img.src = 'fairy.png';
-  img.style.cssText = `
-    width:160px;height:auto;object-fit:contain;
-    opacity:0;transition:opacity 0.7s ease;
-    margin-bottom:24px;
-  `;
-
-  const btn = document.createElement('button');
-  btn.textContent = '요정을 부르다';
-  btn.style.cssText = `
-    pointer-events:all;cursor:pointer;
-    font-size:15px;padding:12px 32px;
-    border:1.5px solid rgba(255,255,255,0.7);
-    background:rgba(255,255,255,0.08);
-    color:#fff;letter-spacing:0.12em;
-    transition:background 0.2s;
-  `;
-  btn.onmouseenter = () => btn.style.background = 'rgba(255,255,255,0.22)';
-  btn.onmouseleave = () => btn.style.background = 'rgba(255,255,255,0.08)';
-  btn.addEventListener('click', () => restoreLight());
-
-  fairyEl.appendChild(img);
-  fairyEl.appendChild(btn);
-  document.body.appendChild(fairyEl);
-  requestAnimationFrame(() => { img.style.opacity = '1'; });
-}
-
-function removeFairy() {
-  if (fairyEl) { fairyEl.remove(); fairyEl = null; }
-}
-
-function restoreLight() {
-  removeFairy();
-  if (!centerLight || !_vanishedSnapshot) return;
-  const dur = 1200, t0 = Date.now();
-  const targetR    = _vanishedSnapshot.baseRadius;
-  const targetGlow = _vanishedSnapshot.glowIntensity;
-  const startR    = centerLight.baseRadius;
-  const startGlow = centerLight.glowIntensity;
-  function rise() {
-    const p = Math.min((Date.now() - t0) / dur, 1), e = easeInOutCubic(p);
-    centerLight.glowIntensity = startGlow + (targetGlow - startGlow) * e;
-    centerLight.baseRadius    = startR    + (targetR    - startR)    * e;
-    if (p < 1) requestAnimationFrame(rise);
-    else {
-      centerLight.glowIntensity = targetGlow;
-      centerLight.baseRadius    = targetR;
-      resetIdleTimer();
-    }
-  }
-  rise();
-}
+function removeFairy() { if (fairyEl) { fairyEl.remove(); fairyEl = null; } }
 
 /* =========================================================
    지침 타이머 시작
 ========================================================= */
 function startDirectiveTimers() {
   scheduleDirective2();
-  // 지침3은 타이머 없음 — 흰 영역 클릭으로만 발동
 }
 
 /* =========================================================
@@ -862,44 +755,50 @@ window.addEventListener('resize', () => {
 });
 
 /* =========================================================
-   ★ Save / Result 시스템
-   — savedLights 배열에 캔버스 스냅샷 + 메타데이터 저장
-   — showResult(): Save / Gallery / Restart 화면
-   — showGallery(): 저장된 빛들 전시
+   ★ Save / Result 시스템 (localStorage로 여러 세션에 걸쳐 축적)
 ========================================================= */
-const savedLights = [];
+const LS_KEY = 'howToFindYourLight_gallery';
+
+function loadSavedLights() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
+  catch { return []; }
+}
+function persistLight(entry) {
+  const all = loadSavedLights();
+  all.push(entry);
+  // 최대 200개 유지 (오래된 것부터 제거)
+  if (all.length > 200) all.splice(0, all.length - 200);
+  try { localStorage.setItem(LS_KEY, JSON.stringify(all)); } catch {}
+}
 
 function captureLightSnapshot() {
-  // 현재 캔버스를 작은 썸네일로 캡처 (320×320)
   const off = document.createElement('canvas');
   const size = 320;
   off.width  = size;
   off.height = size;
   const oc  = off.getContext('2d');
-  // 검정 배경
   oc.fillStyle = '#000';
   oc.fillRect(0, 0, size, size);
-  // 현재 캔버스에서 중앙 정방형 크롭
-  const src   = canvas;
-  const sw    = src.width / DPR;
-  const sh    = src.height / DPR;
-  const crop  = Math.min(sw, sh) * 0.72;
-  const sx    = sw / 2 - crop / 2;
-  const sy    = sh / 2 - crop / 2;
-  oc.drawImage(src, sx * DPR, sy * DPR, crop * DPR, crop * DPR, 0, 0, size, size);
+  const sw   = canvas.width  / DPR;
+  const sh   = canvas.height / DPR;
+  const crop = Math.min(sw, sh) * 0.72;
+  const sx   = sw / 2 - crop / 2;
+  const sy   = sh / 2 - crop / 2;
+  oc.drawImage(canvas, sx * DPR, sy * DPR, crop * DPR, crop * DPR, 0, 0, size, size);
   return off.toDataURL('image/png');
 }
 
 function showResult() {
-  // 빛 스냅샷 저장
   const snapshot = captureLightSnapshot();
-  savedLights.push({
+  const entry = {
     dataURL:   snapshot,
     time:      userChoices.time,
     shape:     userChoices.shape,
     intensity: userChoices.intensity ?? 0,
     savedAt:   new Date().toLocaleTimeString()
-  });
+  };
+  // localStorage에 즉시 저장 (Result 화면 열릴 때 자동 축적)
+  persistLight(entry);
 
   const overlay = document.createElement('div');
   overlay.id = 'result-overlay';
@@ -909,7 +808,6 @@ function showResult() {
     opacity:0;transition:opacity 0.7s ease;
   `;
 
-  // 미리보기 이미지
   const previewWrap = document.createElement('div');
   previewWrap.style.cssText = `
     width:220px;height:220px;border-radius:50%;overflow:hidden;
@@ -922,11 +820,8 @@ function showResult() {
 
   const meta = document.createElement('div');
   meta.style.cssText = `color:rgba(255,255,255,0.55);font-size:13px;letter-spacing:0.12em;margin-bottom:40px;text-align:center;line-height:2;`;
-  meta.innerHTML = `
-    ${userChoices.time ?? '—'} &nbsp;·&nbsp; ${userChoices.shape ?? '—'} &nbsp;·&nbsp; intensity ${((userChoices.intensity??0)*100).toFixed(0)}%
-  `;
+  meta.innerHTML = `${entry.time ?? '—'} &nbsp;·&nbsp; ${entry.shape ?? '—'} &nbsp;·&nbsp; intensity ${(entry.intensity*100).toFixed(0)}%`;
 
-  // 버튼 그룹
   const btns = document.createElement('div');
   btns.style.cssText = `display:flex;gap:16px;`;
 
@@ -949,22 +844,11 @@ function showResult() {
   const restartBtn = makeBtn('RESTART', 'transparent');
 
   saveBtn.addEventListener('click', () => {
-    // PNG 다운로드
     const a = document.createElement('a');
-    a.href     = snapshot;
-    a.download = `my-light-${Date.now()}.png`;
-    a.click();
+    a.href = snapshot; a.download = `my-light-${Date.now()}.png`; a.click();
   });
-
-  galleryBtn.addEventListener('click', () => {
-    overlay.remove();
-    showGallery();
-  });
-
-  restartBtn.addEventListener('click', () => {
-    overlay.remove();
-    goToIntro();
-  });
+  galleryBtn.addEventListener('click', () => { overlay.remove(); showGallery(entry); });
+  restartBtn.addEventListener('click',  () => { overlay.remove(); goToIntro(); });
 
   btns.appendChild(saveBtn);
   btns.appendChild(galleryBtn);
@@ -977,7 +861,9 @@ function showResult() {
   requestAnimationFrame(() => { overlay.style.opacity = '1'; });
 }
 
-function showGallery() {
+function showGallery(currentEntry) {
+  const allLights = loadSavedLights();
+
   const overlay = document.createElement('div');
   overlay.id = 'gallery-overlay';
   overlay.style.cssText = `
@@ -987,24 +873,35 @@ function showGallery() {
     opacity:0;transition:opacity 0.6s ease;
   `;
 
+  const header = document.createElement('div');
+  header.style.cssText = `display:flex;align-items:baseline;gap:14px;margin-bottom:36px;`;
+
   const title = document.createElement('div');
-  title.style.cssText = `color:rgba(255,255,255,0.8);font-size:16px;letter-spacing:0.2em;margin-bottom:36px;`;
+  title.style.cssText = `color:rgba(255,255,255,0.8);font-size:16px;letter-spacing:0.2em;`;
   title.textContent = 'GALLERY';
+
+  const count = document.createElement('div');
+  count.style.cssText = `color:rgba(255,255,255,0.3);font-size:12px;letter-spacing:0.1em;`;
+  count.textContent = `${allLights.length} lights`;
+
+  header.appendChild(title);
+  header.appendChild(count);
 
   const grid = document.createElement('div');
   grid.style.cssText = `
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-    gap:20px;width:100%;max-width:700px;
+    grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:18px;width:100%;max-width:720px;
   `;
 
-  if (savedLights.length === 0) {
+  if (allLights.length === 0) {
     const empty = document.createElement('div');
     empty.style.cssText = `color:rgba(255,255,255,0.3);font-size:13px;letter-spacing:0.1em;grid-column:1/-1;text-align:center;margin-top:40px;`;
     empty.textContent = '저장된 빛이 없습니다';
     grid.appendChild(empty);
   } else {
-    savedLights.forEach((light, i) => {
+    // 최신순으로 표시
+    [...allLights].reverse().forEach((light, i) => {
       const card = document.createElement('div');
       card.style.cssText = `display:flex;flex-direction:column;align-items:center;gap:8px;`;
 
@@ -1012,23 +909,27 @@ function showGallery() {
       img.src = light.dataURL;
       img.style.cssText = `
         width:100%;aspect-ratio:1;border-radius:50%;object-fit:cover;
-        box-shadow:0 0 30px rgba(255,255,255,0.08);
-        transition:box-shadow 0.2s;cursor:pointer;
+        box-shadow:0 0 24px rgba(255,255,255,0.06);
+        transition:box-shadow 0.2s,transform 0.2s;cursor:pointer;
       `;
-      img.onmouseenter = () => img.style.boxShadow = '0 0 40px rgba(255,255,255,0.22)';
-      img.onmouseleave = () => img.style.boxShadow = '0 0 30px rgba(255,255,255,0.08)';
-
-      // 클릭 시 개별 다운로드
+      img.onmouseenter = () => {
+        img.style.boxShadow = '0 0 40px rgba(255,255,255,0.2)';
+        img.style.transform = 'scale(1.04)';
+      };
+      img.onmouseleave = () => {
+        img.style.boxShadow = '0 0 24px rgba(255,255,255,0.06)';
+        img.style.transform = 'scale(1)';
+      };
       img.addEventListener('click', () => {
         const a = document.createElement('a');
-        a.href     = light.dataURL;
-        a.download = `my-light-${i+1}.png`;
+        a.href = light.dataURL;
+        a.download = `light-${allLights.length - i}.png`;
         a.click();
       });
 
       const info = document.createElement('div');
-      info.style.cssText = `color:rgba(255,255,255,0.4);font-size:11px;letter-spacing:0.08em;text-align:center;line-height:1.6;`;
-      info.innerHTML = `${light.time ?? '—'} · ${light.shape ?? '—'}<br>${(light.intensity*100).toFixed(0)}% · ${light.savedAt}`;
+      info.style.cssText = `color:rgba(255,255,255,0.35);font-size:10px;letter-spacing:0.08em;text-align:center;line-height:1.7;`;
+      info.innerHTML = `${light.time ?? '—'} · ${light.shape ?? '—'}<br>${(light.intensity*100).toFixed(0)}%`;
 
       card.appendChild(img);
       card.appendChild(info);
@@ -1036,20 +937,19 @@ function showGallery() {
     });
   }
 
-  // 버튼 영역
   const btnWrap = document.createElement('div');
-  btnWrap.style.cssText = `display:flex;gap:14px;margin-top:40px;`;
+  btnWrap.style.cssText = `display:flex;gap:14px;margin-top:40px;margin-bottom:16px;`;
 
   function makeBtn2(label) {
     const b = document.createElement('button');
     b.textContent = label;
     b.style.cssText = `
-      cursor:pointer;font-size:13px;padding:11px 30px;
-      border:1px solid rgba(255,255,255,0.45);
-      background:transparent;color:rgba(255,255,255,0.8);
+      cursor:pointer;font-size:12px;padding:10px 28px;
+      border:1px solid rgba(255,255,255,0.4);
+      background:transparent;color:rgba(255,255,255,0.75);
       letter-spacing:0.12em;transition:background 0.2s;
     `;
-    b.onmouseenter = () => b.style.background = 'rgba(255,255,255,0.12)';
+    b.onmouseenter = () => b.style.background = 'rgba(255,255,255,0.1)';
     b.onmouseleave = () => b.style.background = 'transparent';
     return b;
   }
@@ -1057,20 +957,16 @@ function showGallery() {
   const backBtn    = makeBtn2('← BACK');
   const restartBtn = makeBtn2('RESTART');
 
-  backBtn.addEventListener('click', () => {
-    overlay.remove();
-    // 결과 화면 다시 표시 (마지막 저장 빛)
-    showResult();
-  });
-  restartBtn.addEventListener('click', () => {
-    overlay.remove();
-    goToIntro();
-  });
+  backBtn.addEventListener('click',    () => { overlay.remove(); showResult && currentEntry ? showResultAgain(currentEntry, overlay) : overlay.remove(); });
+  restartBtn.addEventListener('click', () => { overlay.remove(); goToIntro(); });
+
+  // BACK은 단순히 갤러리 닫기
+  backBtn.addEventListener('click', () => overlay.remove(), { once: true });
 
   btnWrap.appendChild(backBtn);
   btnWrap.appendChild(restartBtn);
 
-  overlay.appendChild(title);
+  overlay.appendChild(header);
   overlay.appendChild(grid);
   overlay.appendChild(btnWrap);
   document.body.appendChild(overlay);
