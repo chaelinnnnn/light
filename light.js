@@ -29,90 +29,107 @@ let sliderDragging = false;
 let sliderX = 0;
 
 /* =========================================================
-   ★ 지침 시스템 — 어느 stage에서 발동할지 결정
-   각 배열에서 1~3 중 랜덤 1개 뽑아 해당 stage에서만 발동
+   ★ 배경음악 — change.mp3 (볼륨 0.15, 루프)
 ========================================================= */
-// 지침2(팝업): stage 1,2,3 중 랜덤 1개
+let bgm = null;
+
+function startBGM() {
+  if (bgm) return;
+  bgm = new Audio('change.mp3');
+  bgm.loop = true;
+  bgm.volume = 0.15;
+  bgm.play().catch(() => {
+    // 자동재생 차단 시 첫 인터랙션에서 재생
+    const startOnce = () => {
+      bgm.play().catch(() => {});
+      window.removeEventListener('pointerdown', startOnce);
+    };
+    window.addEventListener('pointerdown', startOnce);
+  });
+}
+
+/* =========================================================
+   ★ 지침 시스템
+========================================================= */
 const DIRECTIVE2_STAGE = Math.ceil(Math.random() * 3);
-// 지침3(빛 소멸): stage 1,2,3 중 랜덤 1개 (단 지침2와 겹치지 않게)
 let DIRECTIVE3_STAGE;
 do { DIRECTIVE3_STAGE = Math.ceil(Math.random() * 3); }
 while (DIRECTIVE3_STAGE === DIRECTIVE2_STAGE);
 
-// 각 지침 발동 여부 (한 번만 발동)
 let directive2Fired = false;
 let directive3Fired = false;
 
-// 지침2: 각 stage 진입 후 몇 초 뒤 발동 (8~20초 랜덤)
 const DIRECTIVE2_DELAY = 8000 + Math.random() * 12000;
-// 지침3: 각 stage 진입 후 몇 초 뒤 발동 (8~20초 랜덤)
-const DIRECTIVE3_DELAY = 8000 + Math.random() * 12000;
 
 let directive2Timer = null;
-let directive3Timer = null;
 
 /* =========================================================
-   ★ 지침1 — 6초 방치 시 빛 shrink → 미터치 시 인트로 복귀
+   ★ 지침1 — 6초 방치 → 서서히 shrink 애니메이션 → 3초 후 인트로
 ========================================================= */
-const IDLE_TIMEOUT   = 6000;   // 6초
-const SHRINK_TIMEOUT = 3000;   // shrink 후 3초 안에 터치 없으면 인트로
+const IDLE_TIMEOUT   = 6000;
+const SHRINK_DURATION = 3000;  // shrink 애니메이션 지속 시간
+const SHRINK_GRACE   = 3000;   // shrink 완료 후 터치 대기
 
 let lastInteractionTime = Date.now();
-let idleWarningActive   = false;  // shrink 중인지
-let idleWarningTimer    = null;   // shrink 후 카운트다운
+let idleWarningActive   = false;
+let idleShrinkStart     = 0;      // shrink 시작 시각
+let idleGraceTimer      = null;
+let _savedBaseRadius    = 70;
+let _savedGlowIntensity = 1.0;
 
 function resetIdleTimer() {
   lastInteractionTime = Date.now();
   if (idleWarningActive) {
-    // 터치! → 빛 복구
     idleWarningActive = false;
-    clearTimeout(idleWarningTimer);
-    idleWarningTimer = null;
+    clearTimeout(idleGraceTimer);
+    idleGraceTimer = null;
+    // 빛 즉시 복구
     if (centerLight) {
-      centerLight.baseRadius = _savedBaseRadius;
+      centerLight.baseRadius    = _savedBaseRadius;
       centerLight.glowIntensity = _savedGlowIntensity;
     }
   }
 }
 
-let _savedBaseRadius    = 70;
-let _savedGlowIntensity = 1.0;
-
 function checkIdle() {
-  if (idleWarningActive) return;                   // 이미 shrink 중
+  if (idleWarningActive) {
+    // shrink 진행 중 → 애니메이션 업데이트
+    const elapsed = Date.now() - idleShrinkStart;
+    const p = Math.min(elapsed / SHRINK_DURATION, 1);
+    const e = easeInOutCubic(p);
+    if (centerLight) {
+      centerLight.baseRadius    = _savedBaseRadius    * (1 - e * 0.82);  // 최소 18%까지 줄어듦
+      centerLight.glowIntensity = _savedGlowIntensity * (1 - e * 0.88);  // 거의 꺼짐
+    }
+    return;
+  }
   if (Date.now() - lastInteractionTime >= IDLE_TIMEOUT) {
-    // 빛 shrink 시작
     idleWarningActive = true;
+    idleShrinkStart   = Date.now();
     if (centerLight) {
       _savedBaseRadius    = centerLight.baseRadius;
       _savedGlowIntensity = centerLight.glowIntensity;
-      centerLight.baseRadius    = _savedBaseRadius * 0.25;
-      centerLight.glowIntensity = 0.15;
     }
-    // 3초 안에 터치 없으면 인트로로
-    idleWarningTimer = setTimeout(() => {
+    // shrink 완료 후 대기 시간 뒤 인트로 복귀
+    idleGraceTimer = setTimeout(() => {
       if (idleWarningActive) goToIntro();
-    }, SHRINK_TIMEOUT);
+    }, SHRINK_DURATION + SHRINK_GRACE);
   }
 }
 
-// 모든 인터랙션에서 idle 리셋
 ['pointerdown','pointermove','touchstart','touchmove','keydown'].forEach(ev => {
   window.addEventListener(ev, resetIdleTimer, { passive: true });
 });
 
 /* =========================================================
-   인트로 복귀 공통 함수
+   인트로 복귀
 ========================================================= */
 function goToIntro() {
-  // 진행 중인 타이머/팝업 모두 정리
-  clearTimeout(idleWarningTimer);
+  clearTimeout(idleGraceTimer);
   clearTimeout(directive2Timer);
-  clearTimeout(directive3Timer);
   removePopup();
   removeFairy();
 
-  // 상태 리셋
   idleWarningActive = false;
   directive2Fired   = false;
   directive3Fired   = false;
@@ -128,7 +145,6 @@ function goToIntro() {
 
   setTimeout(() => {
     overlay.remove();
-    // 전체 상태 초기화 후 인트로 재시작
     currentStage = 1;
     userChoices  = { time: null, shape: null, intensity: null };
     stage1Blobs  = {};
@@ -143,9 +159,10 @@ function goToIntro() {
 }
 
 /* =========================================================
-   ★ 지침2 — pop.png 팝업
+   ★ 지침2 — pop.png 팝업 + 10초 카운트다운
 ========================================================= */
 let popupEl = null;
+let popupCountdownTimer = null;
 
 function scheduleDirective2() {
   if (directive2Fired) return;
@@ -166,12 +183,12 @@ function showPopup() {
     position:fixed;inset:0;z-index:8000;
     display:flex;flex-direction:column;
     align-items:center;justify-content:center;
-    background:rgba(0,0,0,0.75);
+    background:rgba(0,0,0,0.80);
   `;
 
   const img = document.createElement('img');
   img.src = 'pop.png';
-  img.style.cssText = `max-width:80%;max-height:55vh;object-fit:contain;margin-bottom:20px;`;
+  img.style.cssText = `max-width:80%;max-height:50vh;object-fit:contain;margin-bottom:20px;`;
 
   const input = document.createElement('input');
   input.type = 'text';
@@ -182,72 +199,102 @@ function showPopup() {
     text-align:center;letter-spacing:0.15em;width:260px;
   `;
 
+  // 10초 카운트다운 표시
+  const timerEl = document.createElement('div');
+  timerEl.style.cssText = `
+    color:rgba(255,255,255,0.55);font-size:13px;
+    margin-top:14px;letter-spacing:0.1em;
+  `;
+
   const hint = document.createElement('div');
-  hint.style.cssText = `color:rgba(255,255,255,0.4);font-size:12px;margin-top:10px;`;
-  hint.textContent = '';
+  hint.style.cssText = `color:#ff4444;font-size:12px;margin-top:6px;min-height:18px;`;
 
   popupEl.appendChild(img);
   popupEl.appendChild(input);
+  popupEl.appendChild(timerEl);
   popupEl.appendChild(hint);
   document.body.appendChild(popupEl);
 
-  // 포커스
   setTimeout(() => input.focus(), 100);
+
+  // 10초 카운트다운
+  let remaining = 10;
+  timerEl.textContent = `${remaining}초 내에 입력하십시오`;
+
+  popupCountdownTimer = setInterval(() => {
+    remaining--;
+    timerEl.textContent = `${remaining}초 내에 입력하십시오`;
+    if (remaining <= 3) timerEl.style.color = '#ff6666';
+    if (remaining <= 0) {
+      clearInterval(popupCountdownTimer);
+      removePopup();
+      goToIntro();
+    }
+  }, 1000);
 
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       if (input.value.trim().toUpperCase() === 'LIGHT') {
-        // 정답 → 팝업 닫고 계속
+        clearInterval(popupCountdownTimer);
         removePopup();
         resetIdleTimer();
       } else {
-        // 오답 → 흔들기 + 인트로 복귀
-        hint.textContent = '오류';
+        hint.textContent = '오류 — 잘못된 키워드';
         input.style.borderColor = '#ff4444';
         input.style.animation = 'shake 0.4s';
-        setTimeout(() => goToIntro(), 1000);
+        setTimeout(() => { input.style.animation = ''; input.value = ''; }, 500);
       }
     }
   });
 }
 
 function removePopup() {
+  clearInterval(popupCountdownTimer);
   if (popupEl) { popupEl.remove(); popupEl = null; }
 }
 
 /* =========================================================
-   ★ 지침3 — 빛 소멸 + fairy.png 버튼
+   ★ 지침3 — 캔버스 바깥 흰 영역(left-panel) 클릭 시 발동
 ========================================================= */
 let fairyEl = null;
-let lightVanished = false;
-let _vanishedSnapshot = null;  // 빛 소멸 전 상태 저장
+let _vanishedSnapshot = null;
 
-function scheduleDirective3() {
-  if (directive3Fired) return;
-  clearTimeout(directive3Timer);
-  directive3Timer = setTimeout(() => {
+// left-panel 클릭 감지
+document.addEventListener('DOMContentLoaded', () => {
+  const leftPanel = document.getElementById('left-panel');
+  if (leftPanel) {
+    leftPanel.addEventListener('pointerdown', () => {
+      if (!directive3Fired && currentStage === DIRECTIVE3_STAGE) {
+        directive3Fired = true;
+        vanishLight();
+      }
+    });
+  }
+});
+
+// left-panel이 없을 경우 canvas 바깥 body 클릭으로 fallback
+document.body.addEventListener('pointerdown', (e) => {
+  if (e.target === document.body || e.target === document.documentElement) {
     if (!directive3Fired && currentStage === DIRECTIVE3_STAGE) {
       directive3Fired = true;
       vanishLight();
     }
-  }, DIRECTIVE3_DELAY);
-}
+  }
+});
 
 function vanishLight() {
   if (!centerLight) return;
-  lightVanished = true;
   _vanishedSnapshot = {
     baseRadius:    centerLight.baseRadius,
     glowIntensity: centerLight.glowIntensity,
   };
-  // 빛 서서히 꺼지기
-  const dur = 1500, t0 = Date.now();
+  const dur = 1800, t0 = Date.now();
   const startGlow = centerLight.glowIntensity;
   const startR    = centerLight.baseRadius;
   function fade() {
     const p = Math.min((Date.now() - t0) / dur, 1);
     centerLight.glowIntensity = startGlow * (1 - p);
-    centerLight.baseRadius    = startR    * (1 - p * 0.8);
+    centerLight.baseRadius    = startR    * (1 - p * 0.85);
     if (p < 1) requestAnimationFrame(fade);
     else showFairy();
   }
@@ -268,7 +315,7 @@ function showFairy() {
   img.src = 'fairy.png';
   img.style.cssText = `
     width:160px;height:auto;object-fit:contain;
-    opacity:0;transition:opacity 0.6s ease;
+    opacity:0;transition:opacity 0.7s ease;
     margin-bottom:24px;
   `;
 
@@ -282,35 +329,32 @@ function showFairy() {
     color:#fff;letter-spacing:0.12em;
     transition:background 0.2s;
   `;
-  btn.onmouseenter = () => btn.style.background = 'rgba(255,255,255,0.2)';
+  btn.onmouseenter = () => btn.style.background = 'rgba(255,255,255,0.22)';
   btn.onmouseleave = () => btn.style.background = 'rgba(255,255,255,0.08)';
-
   btn.addEventListener('click', () => restoreLight());
 
   fairyEl.appendChild(img);
   fairyEl.appendChild(btn);
   document.body.appendChild(fairyEl);
-
-  // 요정 fade in
   requestAnimationFrame(() => { img.style.opacity = '1'; });
 }
 
 function removeFairy() {
   if (fairyEl) { fairyEl.remove(); fairyEl = null; }
-  lightVanished = false;
 }
 
 function restoreLight() {
   removeFairy();
   if (!centerLight || !_vanishedSnapshot) return;
-  // 빛 서서히 복구
   const dur = 1200, t0 = Date.now();
   const targetR    = _vanishedSnapshot.baseRadius;
   const targetGlow = _vanishedSnapshot.glowIntensity;
+  const startR    = centerLight.baseRadius;
+  const startGlow = centerLight.glowIntensity;
   function rise() {
     const p = Math.min((Date.now() - t0) / dur, 1), e = easeInOutCubic(p);
-    centerLight.glowIntensity = targetGlow * e;
-    centerLight.baseRadius    = centerLight.baseRadius + (targetR - centerLight.baseRadius) * e;
+    centerLight.glowIntensity = startGlow + (targetGlow - startGlow) * e;
+    centerLight.baseRadius    = startR    + (targetR    - startR)    * e;
     if (p < 1) requestAnimationFrame(rise);
     else {
       centerLight.glowIntensity = targetGlow;
@@ -322,11 +366,11 @@ function restoreLight() {
 }
 
 /* =========================================================
-   Stage 진입 시 지침 타이머 시작
+   지침 타이머 시작
 ========================================================= */
 function startDirectiveTimers() {
   scheduleDirective2();
-  scheduleDirective3();
+  // 지침3은 타이머 없음 — 흰 영역 클릭으로만 발동
 }
 
 /* =========================================================
@@ -759,10 +803,9 @@ canvas.addEventListener('pointerup', (e) => {
 });
 
 /* =========================================================
-   Animate — idle 체크 포함
+   Animate
 ========================================================= */
 function animate() {
-  // 지침1 idle 체크 (팝업/요정/인트로 복귀 중엔 스킵)
   if (!popupEl && !fairyEl) checkIdle();
 
   ctx.save();
@@ -817,9 +860,7 @@ window.addEventListener('resize', () => {
    Opening
 ========================================================= */
 function startOpening() {
-  // 지침 타이머 리셋
   clearTimeout(directive2Timer);
-  clearTimeout(directive3Timer);
 
   const overlay = document.createElement('div');
   overlay.id = 'opening-overlay';
@@ -843,13 +884,14 @@ function startOpening() {
     overlay.style.opacity = '0';
     setTimeout(() => {
       overlay.remove();
+      startBGM();   // ← 오프닝 끝나면 배경음악 시작
       initStage1();
       animate();
     }, 800);
   });
 }
 
-/* CSS shake 애니메이션 주입 */
+/* CSS 주입 */
 const styleEl = document.createElement('style');
 styleEl.textContent = `
   @keyframes shake {
