@@ -582,15 +582,15 @@ function showSliderGuide() {
 }
 
 function drawSlider() {
-  const sliderY = canvas.height * 0.65;
-  const sliderWidth = canvas.width * 0.7;
-  const sliderLeft = canvas.width * 0.15;
+  const sliderY = canvas.height * 0.68;
+  const sliderWidth = canvas.width * 0.5;
+  const sliderLeft = canvas.width * 0.25;
   const sliderRight = sliderLeft + sliderWidth;
   
   ctx.save();
   
   ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(sliderLeft, sliderY);
   ctx.lineTo(sliderRight, sliderY);
@@ -600,19 +600,19 @@ function drawSlider() {
   
   ctx.fillStyle = '#ffffff';
   ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
-  ctx.shadowBlur = 10;
+  ctx.shadowBlur = 8;
   ctx.beginPath();
-  ctx.arc(sliderLeft, sliderY, 12, 0, Math.PI * 2);
+  ctx.arc(sliderLeft, sliderY, 8, 0, Math.PI * 2);
   ctx.fill();
   
   ctx.beginPath();
-  ctx.arc(sliderRight, sliderY, 12, 0, Math.PI * 2);
+  ctx.arc(sliderRight, sliderY, 8, 0, Math.PI * 2);
   ctx.fill();
   
   ctx.fillStyle = '#888888';
-  ctx.shadowBlur = 5;
+  ctx.shadowBlur = 4;
   ctx.beginPath();
-  ctx.arc(sliderX, sliderY, 6, 0, Math.PI * 2);
+  ctx.arc(sliderX, sliderY, 5, 0, Math.PI * 2);
   ctx.fill();
   
   ctx.restore();
@@ -631,11 +631,11 @@ function handleSliderClick(e) {
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
-  const sliderY = canvas.height * 0.65;
-  const sliderWidth = canvas.width * 0.7;
-  const sliderLeft = canvas.width * 0.15;
+  const sliderY = canvas.height * 0.68;
+  const sliderWidth = canvas.width * 0.5;
+  const sliderLeft = canvas.width * 0.25;
   const sliderRight = sliderLeft + sliderWidth;
-  if (y >= sliderY - 25 && y <= sliderY + 25 && x >= sliderLeft && x <= sliderRight) {
+  if (y >= sliderY - 20 && y <= sliderY + 20 && x >= sliderLeft && x <= sliderRight) {
     sliderDragging = true;
     updateIntensity((x - sliderLeft) / sliderWidth);
   }
@@ -645,8 +645,8 @@ function handleSliderMove(e) {
   if (currentStage !== 3 || !sliderDragging) return;
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
-  const sliderWidth = canvas.width * 0.7;
-  const sliderLeft = canvas.width * 0.15;
+  const sliderWidth = canvas.width * 0.5;
+  const sliderLeft = canvas.width * 0.25;
   updateIntensity((x - sliderLeft) / sliderWidth);
 }
 
@@ -732,11 +732,11 @@ canvas.addEventListener('touchstart', (e) => {
       }
     }
   } else if (currentStage === 3) {
-    const sliderY = canvas.height * 0.65;
-    const sliderWidth = canvas.width * 0.7;
-    const sliderLeft = canvas.width * 0.15;
+    const sliderY = canvas.height * 0.68;
+    const sliderWidth = canvas.width * 0.5;
+    const sliderLeft = canvas.width * 0.25;
     const sliderRight = sliderLeft + sliderWidth;
-    if (y >= sliderY - 25 && y <= sliderY + 25 && x >= sliderLeft && x <= sliderRight) {
+    if (y >= sliderY - 20 && y <= sliderY + 20 && x >= sliderLeft && x <= sliderRight) {
       sliderDragging = true;
       updateIntensity((x - sliderLeft) / sliderWidth);
     }
@@ -755,8 +755,8 @@ canvas.addEventListener('touchmove', (e) => {
     const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
     const x = touch.clientX - rect.left;
-    const sliderWidth = canvas.width * 0.7;
-    const sliderLeft = canvas.width * 0.15;
+    const sliderWidth = canvas.width * 0.5;
+    const sliderLeft = canvas.width * 0.25;
     updateIntensity((x - sliderLeft) / sliderWidth);
   }
 });
