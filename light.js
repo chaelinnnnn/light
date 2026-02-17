@@ -29,7 +29,7 @@ let sliderDragging = false;
 let sliderX = 0;
 
 /* =========================================================
-   ★ 배경음악 — change.mp3 (볼륨 0.15, 루프)
+   BGM — change.mp3 (volume 0.08, loop)
 ========================================================= */
 let bgm = null;
 
@@ -39,7 +39,7 @@ function startBGM() {
   bgm.loop = true;
   bgm.volume = 0.08;
   bgm.play().catch(() => {
-    // 자동재생 차단 시 첫 인터랙션에서 재생
+    // autoplay blocked — start on first interaction
     const startOnce = () => {
       bgm.play().catch(() => {});
       window.removeEventListener('pointerdown', startOnce);
@@ -49,7 +49,7 @@ function startBGM() {
 }
 
 /* =========================================================
-   ★ 지침 시스템
+   ★ Directive System
 ========================================================= */
 const DIRECTIVE2_STAGE = Math.ceil(Math.random() * 3);
 let DIRECTIVE3_STAGE;
@@ -64,20 +64,20 @@ const DIRECTIVE2_DELAY = 8000 + Math.random() * 12000;
 let directive2Timer = null;
 
 /* =========================================================
-   ★ 지침1 — 6초 방치 → 서서히 shrink 애니메이션 → 3초 후 인트로
+   ★ Directive 1 — idle 2s → shrink animation → return to intro
 ========================================================= */
-const IDLE_TIMEOUT    = 2000;   // ★ 2초
-const SHRINK_DURATION = 2500;   // shrink 애니메이션
-const SHRINK_GRACE    = 2500;   // shrink 완료 후 터치 대기
+const IDLE_TIMEOUT    = 2000;   // ★ 2s
+const SHRINK_DURATION = 2500;   // shrink animation duration
+const SHRINK_GRACE    = 2500;   // grace period after shrink
 
 let lastInteractionTime = Date.now();
 let idleWarningActive   = false;
 let idleShrinkStart     = 0;
 let idleGraceTimer      = null;
-// snapshot — shrink 시작 시 딱 한 번 저장
+// snapshot — saved once at shrink start
 let _snapRadius = 70;
 let _snapGlow   = 1.0;
-let _snapSaved  = false;  // ★ 매 프레임 덮어쓰기 방지 flag
+let _snapSaved  = false;  // ★ prevent overwrite every frame
 
 function resetIdleTimer() {
   lastInteractionTime = Date.now();
@@ -129,7 +129,7 @@ function checkIdle() {
 });
 
 /* =========================================================
-   인트로 복귀
+   Return to Intro
 ========================================================= */
 function goToIntro() {
   clearTimeout(idleGraceTimer);
@@ -165,7 +165,7 @@ function goToIntro() {
 }
 
 /* =========================================================
-   ★ 지침2 — pop.png 팝업 + 10초 카운트다운
+   ★ Directive 2 — pop.png popup + 10s countdown
 ========================================================= */
 let popupEl = null;
 let popupCountdownTimer = null;
@@ -198,14 +198,14 @@ function showPopup() {
 
   const input = document.createElement('input');
   input.type = 'text';
-  input.placeholder = 'Please enter a keyword';
+  input.placeholder = 'Enter the keyword';
   input.style.cssText = `
     font-size:18px;padding:10px 20px;border:2px solid #fff;
     background:transparent;color:#fff;outline:none;
     text-align:center;letter-spacing:0.15em;width:260px;
   `;
 
-  // 10초 카운트다운 표시
+  // 10s countdown display
   const timerEl = document.createElement('div');
   timerEl.style.cssText = `
     color:rgba(255,255,255,0.55);font-size:13px;
@@ -223,13 +223,13 @@ function showPopup() {
 
   setTimeout(() => input.focus(), 100);
 
-  // 10초 카운트다운
+  // 10s countdown
   let remaining = 10;
-  timerEl.textContent = `${remaining}초 내에 입력하십시오`;
+  timerEl.textContent = `Enter within ${remaining} seconds`;
 
   popupCountdownTimer = setInterval(() => {
     remaining--;
-    timerEl.textContent = `${remaining}초 내에 입력하십시오`;
+    timerEl.textContent = `Enter within ${remaining} seconds`;
     if (remaining <= 3) timerEl.style.color = '#ff6666';
     if (remaining <= 0) {
       clearInterval(popupCountdownTimer);
@@ -245,7 +245,7 @@ function showPopup() {
         removePopup();
         resetIdleTimer();
       } else {
-        hint.textContent = '오류 — 잘못된 키워드';
+        hint.textContent = 'ERROR — incorrect keyword';
         input.style.borderColor = '#ff4444';
         input.style.animation = 'shake 0.4s';
         setTimeout(() => { input.style.animation = ''; input.value = ''; }, 500);
@@ -261,20 +261,20 @@ function removePopup() {
 
 /* =========================================================
 /* =========================================================
-   지침3 — 비활성화
+   Directive 3 — disabled
 ========================================================= */
 let fairyEl = null;
 function removeFairy() { if (fairyEl) { fairyEl.remove(); fairyEl = null; } }
 
 /* =========================================================
-   지침 타이머 시작
+   Start Directive Timers
 ========================================================= */
 function startDirectiveTimers() {
   scheduleDirective2();
 }
 
 /* =========================================================
-   Stage 1 데이터
+   Stage 1 Data
 ========================================================= */
 function getStage1Data() {
   return {
@@ -290,7 +290,7 @@ const stage1Labels = {
 };
 
 /* =========================================================
-   클로버 SVG Path
+   Clover SVG Path
 ========================================================= */
 const CLOVER_VIEWBOX = 106;
 const CLOVER_CENTER  = 53;
@@ -484,22 +484,19 @@ class LightBeam {
 /* =========================================================
    Guide
 ========================================================= */
-function showGuideOverlay(html) {
-  // 기존 가이드 제거
+function showGuideOverlay(html, fixed = true) {
   document.querySelectorAll('.guide-overlay').forEach(el => el.remove());
   const el = document.createElement('div');
   el.className = 'guide-overlay';
   el.style.cssText = `
     position:fixed;
     top:32px;
-    left:50%;
-    transform:translateX(-50%);
+    left:0;right:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
     z-index:7000;
     pointer-events:none;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:6px;
     opacity:0;
     transition:opacity 0.5s ease;
   `;
@@ -512,15 +509,73 @@ function showGuideOverlay(html) {
   }, 4000);
 }
 
+// Stage 1 드래그 가이드 — 빛 오브젝트 바로 아래에 화살표와 함께
+function showDragGuideNearLight() {
+  document.querySelectorAll('.guide-overlay').forEach(el => el.remove());
+  const el = document.createElement('div');
+  el.className = 'guide-overlay';
+  el.style.cssText = `
+    position:fixed;
+    z-index:7000;
+    pointer-events:none;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    opacity:0;
+    transition:opacity 0.5s ease;
+    transform:translateX(-50%);
+  `;
+
+  const textDiv = document.createElement('div');
+  textDiv.style.cssText = `
+    color:rgba(255,255,255,0.85);
+    font-size:13px;
+    letter-spacing:0.18em;
+    text-align:center;
+    text-shadow:0 0 16px rgba(255,255,255,0.5);
+    white-space:nowrap;
+  `;
+  textDiv.textContent = 'DRAG THE LIGHT TO A TIME';
+
+  const arrow = document.createElement('div');
+  arrow.style.cssText = `
+    color:rgba(255,255,255,0.7);
+    font-size:22px;
+    line-height:1;
+    text-shadow:0 0 12px rgba(255,255,255,0.5);
+    animation:arrowBounce 1.2s ease-in-out infinite;
+  `;
+  arrow.textContent = '↕';
+
+  el.appendChild(textDiv);
+  el.appendChild(arrow);
+  document.body.appendChild(el);
+
+  // 빛 위치에 맞춰 실시간 업데이트
+  function updatePos() {
+    if (!centerLight || !el.isConnected) return;
+    const canvasRect = canvas.getBoundingClientRect();
+    const lx = canvasRect.left + centerLight.x * (canvasRect.width  / W);
+    const ly = canvasRect.top  + centerLight.y * (canvasRect.height / H);
+    el.style.left = lx + 'px';
+    el.style.top  = (ly + centerLight.radius + 14) + 'px';
+    requestAnimationFrame(updatePos);
+  }
+  requestAnimationFrame(updatePos);
+  requestAnimationFrame(() => { el.style.opacity = '1'; });
+
+  setTimeout(() => {
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 500);
+  }, 4000);
+}
+
 function showDragGuide() {
   if (guideShown) return;
   guideShown = true;
   if (currentStage === 1) {
-    showGuideOverlay(`
-      <div style="color:rgba(255,255,255,0.9);font-size:15px;letter-spacing:0.18em;text-align:center;text-shadow:0 0 20px rgba(255,255,255,0.6);">
-        DRAG THE LIGHT TO A TIME
-      </div>
-    `);
+    showDragGuideNearLight();
   } else {
     showGuideOverlay(`
       <div style="color:rgba(255,255,255,0.9);font-size:15px;letter-spacing:0.18em;text-align:center;text-shadow:0 0 20px rgba(255,255,255,0.6);">
@@ -790,7 +845,7 @@ window.addEventListener('resize', () => {
 });
 
 /* =========================================================
-   ★ Save / Result 시스템 (localStorage로 여러 세션에 걸쳐 축적)
+   ★ Save / Result System (accumulated via localStorage across sessions)
 ========================================================= */
 const LS_KEY = 'howToFindYourLight_gallery';
 
@@ -801,7 +856,7 @@ function loadSavedLights() {
 function persistLight(entry) {
   const all = loadSavedLights();
   all.push(entry);
-  // 최대 200개 유지 (오래된 것부터 제거)
+  // keep max 200 entries (remove oldest first)
   if (all.length > 200) all.splice(0, all.length - 200);
   try { localStorage.setItem(LS_KEY, JSON.stringify(all)); } catch {}
 }
@@ -832,7 +887,7 @@ function showResult() {
     intensity: userChoices.intensity ?? 0,
     savedAt:   new Date().toLocaleTimeString()
   };
-  // localStorage에 즉시 저장 (Result 화면 열릴 때 자동 축적)
+  // auto-save to localStorage when result screen opens
   persistLight(entry);
 
   const overlay = document.createElement('div');
@@ -932,10 +987,10 @@ function showGallery(currentEntry) {
   if (allLights.length === 0) {
     const empty = document.createElement('div');
     empty.style.cssText = `color:rgba(255,255,255,0.3);font-size:13px;letter-spacing:0.1em;grid-column:1/-1;text-align:center;margin-top:40px;`;
-    empty.textContent = '저장된 빛이 없습니다';
+    empty.textContent = 'No lights saved yet';
     grid.appendChild(empty);
   } else {
-    // 최신순으로 표시
+    // show newest first
     [...allLights].reverse().forEach((light, i) => {
       const card = document.createElement('div');
       card.style.cssText = `display:flex;flex-direction:column;align-items:center;gap:8px;`;
@@ -995,7 +1050,7 @@ function showGallery(currentEntry) {
   backBtn.addEventListener('click',    () => { overlay.remove(); showResult && currentEntry ? showResultAgain(currentEntry, overlay) : overlay.remove(); });
   restartBtn.addEventListener('click', () => { overlay.remove(); goToIntro(); });
 
-  // BACK은 단순히 갤러리 닫기
+  // BACK simply closes gallery
   backBtn.addEventListener('click', () => overlay.remove(), { once: true });
 
   btnWrap.appendChild(backBtn);
@@ -1014,7 +1069,7 @@ function showGallery(currentEntry) {
 function startOpening() {
   clearTimeout(directive2Timer);
 
-  // 오프닝부터 배경음악(change.mp3) 재생
+  // start BGM (change.mp3) from opening
   startBGM();
 
   const overlay = document.createElement('div');
@@ -1027,29 +1082,25 @@ function startOpening() {
 
   const img = document.createElement('img');
   img.src = 'light.png';
-  img.style.cssText = `max-width:100%;max-height:100%;object-fit:contain;display:block;`;
+  img.style.cssText = `max-width:70%;max-height:72vh;object-fit:contain;display:block;`;
   overlay.appendChild(img);
 
-  // I UNDERSTAND 버튼
+  // I UNDERSTAND button
   const understandBtn = document.createElement('button');
   understandBtn.textContent = 'I UNDERSTAND';
   understandBtn.style.cssText = `
     position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
-    background:transparent;border:1.5px solid rgba(255,255,255,0.55);
-    color:rgba(255,255,255,0.8);font-size:13px;
+    background:#fff;border:1.5px solid #fff;
+    color:#000;font-size:13px;
     letter-spacing:0.22em;padding:12px 36px;cursor:pointer;
-    transition:border-color 0.25s,color 0.25s,background 0.25s;
+    transition:background 0.25s,color 0.25s;
     white-space:nowrap;
   `;
   understandBtn.onmouseenter = () => {
-    understandBtn.style.borderColor = 'rgba(255,255,255,1)';
-    understandBtn.style.color = '#fff';
-    understandBtn.style.background = 'rgba(255,255,255,0.08)';
+    understandBtn.style.background = '#e0e0e0';
   };
   understandBtn.onmouseleave = () => {
-    understandBtn.style.borderColor = 'rgba(255,255,255,0.55)';
-    understandBtn.style.color = 'rgba(255,255,255,0.8)';
-    understandBtn.style.background = 'transparent';
+    understandBtn.style.background = '#fff';
   };
 
   understandBtn.addEventListener('click', () => {
@@ -1065,7 +1116,7 @@ function startOpening() {
   document.body.appendChild(overlay);
 }
 
-/* CSS 주입 */
+/* CSS injection */
 const styleEl = document.createElement('style');
 styleEl.textContent = `
   @keyframes shake {
@@ -1074,6 +1125,10 @@ styleEl.textContent = `
     40%{transform:translateX(8px)}
     60%{transform:translateX(-6px)}
     80%{transform:translateX(6px)}
+  }
+  @keyframes arrowBounce {
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(6px)}
   }
 `;
 document.head.appendChild(styleEl);
