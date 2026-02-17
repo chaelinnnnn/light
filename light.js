@@ -558,31 +558,41 @@ class LightBeam {
 ========================================================= */
 function showGuideOverlay(html) {
   document.querySelectorAll('.guide-overlay').forEach(el => el.remove());
+
   const el = document.createElement('div');
   el.className = 'guide-overlay';
+
+  // ★ 캔버스(검은 바탕) 기준 중앙 정렬
+  const r = canvas.getBoundingClientRect();
+  const centerX = r.left + r.width / 2;
+  const topY = r.top + 32; // 기존 top:32 느낌 유지(캔버스 내부 상단)
+
   el.style.cssText = `
     position:fixed;
-    top:32px;
-    left:50%;
+    left:${centerX}px;
+    top:${topY}px;
     transform:translateX(-50%);
     z-index:7000;
     pointer-events:none;
     opacity:0;
     transition:opacity 0.5s ease;
     width:auto;
-    max-width:92vw;
+    max-width:${Math.max(0, r.width - 24)}px;
     display:flex;
     justify-content:center;
     text-align:center;
   `;
+
   el.innerHTML = html;
   document.body.appendChild(el);
+
   requestAnimationFrame(() => { el.style.opacity = '1'; });
   setTimeout(() => {
     el.style.opacity = '0';
     setTimeout(() => el.remove(), 500);
   }, 4000);
 }
+
 
 function showDragGuide() {
   if (guideShown) return;
