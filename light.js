@@ -66,7 +66,7 @@ let directive2Timer = null;
 /* =========================================================
    ★ 지침1 — 6초 방치 → 서서히 shrink 애니메이션 → 3초 후 인트로
 ========================================================= */
-const IDLE_TIMEOUT    = 5000;   // ★ 5초
+const IDLE_TIMEOUT    = 3000;   // ★ 3초
 const SHRINK_DURATION = 2500;   // shrink 애니메이션
 const SHRINK_GRACE    = 2500;   // shrink 완료 후 터치 대기
 
@@ -989,7 +989,7 @@ function showGallery() {
 
   const title = document.createElement('div');
   title.style.cssText = `color:rgba(255,255,255,0.8);font-size:16px;letter-spacing:0.2em;margin-bottom:36px;`;
-  title.textContent = 'YOUR LIGHTS';
+  title.textContent = 'GALLERY';
 
   const grid = document.createElement('div');
   grid.style.cssText = `
@@ -1090,26 +1090,53 @@ function startOpening() {
     display:flex;align-items:center;justify-content:center;
     z-index:9999;opacity:1;transition:opacity 0.8s ease;
   `;
+
   const img = document.createElement('img');
   img.src = 'light.png';
   img.style.cssText = `max-width:100%;max-height:100%;object-fit:contain;display:block;`;
   overlay.appendChild(img);
-  document.body.appendChild(overlay);
 
   const audio = new Audio('light.mp3');
+
+  // SKIP 버튼
+  const skipBtn = document.createElement('button');
+  skipBtn.textContent = 'SKIP';
+  skipBtn.style.cssText = `
+    position:absolute;bottom:32px;right:36px;
+    background:transparent;border:1px solid rgba(255,255,255,0.4);
+    color:rgba(255,255,255,0.6);font-size:12px;
+    letter-spacing:0.14em;padding:8px 22px;cursor:pointer;
+    transition:border-color 0.2s,color 0.2s;
+  `;
+  skipBtn.onmouseenter = () => {
+    skipBtn.style.borderColor = 'rgba(255,255,255,0.9)';
+    skipBtn.style.color = '#fff';
+  };
+  skipBtn.onmouseleave = () => {
+    skipBtn.style.borderColor = 'rgba(255,255,255,0.4)';
+    skipBtn.style.color = 'rgba(255,255,255,0.6)';
+  };
+
+  function launchStage1() {
+    audio.pause();
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.remove();
+      startBGM();
+      initStage1();
+      animate();
+    }, 800);
+  }
+
+  skipBtn.addEventListener('click', launchStage1);
+  overlay.appendChild(skipBtn);
+  document.body.appendChild(overlay);
+
   audio.play().catch(() => {
     overlay.style.cursor = 'pointer';
     overlay.addEventListener('click', () => audio.play(), { once: true });
   });
-  audio.addEventListener('ended', () => {
-    overlay.style.opacity = '0';
-    setTimeout(() => {
-      overlay.remove();
-      startBGM();   // ← 오프닝 끝나면 배경음악 시작
-      initStage1();
-      animate();
-    }, 800);
-  });
+  audio.addEventListener('ended', launchStage1);
 }
 
 /* CSS 주입 */
