@@ -484,17 +484,18 @@ class LightBeam {
 /* =========================================================
    Guide
 ========================================================= */
-function showGuideOverlay(html, fixed = true) {
+function showGuideOverlay(html) {
   document.querySelectorAll('.guide-overlay').forEach(el => el.remove());
   const el = document.createElement('div');
   el.className = 'guide-overlay';
   el.style.cssText = `
     position:fixed;
     top:32px;
-    left:0;right:0;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    left:0;
+    right:0;
+    margin:0 auto;
+    width:100%;
+    text-align:center;
     z-index:7000;
     pointer-events:none;
     opacity:0;
@@ -509,76 +510,43 @@ function showGuideOverlay(html, fixed = true) {
   }, 4000);
 }
 
-// Stage 1 드래그 가이드 — 빛 오브젝트 바로 아래에 화살표와 함께
-function showDragGuideNearLight() {
-  document.querySelectorAll('.guide-overlay').forEach(el => el.remove());
-  const el = document.createElement('div');
-  el.className = 'guide-overlay';
-  el.style.cssText = `
-    position:fixed;
-    z-index:7000;
-    pointer-events:none;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:4px;
-    opacity:0;
-    transition:opacity 0.5s ease;
-    transform:translateX(-50%);
-  `;
-
-  const textDiv = document.createElement('div');
-  textDiv.style.cssText = `
-    color:rgba(255,255,255,0.85);
-    font-size:13px;
-    letter-spacing:0.18em;
-    text-align:center;
-    text-shadow:0 0 16px rgba(255,255,255,0.5);
-    white-space:nowrap;
-  `;
-  textDiv.textContent = 'DRAG THE LIGHT TO A TIME';
-
-  const arrow = document.createElement('div');
-  arrow.style.cssText = `
-    color:rgba(255,255,255,0.7);
-    font-size:22px;
-    line-height:1;
-    text-shadow:0 0 12px rgba(255,255,255,0.5);
-    animation:arrowBounce 1.2s ease-in-out infinite;
-  `;
-  arrow.textContent = '↕';
-
-  el.appendChild(textDiv);
-  el.appendChild(arrow);
-  document.body.appendChild(el);
-
-  // 빛 위치에 맞춰 실시간 업데이트
-  function updatePos() {
-    if (!centerLight || !el.isConnected) return;
-    const canvasRect = canvas.getBoundingClientRect();
-    const lx = canvasRect.left + centerLight.x * (canvasRect.width  / W);
-    const ly = canvasRect.top  + centerLight.y * (canvasRect.height / H);
-    el.style.left = lx + 'px';
-    el.style.top  = (ly + centerLight.radius + 14) + 'px';
-    requestAnimationFrame(updatePos);
-  }
-  requestAnimationFrame(updatePos);
-  requestAnimationFrame(() => { el.style.opacity = '1'; });
-
-  setTimeout(() => {
-    el.style.opacity = '0';
-    setTimeout(() => el.remove(), 500);
-  }, 4000);
-}
-
 function showDragGuide() {
   if (guideShown) return;
   guideShown = true;
   if (currentStage === 1) {
-    showDragGuideNearLight();
+    // Stage 1 — 고정 위치 (빛 안 따라다님)
+    document.querySelectorAll('.guide-overlay').forEach(el => el.remove());
+    const el = document.createElement('div');
+    el.className = 'guide-overlay';
+    el.style.cssText = `
+      position:fixed;
+      top:50%;
+      left:50%;
+      transform:translate(-50%, 60px);
+      z-index:7000;
+      pointer-events:none;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:4px;
+      opacity:0;
+      transition:opacity 0.5s ease;
+    `;
+    el.innerHTML = `
+      <div style="color:rgba(255,255,255,0.85);font-size:13px;letter-spacing:0.18em;text-align:center;text-shadow:0 0 16px rgba(255,255,255,0.5);white-space:nowrap;">
+        DRAG THE LIGHT TO A TIME
+      </div>
+      <div style="color:rgba(255,255,255,0.7);font-size:22px;line-height:1;text-shadow:0 0 12px rgba(255,255,255,0.5);animation:arrowBounce 1.2s ease-in-out infinite;">↕</div>
+    `;
+    document.body.appendChild(el);
+    requestAnimationFrame(() => { el.style.opacity = '1'; });
+    setTimeout(() => {
+      el.style.opacity = '0';
+      setTimeout(() => el.remove(), 500);
+    }, 4000);
   } else {
     showGuideOverlay(`
-      <div style="color:rgba(255,255,255,0.9);font-size:15px;letter-spacing:0.18em;text-align:center;text-shadow:0 0 20px rgba(255,255,255,0.6);">
+      <div style="color:rgba(255,255,255,0.9);font-size:15px;letter-spacing:0.18em;text-shadow:0 0 20px rgba(255,255,255,0.6);">
         CLICK A SHAPE
       </div>
     `);
@@ -587,7 +555,7 @@ function showDragGuide() {
 
 function showSliderGuide() {
   showGuideOverlay(`
-    <div style="color:rgba(255,255,255,0.9);font-size:15px;letter-spacing:0.18em;text-align:center;text-shadow:0 0 20px rgba(255,255,255,0.6);">
+    <div style="color:rgba(255,255,255,0.9);font-size:15px;letter-spacing:0.18em;text-shadow:0 0 20px rgba(255,255,255,0.6);">
       DRAG THE SLIDER TO ADJUST INTENSITY
     </div>
   `);
@@ -1082,26 +1050,22 @@ function startOpening() {
 
   const img = document.createElement('img');
   img.src = 'light.png';
-  img.style.cssText = `max-width:70%;max-height:72vh;object-fit:contain;display:block;`;
+  img.style.cssText = `max-width:88%;max-height:82vh;object-fit:contain;display:block;`;
   overlay.appendChild(img);
 
   // I UNDERSTAND button
   const understandBtn = document.createElement('button');
   understandBtn.textContent = 'I UNDERSTAND';
   understandBtn.style.cssText = `
-    position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
-    background:#fff;border:1.5px solid #fff;
-    color:#000;font-size:13px;
-    letter-spacing:0.22em;padding:12px 36px;cursor:pointer;
-    transition:background 0.25s,color 0.25s;
+    position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+    background:#fff;border:1px solid #fff;
+    color:#000;font-size:10px;
+    letter-spacing:0.2em;padding:7px 20px;cursor:pointer;
+    transition:background 0.2s;
     white-space:nowrap;
   `;
-  understandBtn.onmouseenter = () => {
-    understandBtn.style.background = '#e0e0e0';
-  };
-  understandBtn.onmouseleave = () => {
-    understandBtn.style.background = '#fff';
-  };
+  understandBtn.onmouseenter = () => { understandBtn.style.background = '#ddd'; };
+  understandBtn.onmouseleave = () => { understandBtn.style.background = '#fff'; };
 
   understandBtn.addEventListener('click', () => {
     overlay.style.opacity = '0';
