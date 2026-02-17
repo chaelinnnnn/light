@@ -29,6 +29,307 @@ let sliderDragging = false;
 let sliderX = 0;
 
 /* =========================================================
+   ★ 지침 시스템 — 어느 stage에서 발동할지 결정
+   각 배열에서 1~3 중 랜덤 1개 뽑아 해당 stage에서만 발동
+========================================================= */
+// 지침2(팝업): stage 1,2,3 중 랜덤 1개
+const DIRECTIVE2_STAGE = Math.ceil(Math.random() * 3);
+// 지침3(빛 소멸): stage 1,2,3 중 랜덤 1개 (단 지침2와 겹치지 않게)
+let DIRECTIVE3_STAGE;
+do { DIRECTIVE3_STAGE = Math.ceil(Math.random() * 3); }
+while (DIRECTIVE3_STAGE === DIRECTIVE2_STAGE);
+
+// 각 지침 발동 여부 (한 번만 발동)
+let directive2Fired = false;
+let directive3Fired = false;
+
+// 지침2: 각 stage 진입 후 몇 초 뒤 발동 (8~20초 랜덤)
+const DIRECTIVE2_DELAY = 8000 + Math.random() * 12000;
+// 지침3: 각 stage 진입 후 몇 초 뒤 발동 (8~20초 랜덤)
+const DIRECTIVE3_DELAY = 8000 + Math.random() * 12000;
+
+let directive2Timer = null;
+let directive3Timer = null;
+
+/* =========================================================
+   ★ 지침1 — 6초 방치 시 빛 shrink → 미터치 시 인트로 복귀
+========================================================= */
+const IDLE_TIMEOUT   = 6000;   // 6초
+const SHRINK_TIMEOUT = 3000;   // shrink 후 3초 안에 터치 없으면 인트로
+
+let lastInteractionTime = Date.now();
+let idleWarningActive   = false;  // shrink 중인지
+let idleWarningTimer    = null;   // shrink 후 카운트다운
+
+function resetIdleTimer() {
+  lastInteractionTime = Date.now();
+  if (idleWarningActive) {
+    // 터치! → 빛 복구
+    idleWarningActive = false;
+    clearTimeout(idleWarningTimer);
+    idleWarningTimer = null;
+    if (centerLight) {
+      centerLight.baseRadius = _savedBaseRadius;
+      centerLight.glowIntensity = _savedGlowIntensity;
+    }
+  }
+}
+
+let _savedBaseRadius    = 70;
+let _savedGlowIntensity = 1.0;
+
+function checkIdle() {
+  if (idleWarningActive) return;                   // 이미 shrink 중
+  if (Date.now() - lastInteractionTime >= IDLE_TIMEOUT) {
+    // 빛 shrink 시작
+    idleWarningActive = true;
+    if (centerLight) {
+      _savedBaseRadius    = centerLight.baseRadius;
+      _savedGlowIntensity = centerLight.glowIntensity;
+      centerLight.baseRadius    = _savedBaseRadius * 0.25;
+      centerLight.glowIntensity = 0.15;
+    }
+    // 3초 안에 터치 없으면 인트로로
+    idleWarningTimer = setTimeout(() => {
+      if (idleWarningActive) goToIntro();
+    }, SHRINK_TIMEOUT);
+  }
+}
+
+// 모든 인터랙션에서 idle 리셋
+['pointerdown','pointermove','touchstart','touchmove','keydown'].forEach(ev => {
+  window.addEventListener(ev, resetIdleTimer, { passive: true });
+});
+
+/* =========================================================
+   인트로 복귀 공통 함수
+========================================================= */
+function goToIntro() {
+  // 진행 중인 타이머/팝업 모두 정리
+  clearTimeout(idleWarningTimer);
+  clearTimeout(directive2Timer);
+  clearTimeout(directive3Timer);
+  removePopup();
+  removeFairy();
+
+  // 상태 리셋
+  idleWarningActive = false;
+  directive2Fired   = false;
+  directive3Fired   = false;
+  lastInteractionTime = Date.now();
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position:fixed;inset:0;background:#000;z-index:9999;
+    opacity:0;transition:opacity 0.8s ease;pointer-events:none;
+  `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+
+  setTimeout(() => {
+    overlay.remove();
+    // 전체 상태 초기화 후 인트로 재시작
+    currentStage = 1;
+    userChoices  = { time: null, shape: null, intensity: null };
+    stage1Blobs  = {};
+    stage2Blobs  = {};
+    centerLight  = null;
+    lightBeam    = null;
+    isDragging   = false;
+    isAnimating  = false;
+    guideShown   = false;
+    startOpening();
+  }, 900);
+}
+
+/* =========================================================
+   ★ 지침2 — pop.png 팝업
+========================================================= */
+let popupEl = null;
+
+function scheduleDirective2() {
+  if (directive2Fired) return;
+  clearTimeout(directive2Timer);
+  directive2Timer = setTimeout(() => {
+    if (!directive2Fired && currentStage === DIRECTIVE2_STAGE) {
+      directive2Fired = true;
+      showPopup();
+    }
+  }, DIRECTIVE2_DELAY);
+}
+
+function showPopup() {
+  if (popupEl) return;
+
+  popupEl = document.createElement('div');
+  popupEl.style.cssText = `
+    position:fixed;inset:0;z-index:8000;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    background:rgba(0,0,0,0.75);
+  `;
+
+  const img = document.createElement('img');
+  img.src = 'pop.png';
+  img.style.cssText = `max-width:80%;max-height:55vh;object-fit:contain;margin-bottom:20px;`;
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = '키워드를 입력하십시오';
+  input.style.cssText = `
+    font-size:18px;padding:10px 20px;border:2px solid #fff;
+    background:transparent;color:#fff;outline:none;
+    text-align:center;letter-spacing:0.15em;width:260px;
+  `;
+
+  const hint = document.createElement('div');
+  hint.style.cssText = `color:rgba(255,255,255,0.4);font-size:12px;margin-top:10px;`;
+  hint.textContent = '';
+
+  popupEl.appendChild(img);
+  popupEl.appendChild(input);
+  popupEl.appendChild(hint);
+  document.body.appendChild(popupEl);
+
+  // 포커스
+  setTimeout(() => input.focus(), 100);
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      if (input.value.trim().toUpperCase() === 'LIGHT') {
+        // 정답 → 팝업 닫고 계속
+        removePopup();
+        resetIdleTimer();
+      } else {
+        // 오답 → 흔들기 + 인트로 복귀
+        hint.textContent = '오류';
+        input.style.borderColor = '#ff4444';
+        input.style.animation = 'shake 0.4s';
+        setTimeout(() => goToIntro(), 1000);
+      }
+    }
+  });
+}
+
+function removePopup() {
+  if (popupEl) { popupEl.remove(); popupEl = null; }
+}
+
+/* =========================================================
+   ★ 지침3 — 빛 소멸 + fairy.png 버튼
+========================================================= */
+let fairyEl = null;
+let lightVanished = false;
+let _vanishedSnapshot = null;  // 빛 소멸 전 상태 저장
+
+function scheduleDirective3() {
+  if (directive3Fired) return;
+  clearTimeout(directive3Timer);
+  directive3Timer = setTimeout(() => {
+    if (!directive3Fired && currentStage === DIRECTIVE3_STAGE) {
+      directive3Fired = true;
+      vanishLight();
+    }
+  }, DIRECTIVE3_DELAY);
+}
+
+function vanishLight() {
+  if (!centerLight) return;
+  lightVanished = true;
+  _vanishedSnapshot = {
+    baseRadius:    centerLight.baseRadius,
+    glowIntensity: centerLight.glowIntensity,
+  };
+  // 빛 서서히 꺼지기
+  const dur = 1500, t0 = Date.now();
+  const startGlow = centerLight.glowIntensity;
+  const startR    = centerLight.baseRadius;
+  function fade() {
+    const p = Math.min((Date.now() - t0) / dur, 1);
+    centerLight.glowIntensity = startGlow * (1 - p);
+    centerLight.baseRadius    = startR    * (1 - p * 0.8);
+    if (p < 1) requestAnimationFrame(fade);
+    else showFairy();
+  }
+  fade();
+}
+
+function showFairy() {
+  if (fairyEl) return;
+  fairyEl = document.createElement('div');
+  fairyEl.style.cssText = `
+    position:fixed;inset:0;z-index:8000;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    pointer-events:none;
+  `;
+
+  const img = document.createElement('img');
+  img.src = 'fairy.png';
+  img.style.cssText = `
+    width:160px;height:auto;object-fit:contain;
+    opacity:0;transition:opacity 0.6s ease;
+    margin-bottom:24px;
+  `;
+
+  const btn = document.createElement('button');
+  btn.textContent = '요정을 부르다';
+  btn.style.cssText = `
+    pointer-events:all;cursor:pointer;
+    font-size:15px;padding:12px 32px;
+    border:1.5px solid rgba(255,255,255,0.7);
+    background:rgba(255,255,255,0.08);
+    color:#fff;letter-spacing:0.12em;
+    transition:background 0.2s;
+  `;
+  btn.onmouseenter = () => btn.style.background = 'rgba(255,255,255,0.2)';
+  btn.onmouseleave = () => btn.style.background = 'rgba(255,255,255,0.08)';
+
+  btn.addEventListener('click', () => restoreLight());
+
+  fairyEl.appendChild(img);
+  fairyEl.appendChild(btn);
+  document.body.appendChild(fairyEl);
+
+  // 요정 fade in
+  requestAnimationFrame(() => { img.style.opacity = '1'; });
+}
+
+function removeFairy() {
+  if (fairyEl) { fairyEl.remove(); fairyEl = null; }
+  lightVanished = false;
+}
+
+function restoreLight() {
+  removeFairy();
+  if (!centerLight || !_vanishedSnapshot) return;
+  // 빛 서서히 복구
+  const dur = 1200, t0 = Date.now();
+  const targetR    = _vanishedSnapshot.baseRadius;
+  const targetGlow = _vanishedSnapshot.glowIntensity;
+  function rise() {
+    const p = Math.min((Date.now() - t0) / dur, 1), e = easeInOutCubic(p);
+    centerLight.glowIntensity = targetGlow * e;
+    centerLight.baseRadius    = centerLight.baseRadius + (targetR - centerLight.baseRadius) * e;
+    if (p < 1) requestAnimationFrame(rise);
+    else {
+      centerLight.glowIntensity = targetGlow;
+      centerLight.baseRadius    = targetR;
+      resetIdleTimer();
+    }
+  }
+  rise();
+}
+
+/* =========================================================
+   Stage 진입 시 지침 타이머 시작
+========================================================= */
+function startDirectiveTimers() {
+  scheduleDirective2();
+  scheduleDirective3();
+}
+
+/* =========================================================
    Stage 1 데이터
 ========================================================= */
 function getStage1Data() {
@@ -45,7 +346,7 @@ const stage1Labels = {
 };
 
 /* =========================================================
-   클로버 SVG Path (Vector.svg 그대로)
+   클로버 SVG Path
 ========================================================= */
 const CLOVER_VIEWBOX = 106;
 const CLOVER_CENTER  = 53;
@@ -86,7 +387,6 @@ class EnhancedBlob {
     else if (this.shapeType === 'heart')    this.drawHeart();
     else if (this.shapeType === 'star')     this.drawStar();
     else if (this.shapeType === 'triangle') this.drawTriangle();
-
     if (this.label) {
       ctx.save();
       ctx.globalCompositeOperation = 'source-over';
@@ -99,10 +399,8 @@ class EnhancedBlob {
       ctx.restore();
     }
   }
-
   drawCircle() {
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
     const intensity = this.glowIntensity;
     if (this.isBottomIcon) {
       ctx.filter = 'blur(8px)';
@@ -126,37 +424,24 @@ class EnhancedBlob {
     ctx.beginPath(); ctx.arc(this.x,this.y,this.radius*0.9,0,Math.PI*2); ctx.fillStyle=cr; ctx.fill();
     ctx.filter='none'; ctx.restore();
   }
-
   drawCloverSVG() {
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
     const target = this.radius * 2.2;
     const scale  = target / CLOVER_VIEWBOX;
-    ctx.translate(this.x, this.y);
-    ctx.scale(scale, scale);
-    ctx.translate(-CLOVER_CENTER, -CLOVER_CENTER);
+    ctx.translate(this.x, this.y); ctx.scale(scale, scale); ctx.translate(-CLOVER_CENTER, -CLOVER_CENTER);
     const intensity = this.glowIntensity;
-
     ctx.filter = this.isBottomIcon ? 'blur(10px)' : (currentStage===2 ? 'blur(14px)' : 'blur(26px)');
     const g1 = ctx.createRadialGradient(CLOVER_CENTER,CLOVER_CENTER,0,CLOVER_CENTER,CLOVER_CENTER,70);
-    if (this.isBottomIcon) {
-      g1.addColorStop(0,'rgba(255,255,255,0.35)'); g1.addColorStop(0.6,'rgba(200,200,200,0.18)'); g1.addColorStop(1,'rgba(120,120,120,0)');
-    } else {
-      g1.addColorStop(0,hexA(this.colors[0],80*intensity)); g1.addColorStop(0.6,hexA(this.colors[1],50*intensity)); g1.addColorStop(1,hexA(this.colors[2],0));
-    }
+    if (this.isBottomIcon) { g1.addColorStop(0,'rgba(255,255,255,0.35)'); g1.addColorStop(0.6,'rgba(200,200,200,0.18)'); g1.addColorStop(1,'rgba(120,120,120,0)'); }
+    else { g1.addColorStop(0,hexA(this.colors[0],80*intensity)); g1.addColorStop(0.6,hexA(this.colors[1],50*intensity)); g1.addColorStop(1,hexA(this.colors[2],0)); }
     ctx.fillStyle = g1; ctx.fill(CLOVER_PATH);
-
     ctx.filter = this.isBottomIcon ? 'blur(5px)' : (currentStage===2 ? 'blur(7px)' : 'blur(10px)');
     const g2 = ctx.createRadialGradient(CLOVER_CENTER,CLOVER_CENTER,0,CLOVER_CENTER,CLOVER_CENTER,55);
-    if (this.isBottomIcon) {
-      g2.addColorStop(0,'rgba(255,255,255,0.95)'); g2.addColorStop(0.7,'rgba(220,220,220,0.65)'); g2.addColorStop(1,'rgba(180,180,180,0.15)');
-    } else {
-      g2.addColorStop(0,hexA(this.colors[0],255*intensity)); g2.addColorStop(0.7,hexA(this.colors[1],235*intensity)); g2.addColorStop(1,hexA(this.colors[2],140*intensity));
-    }
+    if (this.isBottomIcon) { g2.addColorStop(0,'rgba(255,255,255,0.95)'); g2.addColorStop(0.7,'rgba(220,220,220,0.65)'); g2.addColorStop(1,'rgba(180,180,180,0.15)'); }
+    else { g2.addColorStop(0,hexA(this.colors[0],255*intensity)); g2.addColorStop(0.7,hexA(this.colors[1],235*intensity)); g2.addColorStop(1,hexA(this.colors[2],140*intensity)); }
     ctx.fillStyle = g2; ctx.fill(CLOVER_PATH);
     ctx.filter='none'; ctx.restore();
   }
-
   drawHeart() {
     ctx.save(); ctx.globalCompositeOperation='lighter';
     const size=this.radius*0.8, intensity=this.glowIntensity;
@@ -190,7 +475,6 @@ class EnhancedBlob {
     ctx.beginPath();ctx.moveTo(this.x-size*1.0,this.y-size*0.1);ctx.lineTo(this.x+size*1.0,this.y-size*0.1);ctx.lineTo(this.x,this.y+size*1.3);ctx.closePath();ctx.fillStyle=g4;ctx.fill();
     ctx.filter='none';ctx.restore();
   }
-
   drawStar() {
     ctx.save(); ctx.globalCompositeOperation='lighter';
     const spikes=5,outerR=this.radius*0.9,innerR=this.radius*0.4,intensity=this.glowIntensity;
@@ -212,7 +496,6 @@ class EnhancedBlob {
     ctx.closePath();ctx.fillStyle=g2;ctx.fill();
     ctx.filter='none';ctx.restore();
   }
-
   drawTriangle() {
     ctx.save(); ctx.globalCompositeOperation='lighter';
     const size=this.radius*1.2,intensity=this.glowIntensity;
@@ -287,7 +570,9 @@ function initStage1() {
   }
   centerLight = new EnhancedBlob(W/2,H*0.45,70,['#FFFFFF','#F5F5F5','#E0E0E0'],'','circle',false);
   nextBtn.disabled = true;
+  resetIdleTimer();
   setTimeout(() => showDragGuide(), 500);
+  startDirectiveTimers();
 }
 function initStage2() {
   leftImage.src = 'art2.png';
@@ -302,7 +587,9 @@ function initStage2() {
   stage2Blobs['triangle'] = new EnhancedBlob(W*0.75,sy,sr,gray,'','triangle',true);
   centerLight = new EnhancedBlob(W/2,H*0.35,90,sel,'','circle',false);
   nextBtn.disabled = true; guideShown = false;
+  resetIdleTimer();
   setTimeout(() => showDragGuide(), 500);
+  startDirectiveTimers();
 }
 function initStage3() {
   leftImage.src = 'art3.png';
@@ -312,13 +599,13 @@ function initStage3() {
   lightIntensity = 0.5;
   centerLight.glowIntensity = 1.0;
   nextBtn.disabled = true;
+  resetIdleTimer();
   setTimeout(() => showSliderGuide(), 500);
+  startDirectiveTimers();
 }
 
 /* =========================================================
-   Slider — 개선된 UI
-   트랙 아래에 LOW / HIGH 라벨
-   그라디언트 fill + 글로우 핸들
+   Slider
 ========================================================= */
 const SLIDER = { trackY:0, left:0, right:0, w:0, handleR:14, trackH:6 };
 
@@ -329,63 +616,32 @@ function computeSlider() {
   SLIDER.right  = SLIDER.left + SLIDER.w;
   sliderX       = SLIDER.left + lightIntensity * SLIDER.w;
 }
-
 function drawSlider() {
   computeSlider();
-  const { trackY, left, right, w, handleR, trackH } = SLIDER;
-  const labelY = trackY + 20;   // LOW/HIGH 라벨 — 트랙 바로 아래
+  const { trackY, left, right, w, handleR } = SLIDER;
+  const labelY = trackY + 20;
   const pad = 24;
-
   ctx.save();
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.globalAlpha = 1; ctx.filter = 'none';
-
-  /* 반투명 배경 패널 */
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; ctx.filter = 'none';
   ctx.fillStyle = 'rgba(0,0,0,0.52)';
-  ctx.beginPath();
-  ctx.roundRect(left - pad, trackY - 30, w + pad*2, 76, 14);
-  ctx.fill();
-
-  /* 베이스 트랙 (어두운 홈) */
-  ctx.lineCap = 'round';
-  ctx.lineWidth = trackH;
+  ctx.beginPath(); ctx.roundRect(left-pad, trackY-30, w+pad*2, 76, 14); ctx.fill();
+  ctx.lineCap = 'round'; ctx.lineWidth = SLIDER.trackH;
   ctx.strokeStyle = 'rgba(255,255,255,0.20)';
-  ctx.beginPath(); ctx.moveTo(left, trackY); ctx.lineTo(right, trackY); ctx.stroke();
-
-  /* 채워진 그라디언트 트랙 */
-  const fillGrad = ctx.createLinearGradient(left, 0, right, 0);
-  fillGrad.addColorStop(0,   'rgba(255,255,255,0.25)');
-  fillGrad.addColorStop(0.5, 'rgba(255,255,255,0.85)');
-  fillGrad.addColorStop(1,   'rgba(255,255,255,0.25)');
-  ctx.strokeStyle = fillGrad;
-  ctx.lineWidth = trackH;
-  ctx.beginPath(); ctx.moveTo(left, trackY); ctx.lineTo(left + lightIntensity*w, trackY); ctx.stroke();
-
-  /* 핸들 글로우 */
-  ctx.shadowColor = 'rgba(255,255,255,0.55)';
-  ctx.shadowBlur  = 20;
-  ctx.fillStyle   = '#ffffff';
-  ctx.beginPath(); ctx.arc(sliderX, trackY, handleR, 0, Math.PI*2); ctx.fill();
-
-  /* 핸들 내부 점 */
-  ctx.shadowBlur = 0;
-  ctx.fillStyle  = 'rgba(20,20,20,0.45)';
-  ctx.beginPath(); ctx.arc(sliderX, trackY, 4.5, 0, Math.PI*2); ctx.fill();
-
-  /* LOW / HIGH 라벨 — 트랙 아래 */
-  ctx.font         = '11px Helvetica Neue, Arial';
-  ctx.fillStyle    = 'rgba(255,255,255,0.60)';
-  ctx.textBaseline = 'top';
-
-  ctx.textAlign = 'left';
-  ctx.fillText('LOW', left, labelY);
-
-  ctx.textAlign = 'right';
-  ctx.fillText('HIGH', right, labelY);
-
+  ctx.beginPath(); ctx.moveTo(left,trackY); ctx.lineTo(right,trackY); ctx.stroke();
+  const fg = ctx.createLinearGradient(left,0,right,0);
+  fg.addColorStop(0,'rgba(255,255,255,0.25)'); fg.addColorStop(0.5,'rgba(255,255,255,0.85)'); fg.addColorStop(1,'rgba(255,255,255,0.25)');
+  ctx.strokeStyle = fg;
+  ctx.beginPath(); ctx.moveTo(left,trackY); ctx.lineTo(left+lightIntensity*w,trackY); ctx.stroke();
+  ctx.shadowColor='rgba(255,255,255,0.55)'; ctx.shadowBlur=20;
+  ctx.fillStyle='#ffffff';
+  ctx.beginPath(); ctx.arc(sliderX,trackY,handleR,0,Math.PI*2); ctx.fill();
+  ctx.shadowBlur=0; ctx.fillStyle='rgba(20,20,20,0.45)';
+  ctx.beginPath(); ctx.arc(sliderX,trackY,4.5,0,Math.PI*2); ctx.fill();
+  ctx.font='11px Helvetica Neue, Arial'; ctx.fillStyle='rgba(255,255,255,0.60)'; ctx.textBaseline='top';
+  ctx.textAlign='left';  ctx.fillText('LOW',  left,  labelY);
+  ctx.textAlign='right'; ctx.fillText('HIGH', right, labelY);
   ctx.restore();
 }
-
 function updateIntensity(v) {
   lightIntensity = Math.max(0, Math.min(1, v));
   if (centerLight) {
@@ -395,15 +651,15 @@ function updateIntensity(v) {
   userChoices.intensity = lightIntensity;
   nextBtn.disabled = false;
 }
-function isOnSlider(x, y) {
+function isOnSlider(x,y) {
   computeSlider();
   const { trackY, left, right, handleR } = SLIDER;
-  return Math.hypot(x-sliderX, y-trackY) <= handleR+16
-      || (y >= trackY-20 && y <= trackY+20 && x >= left-12 && x <= right+12);
+  return Math.hypot(x-sliderX,y-trackY) <= handleR+16
+      || (y>=trackY-20 && y<=trackY+20 && x>=left-12 && x<=right+12);
 }
 function setSliderFromX(x) {
   computeSlider();
-  updateIntensity((x - SLIDER.left) / SLIDER.w);
+  updateIntensity((x-SLIDER.left)/SLIDER.w);
 }
 
 /* =========================================================
@@ -416,7 +672,7 @@ function checkDrop() {
     }
   }
 }
-function absorbColor(timeKey, targetBlob) {
+function absorbColor(timeKey,targetBlob) {
   isAnimating=true; userChoices.time=timeKey;
   const sx=centerLight.x,sy=centerLight.y,sr=centerLight.radius,dur=800,t0=Date.now();
   function step(){
@@ -448,7 +704,7 @@ function returnToCenter(ox,oy,or_){
 /* =========================================================
    Stage 2 animation
 ========================================================= */
-function shootLight(shapeKey, targetBlob) {
+function shootLight(shapeKey,targetBlob) {
   isAnimating=true; userChoices.shape=shapeKey;
   lightBeam=new LightBeam(centerLight.x,centerLight.y,targetBlob.x,targetBlob.y,centerLight.colors);
   const t0=Date.now();
@@ -476,6 +732,7 @@ canvas.style.touchAction = 'none';
 function getPos(e){ const r=canvas.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
 
 canvas.addEventListener('pointerdown', (e) => {
+  resetIdleTimer();
   if (isAnimating) return;
   const {x,y} = getPos(e);
   if (currentStage===1) {
@@ -502,16 +759,18 @@ canvas.addEventListener('pointerup', (e) => {
 });
 
 /* =========================================================
-   Animate
+   Animate — idle 체크 포함
 ========================================================= */
 function animate() {
+  // 지침1 idle 체크 (팝업/요정/인트로 복귀 중엔 스킵)
+  if (!popupEl && !fairyEl) checkIdle();
+
   ctx.save();
   ctx.globalCompositeOperation='source-over'; ctx.filter='none'; ctx.globalAlpha=1;
   ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
   ctx.restore();
 
   const time = Date.now();
-
   if (currentStage===1) {
     for (const b of Object.values(stage1Blobs)) { b.update(time); b.draw(); }
     if (centerLight) { centerLight.update(time); centerLight.draw(); }
@@ -521,17 +780,13 @@ function animate() {
   } else if (currentStage===3) {
     if (centerLight) { centerLight.update(time); centerLight.draw(); }
   }
-
   if (lightBeam) lightBeam.draw();
-
-  // 슬라이더 — 항상 맨 마지막, source-over 강제
   if (currentStage===3) {
     ctx.save();
     ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=1; ctx.filter='none';
     drawSlider();
     ctx.restore();
   }
-
   requestAnimationFrame(animate);
 }
 
@@ -540,6 +795,7 @@ function animate() {
 ========================================================= */
 nextBtn.disabled = true;
 nextBtn.addEventListener('click', () => {
+  resetIdleTimer();
   if (currentStage===1)      { currentStage=2; initStage2(); }
   else if (currentStage===2) { currentStage=3; initStage3(); }
   else if (currentStage===3) {
@@ -558,7 +814,52 @@ window.addEventListener('resize', () => {
 });
 
 /* =========================================================
-   Start
+   Opening
 ========================================================= */
-initStage1();
-animate();
+function startOpening() {
+  // 지침 타이머 리셋
+  clearTimeout(directive2Timer);
+  clearTimeout(directive3Timer);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'opening-overlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;background:#000;
+    display:flex;align-items:center;justify-content:center;
+    z-index:9999;opacity:1;transition:opacity 0.8s ease;
+  `;
+  const img = document.createElement('img');
+  img.src = 'light.png';
+  img.style.cssText = `max-width:100%;max-height:100%;object-fit:contain;display:block;`;
+  overlay.appendChild(img);
+  document.body.appendChild(overlay);
+
+  const audio = new Audio('light.mp3');
+  audio.play().catch(() => {
+    overlay.style.cursor = 'pointer';
+    overlay.addEventListener('click', () => audio.play(), { once: true });
+  });
+  audio.addEventListener('ended', () => {
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.remove();
+      initStage1();
+      animate();
+    }, 800);
+  });
+}
+
+/* CSS shake 애니메이션 주입 */
+const styleEl = document.createElement('style');
+styleEl.textContent = `
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-8px)}
+    40%{transform:translateX(8px)}
+    60%{transform:translateX(-6px)}
+    80%{transform:translateX(6px)}
+  }
+`;
+document.head.appendChild(styleEl);
+
+startOpening();
