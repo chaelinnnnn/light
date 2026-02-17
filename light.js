@@ -33,19 +33,25 @@ let sliderX = 0;
 ========================================================= */
 function getStage1Data() {
   return {
-    '1pm':  { colors: ['#FF6B9D', '#E91E63', '#C2185B'], position: { x: W * 0.25, y: H * 0.22 } },
-    '5pm':  { colors: ['#FFEAA7', '#FDD835', '#F9A825'], position: { x: W * 0.75, y: H * 0.22 } },
-    '11pm': { colors: ['#FFB6C1', '#F8BBD0', '#E1BEE7'], position: { x: W * 0.25, y: H * 0.68 } },
-    '7am':  { colors: ['#74B9FF', '#42A5F5', '#1E88E5'], position: { x: W * 0.75, y: H * 0.68 } }
+    '1pm':  { colors: ['#FF6B9D', '#E91E63', '#C2185B'], position: { x: W*0.25, y: H*0.22 } },
+    '5pm':  { colors: ['#FFEAA7', '#FDD835', '#F9A825'], position: { x: W*0.75, y: H*0.22 } },
+    '11pm': { colors: ['#FFB6C1', '#F8BBD0', '#E1BEE7'], position: { x: W*0.25, y: H*0.68 } },
+    '7am':  { colors: ['#74B9FF', '#42A5F5', '#1E88E5'], position: { x: W*0.75, y: H*0.68 } }
   };
 }
-
 const stage1Labels = {
-  '1pm': '(1) 1:00 pm',
-  '5pm': '(2) 5:00 pm',
-  '11pm': '(3) 11:00 pm',
-  '7am': '(4) 7:00 am'
+  '1pm': '(1) 1:00 pm', '5pm': '(2) 5:00 pm',
+  '11pm': '(3) 11:00 pm', '7am': '(4) 7:00 am'
 };
+
+/* =========================================================
+   클로버 SVG Path (Vector.svg 그대로)
+========================================================= */
+const CLOVER_VIEWBOX = 106;
+const CLOVER_CENTER  = 53;
+const CLOVER_PATH = new Path2D(
+  'M97.4026 53.0522C103.659 48.4719 106.786 42.105 105.781 35.627C104.999 30.6005 100.643 26.0202 94.8327 23.8985C94.3865 23.6745 93.8273 23.5634 93.3811 23.4524C93.2701 23.4524 93.1571 23.3413 92.9349 23.3413C92.4887 23.2302 92.1536 23.1173 91.7055 23.1173C91.5945 23.1173 91.4815 23.1173 91.3704 23.0062C90.9242 22.8951 90.365 22.8951 89.9188 22.7822H89.5837C89.2486 22.7822 88.8024 22.7822 88.4673 22.6711H88.1322C87.686 22.6711 87.1268 22.6711 86.6806 22.7822H86.5696C86.1234 22.7822 85.6753 22.8932 85.2291 23.0062C85.118 23.0062 85.005 23.0062 84.894 23.1173C84.5588 23.2283 84.1126 23.2283 83.7775 23.3413C83.6665 23.3413 83.5535 23.3413 83.5535 23.4524C83.1073 23.5634 82.6592 23.6764 82.213 23.8985H82.1019C83.5535 19.9884 83.6665 15.521 81.9909 11.1647C79.8691 5.35695 75.2884 1.11171 70.2616 0.217473C63.8924 -0.898889 57.5251 2.34105 52.9445 8.59498C48.362 2.34105 41.9947 -0.785913 35.5163 0.219388C30.4895 1.00065 25.9089 5.35695 23.7871 11.1666C22.2226 15.5229 22.2226 19.9903 23.676 23.9004H23.565C23.1188 23.7894 22.6707 23.5653 22.2245 23.4543C22.1504 23.4543 22.0757 23.4173 22.0004 23.3432C21.6653 23.2322 21.2191 23.1192 20.884 23.1192C20.7729 23.1192 20.6599 23.1192 20.5489 23.0081C20.1027 22.8971 19.6546 22.8971 19.2084 22.7841C18.7622 22.7841 18.203 22.673 17.7568 22.673H17.4217C16.9755 22.673 16.6404 22.673 16.1923 22.7841H15.8572C15.411 22.7841 14.8518 22.8951 14.4056 23.0081C14.2946 23.0081 14.1816 23.0081 14.1816 23.1192C13.7354 23.2302 13.4003 23.3432 12.9522 23.3432C12.8411 23.3432 12.7281 23.4543 12.617 23.4543C12.1708 23.5653 11.6117 23.7894 11.1655 23.9004C5.35545 26.0221 1.10995 30.6005 0.217572 35.627C-0.898859 41.9939 2.33937 48.4719 8.59559 53.0522C2.33937 57.6326 -0.78779 63.9995 0.217572 70.4774C0.998882 75.504 5.35545 80.0843 11.1655 82.206C11.7247 82.43 12.2819 82.5411 12.8411 82.7651C13.0651 82.8762 13.2873 82.8762 13.5113 82.8762C13.8465 82.9872 14.1816 82.9872 14.4056 83.1002C14.6297 83.1002 14.9648 83.2113 15.1869 83.2113C15.5221 83.2113 15.7461 83.3223 16.0812 83.3223H17.6438C18.203 83.3223 18.6492 83.3223 19.0954 83.2113H19.4305C19.7656 83.2113 20.2118 83.1002 20.547 83.1002C20.771 83.1002 20.8821 82.9891 21.1061 82.9891C21.4412 82.8781 21.7764 82.8781 22.0004 82.7651C22.2245 82.7651 22.3355 82.654 22.5596 82.5411C22.8947 82.43 23.1188 82.317 23.4539 82.206C23.5279 82.206 23.6026 82.1689 23.6779 82.0949C22.2264 86.005 22.1134 90.4724 23.789 94.8287C25.9108 100.636 30.4914 104.882 35.5182 105.776C36.2995 105.887 37.1938 106 37.9751 106C43.5611 106 48.9231 102.873 52.9445 97.3984C57.5251 103.654 63.8924 106.781 70.3708 105.776C75.3976 104.995 79.9782 100.638 82.1 94.8287C83.6645 90.4724 83.6645 86.005 82.2111 82.0949C82.2851 82.0949 82.3598 82.1319 82.4351 82.206C82.6592 82.317 82.9943 82.43 83.3294 82.5411C83.5535 82.6521 83.6645 82.6521 83.8886 82.7651C84.2237 82.8762 84.4478 82.8762 84.7829 82.9891C85.0069 82.9891 85.118 83.1002 85.3421 83.1002C85.6772 83.2113 86.0123 83.2113 86.4585 83.2113H86.9047C87.3509 83.2113 87.91 83.3223 88.3562 83.3223H89.9188C90.365 83.3223 90.8131 83.2113 91.1483 83.0983H91.4834C91.9296 82.9872 92.3777 82.8742 92.8239 82.7632C92.9349 82.7632 93.0479 82.7632 93.159 82.6521C93.7182 82.5411 94.2754 82.317 94.8346 82.093C100.643 79.9713 104.888 75.391 105.783 70.3645C106.899 63.9976 103.659 57.6307 97.4045 53.0522H97.4026Z'
+);
 
 /* =========================================================
    Util
@@ -54,35 +60,29 @@ function hexA(hex, a255) {
   const a = Math.max(0, Math.min(255, Math.round(a255)));
   return hex + a.toString(16).padStart(2, '0');
 }
-
 function easeInOutCubic(t) {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
 }
 
 /* =========================================================
-   EnhancedBlob 클래스
+   EnhancedBlob
 ========================================================= */
 class EnhancedBlob {
   constructor(x, y, radius, colors, label, shapeType = 'circle', isBottomIcon = false) {
-    this.x = x;
-    this.y = y;
-    this.baseRadius = radius;
-    this.radius = radius;
-    this.colors = colors;
-    this.label = label;
+    this.x = x; this.y = y;
+    this.baseRadius = radius; this.radius = radius;
+    this.colors = colors; this.label = label;
     this.shapeType = shapeType;
     this.offset = Math.random() * Math.PI * 2;
     this.glowIntensity = 1.0;
     this.isBottomIcon = isBottomIcon;
   }
-
   update(time) {
-    this.radius = this.baseRadius + Math.sin(time * 0.001 + this.offset) * 6;
+    this.radius = this.baseRadius + Math.sin(time*0.001 + this.offset) * 6;
   }
-
   draw() {
-    if (this.shapeType === 'circle')        this.drawCircle();
-    else if (this.shapeType === 'clover')   this.drawClover();
+    if      (this.shapeType === 'circle')   this.drawCircle();
+    else if (this.shapeType === 'clover')   this.drawCloverSVG();
     else if (this.shapeType === 'heart')    this.drawHeart();
     else if (this.shapeType === 'star')     this.drawStar();
     else if (this.shapeType === 'triangle') this.drawTriangle();
@@ -90,14 +90,11 @@ class EnhancedBlob {
     if (this.label) {
       ctx.save();
       ctx.globalCompositeOperation = 'source-over';
-      ctx.filter = 'none';
-      ctx.globalAlpha = 1;
+      ctx.filter = 'none'; ctx.globalAlpha = 1;
       ctx.fillStyle = 'white';
       ctx.font = '14px Helvetica Neue, Arial';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.shadowColor = 'rgba(0,0,0,0.8)';
-      ctx.shadowBlur = 10;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 10;
       ctx.fillText(this.label, this.x, this.y + this.radius + 40);
       ctx.restore();
     }
@@ -107,286 +104,131 @@ class EnhancedBlob {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     const intensity = this.glowIntensity;
-
     if (this.isBottomIcon) {
       ctx.filter = 'blur(8px)';
-      const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 1.2);
-      gradient.addColorStop(0, '#eeeeee');
-      gradient.addColorStop(0.7, '#aaaaaa');
-      gradient.addColorStop(1, '#55555500');
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.radius * 1.2, 0, Math.PI * 2);
-      ctx.fillStyle = gradient;
-      ctx.fill();
-      ctx.filter = 'none';
-      ctx.restore();
-      return;
+      const g = ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.radius*1.2);
+      g.addColorStop(0,'#eeeeee'); g.addColorStop(0.7,'#aaaaaa'); g.addColorStop(1,'#55555500');
+      ctx.beginPath(); ctx.arc(this.x,this.y,this.radius*1.2,0,Math.PI*2);
+      ctx.fillStyle=g; ctx.fill(); ctx.filter='none'; ctx.restore(); return;
     }
-
-    const bigBlur  = currentStage === 2 ? 25 : 60;
-    const midBlur  = currentStage === 2 ? 15 : 35;
-    const coreBlur = currentStage === 2 ? 10 : 20;
-
-    ctx.filter = `blur(${bigBlur}px)`;
-    const glow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 1.8);
-    glow.addColorStop(0,   hexA(this.colors[0], 102 * intensity));
-    glow.addColorStop(0.5, hexA(this.colors[1],  68 * intensity));
-    glow.addColorStop(1,   hexA(this.colors[2],   0));
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius * 1.8, 0, Math.PI * 2);
-    ctx.fillStyle = glow;
-    ctx.fill();
-
-    ctx.filter = `blur(${midBlur}px)`;
-    const mid = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 1.2);
-    mid.addColorStop(0,   hexA(this.colors[0], 221 * intensity));
-    mid.addColorStop(0.7, hexA(this.colors[1], 170 * intensity));
-    mid.addColorStop(1,   hexA(this.colors[2],  68 * intensity));
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius * 1.2, 0, Math.PI * 2);
-    ctx.fillStyle = mid;
-    ctx.fill();
-
-    ctx.filter = `blur(${coreBlur}px)`;
-    const core = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 0.9);
-    core.addColorStop(0,   hexA(this.colors[0], 255 * intensity));
-    core.addColorStop(0.7, hexA(this.colors[1], 238 * intensity));
-    core.addColorStop(1,   hexA(this.colors[2], 153 * intensity));
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius * 0.9, 0, Math.PI * 2);
-    ctx.fillStyle = core;
-    ctx.fill();
-
-    ctx.filter = 'none';
-    ctx.restore();
+    const bB=currentStage===2?25:60, mB=currentStage===2?15:35, cB=currentStage===2?10:20;
+    ctx.filter=`blur(${bB}px)`;
+    const gw=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.radius*1.8);
+    gw.addColorStop(0,hexA(this.colors[0],102*intensity)); gw.addColorStop(0.5,hexA(this.colors[1],68*intensity)); gw.addColorStop(1,hexA(this.colors[2],0));
+    ctx.beginPath(); ctx.arc(this.x,this.y,this.radius*1.8,0,Math.PI*2); ctx.fillStyle=gw; ctx.fill();
+    ctx.filter=`blur(${mB}px)`;
+    const md=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.radius*1.2);
+    md.addColorStop(0,hexA(this.colors[0],221*intensity)); md.addColorStop(0.7,hexA(this.colors[1],170*intensity)); md.addColorStop(1,hexA(this.colors[2],68*intensity));
+    ctx.beginPath(); ctx.arc(this.x,this.y,this.radius*1.2,0,Math.PI*2); ctx.fillStyle=md; ctx.fill();
+    ctx.filter=`blur(${cB}px)`;
+    const cr=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.radius*0.9);
+    cr.addColorStop(0,hexA(this.colors[0],255*intensity)); cr.addColorStop(0.7,hexA(this.colors[1],238*intensity)); cr.addColorStop(1,hexA(this.colors[2],153*intensity));
+    ctx.beginPath(); ctx.arc(this.x,this.y,this.radius*0.9,0,Math.PI*2); ctx.fillStyle=cr; ctx.fill();
+    ctx.filter='none'; ctx.restore();
   }
 
-  drawClover() {
+  drawCloverSVG() {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
+    const target = this.radius * 2.2;
+    const scale  = target / CLOVER_VIEWBOX;
+    ctx.translate(this.x, this.y);
+    ctx.scale(scale, scale);
+    ctx.translate(-CLOVER_CENTER, -CLOVER_CENTER);
     const intensity = this.glowIntensity;
-    const leafR = this.radius * 0.35;
-    const leaves = [
-      { x: this.x,              y: this.y - leafR * 1.6 },
-      { x: this.x - leafR * 1.4, y: this.y + leafR * 0.2 },
-      { x: this.x + leafR * 1.4, y: this.y + leafR * 0.2 }
-    ];
 
-    for (const lf of leaves) {
-      const blur1 = this.isBottomIcon ? 'blur(8px)' : (currentStage === 2 ? 'blur(12px)' : 'blur(25px)');
-      ctx.filter = blur1;
-      const g1 = ctx.createRadialGradient(lf.x, lf.y, 0, lf.x, lf.y, leafR * 1.5);
-      if (this.isBottomIcon) {
-        g1.addColorStop(0, '#dddddd'); g1.addColorStop(0.5, '#999999'); g1.addColorStop(1, '#55555500');
-      } else {
-        g1.addColorStop(0, hexA(this.colors[0], 68 * intensity));
-        g1.addColorStop(0.5, hexA(this.colors[1], 51 * intensity));
-        g1.addColorStop(1, hexA(this.colors[2], 0));
-      }
-      ctx.beginPath(); ctx.arc(lf.x, lf.y, leafR * 1.5, 0, Math.PI * 2); ctx.fillStyle = g1; ctx.fill();
-
-      const blur2 = this.isBottomIcon ? 'blur(4px)' : (currentStage === 2 ? 'blur(6px)' : 'blur(8px)');
-      ctx.filter = blur2;
-      const g2 = ctx.createRadialGradient(lf.x, lf.y, 0, lf.x, lf.y, leafR * 1.2);
-      if (this.isBottomIcon) {
-        g2.addColorStop(0, '#ffffff'); g2.addColorStop(0.5, '#cccccc'); g2.addColorStop(1, '#888888');
-      } else {
-        g2.addColorStop(0, hexA(this.colors[0], 255 * intensity));
-        g2.addColorStop(0.5, hexA(this.colors[1], 255 * intensity));
-        g2.addColorStop(1, hexA(this.colors[2], 204 * intensity));
-      }
-      ctx.beginPath(); ctx.arc(lf.x, lf.y, leafR * 1.2, 0, Math.PI * 2); ctx.fillStyle = g2; ctx.fill();
-    }
-
-    // stem
-    ctx.filter = 'blur(10px)';
-    ctx.save();
-    ctx.translate(this.x, this.y + leafR * 1.8);
-    ctx.scale(0.4, 1);
-    const sg = ctx.createRadialGradient(0, 0, 0, 0, 0, leafR * 1.2);
+    ctx.filter = this.isBottomIcon ? 'blur(10px)' : (currentStage===2 ? 'blur(14px)' : 'blur(26px)');
+    const g1 = ctx.createRadialGradient(CLOVER_CENTER,CLOVER_CENTER,0,CLOVER_CENTER,CLOVER_CENTER,70);
     if (this.isBottomIcon) {
-      sg.addColorStop(0, '#eeeeee'); sg.addColorStop(0.8, '#aaaaaa'); sg.addColorStop(1, '#55555500');
+      g1.addColorStop(0,'rgba(255,255,255,0.35)'); g1.addColorStop(0.6,'rgba(200,200,200,0.18)'); g1.addColorStop(1,'rgba(120,120,120,0)');
     } else {
-      sg.addColorStop(0, this.colors[0] + 'ff');
-      sg.addColorStop(0.8, this.colors[1] + 'cc');
-      sg.addColorStop(1, this.colors[2] + '00');
+      g1.addColorStop(0,hexA(this.colors[0],80*intensity)); g1.addColorStop(0.6,hexA(this.colors[1],50*intensity)); g1.addColorStop(1,hexA(this.colors[2],0));
     }
-    ctx.beginPath(); ctx.arc(0, 0, leafR * 1.2, 0, Math.PI * 2); ctx.fillStyle = sg; ctx.fill();
-    ctx.restore();
-    ctx.filter = 'none';
-    ctx.restore();
+    ctx.fillStyle = g1; ctx.fill(CLOVER_PATH);
+
+    ctx.filter = this.isBottomIcon ? 'blur(5px)' : (currentStage===2 ? 'blur(7px)' : 'blur(10px)');
+    const g2 = ctx.createRadialGradient(CLOVER_CENTER,CLOVER_CENTER,0,CLOVER_CENTER,CLOVER_CENTER,55);
+    if (this.isBottomIcon) {
+      g2.addColorStop(0,'rgba(255,255,255,0.95)'); g2.addColorStop(0.7,'rgba(220,220,220,0.65)'); g2.addColorStop(1,'rgba(180,180,180,0.15)');
+    } else {
+      g2.addColorStop(0,hexA(this.colors[0],255*intensity)); g2.addColorStop(0.7,hexA(this.colors[1],235*intensity)); g2.addColorStop(1,hexA(this.colors[2],140*intensity));
+    }
+    ctx.fillStyle = g2; ctx.fill(CLOVER_PATH);
+    ctx.filter='none'; ctx.restore();
   }
 
   drawHeart() {
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    const size = this.radius * 0.8;
-    const intensity = this.glowIntensity;
-    const blur1 = this.isBottomIcon ? 'blur(8px)'  : (currentStage === 2 ? 'blur(12px)' : 'blur(25px)');
-    const blur2 = this.isBottomIcon ? 'blur(4px)'  : (currentStage === 2 ? 'blur(6px)'  : 'blur(8px)');
-
-    const parts = [
-      { cx: this.x - size * 0.5, cy: this.y - size * 0.3, r: size * 0.65, gr: size * 1.0,
-        c0: this.colors[0], c1: this.colors[1], c2: this.colors[2] },
-      { cx: this.x + size * 0.5, cy: this.y - size * 0.3, r: size * 0.65, gr: size * 1.0,
-        c0: this.colors[1], c1: this.colors[2], c2: this.colors[0] }
+    ctx.save(); ctx.globalCompositeOperation='lighter';
+    const size=this.radius*0.8, intensity=this.glowIntensity;
+    const b1=this.isBottomIcon?'blur(8px)':(currentStage===2?'blur(12px)':'blur(25px)');
+    const b2=this.isBottomIcon?'blur(4px)':(currentStage===2?'blur(6px)':'blur(8px)');
+    const parts=[
+      {cx:this.x-size*0.5,cy:this.y-size*0.3,r:size*0.65,gr:size*1.0,c0:this.colors[0],c1:this.colors[1],c2:this.colors[2]},
+      {cx:this.x+size*0.5,cy:this.y-size*0.3,r:size*0.65,gr:size*1.0,c0:this.colors[1],c1:this.colors[2],c2:this.colors[0]}
     ];
-
     for (const p of parts) {
-      ctx.filter = blur1;
-      const g1 = ctx.createRadialGradient(p.cx, p.cy, 0, p.cx, p.cy, p.gr);
-      if (this.isBottomIcon) {
-        g1.addColorStop(0,'#dddddd'); g1.addColorStop(0.5,'#999999'); g1.addColorStop(1,'#55555500');
-      } else {
-        g1.addColorStop(0, hexA(p.c0, 68 * intensity));
-        g1.addColorStop(0.5, hexA(p.c1, 51 * intensity));
-        g1.addColorStop(1, hexA(p.c2, 0));
-      }
-      ctx.beginPath(); ctx.arc(p.cx, p.cy, p.gr, 0, Math.PI * 2); ctx.fillStyle = g1; ctx.fill();
-
-      ctx.filter = blur2;
-      const g2 = ctx.createRadialGradient(p.cx, p.cy, 0, p.cx, p.cy, p.r);
-      if (this.isBottomIcon) {
-        g2.addColorStop(0,'#ffffff'); g2.addColorStop(0.6,'#cccccc'); g2.addColorStop(1,'#888888');
-      } else {
-        g2.addColorStop(0, hexA(p.c0, 255 * intensity));
-        g2.addColorStop(0.6, hexA(p.c1, 255 * intensity));
-        g2.addColorStop(1, hexA(p.c2, 204 * intensity));
-      }
-      ctx.beginPath(); ctx.arc(p.cx, p.cy, p.r, 0, Math.PI * 2); ctx.fillStyle = g2; ctx.fill();
+      ctx.filter=b1;
+      const g1=ctx.createRadialGradient(p.cx,p.cy,0,p.cx,p.cy,p.gr);
+      if(this.isBottomIcon){g1.addColorStop(0,'#dddddd');g1.addColorStop(0.5,'#999999');g1.addColorStop(1,'#55555500');}
+      else{g1.addColorStop(0,hexA(p.c0,68*intensity));g1.addColorStop(0.5,hexA(p.c1,51*intensity));g1.addColorStop(1,hexA(p.c2,0));}
+      ctx.beginPath();ctx.arc(p.cx,p.cy,p.gr,0,Math.PI*2);ctx.fillStyle=g1;ctx.fill();
+      ctx.filter=b2;
+      const g2=ctx.createRadialGradient(p.cx,p.cy,0,p.cx,p.cy,p.r);
+      if(this.isBottomIcon){g2.addColorStop(0,'#ffffff');g2.addColorStop(0.6,'#cccccc');g2.addColorStop(1,'#888888');}
+      else{g2.addColorStop(0,hexA(p.c0,255*intensity));g2.addColorStop(0.6,hexA(p.c1,255*intensity));g2.addColorStop(1,hexA(p.c2,204*intensity));}
+      ctx.beginPath();ctx.arc(p.cx,p.cy,p.r,0,Math.PI*2);ctx.fillStyle=g2;ctx.fill();
     }
-
-    // bottom triangle
-    ctx.filter = blur1;
-    const g3 = ctx.createRadialGradient(this.x, this.y + size * 0.3, 0, this.x, this.y + size * 0.3, size * 1.5);
-    if (this.isBottomIcon) {
-      g3.addColorStop(0,'#dddddd'); g3.addColorStop(0.5,'#999999'); g3.addColorStop(1,'#55555500');
-    } else {
-      g3.addColorStop(0, hexA(this.colors[2], 68 * intensity));
-      g3.addColorStop(0.5, hexA(this.colors[0], 51 * intensity));
-      g3.addColorStop(1, hexA(this.colors[1], 0));
-    }
-    ctx.beginPath();
-    ctx.moveTo(this.x - size * 1.3, this.y - size * 0.2);
-    ctx.lineTo(this.x + size * 1.3, this.y - size * 0.2);
-    ctx.lineTo(this.x, this.y + size * 1.6);
-    ctx.closePath();
-    ctx.fillStyle = g3; ctx.fill();
-
-    ctx.filter = blur2;
-    const g4 = ctx.createRadialGradient(this.x, this.y + size * 0.3, 0, this.x, this.y + size * 0.3, size * 1.0);
-    if (this.isBottomIcon) {
-      g4.addColorStop(0,'#ffffff'); g4.addColorStop(0.5,'#cccccc'); g4.addColorStop(1,'#888888');
-    } else {
-      g4.addColorStop(0, hexA(this.colors[2], 255 * intensity));
-      g4.addColorStop(0.5, hexA(this.colors[0], 255 * intensity));
-      g4.addColorStop(1, hexA(this.colors[1], 204 * intensity));
-    }
-    ctx.beginPath();
-    ctx.moveTo(this.x - size * 1.0, this.y - size * 0.1);
-    ctx.lineTo(this.x + size * 1.0, this.y - size * 0.1);
-    ctx.lineTo(this.x, this.y + size * 1.3);
-    ctx.closePath();
-    ctx.fillStyle = g4; ctx.fill();
-
-    ctx.filter = 'none';
-    ctx.restore();
+    ctx.filter=b1;
+    const g3=ctx.createRadialGradient(this.x,this.y+size*0.3,0,this.x,this.y+size*0.3,size*1.5);
+    if(this.isBottomIcon){g3.addColorStop(0,'#dddddd');g3.addColorStop(0.5,'#999999');g3.addColorStop(1,'#55555500');}
+    else{g3.addColorStop(0,hexA(this.colors[2],68*intensity));g3.addColorStop(0.5,hexA(this.colors[0],51*intensity));g3.addColorStop(1,hexA(this.colors[1],0));}
+    ctx.beginPath();ctx.moveTo(this.x-size*1.3,this.y-size*0.2);ctx.lineTo(this.x+size*1.3,this.y-size*0.2);ctx.lineTo(this.x,this.y+size*1.6);ctx.closePath();ctx.fillStyle=g3;ctx.fill();
+    ctx.filter=b2;
+    const g4=ctx.createRadialGradient(this.x,this.y+size*0.3,0,this.x,this.y+size*0.3,size*1.0);
+    if(this.isBottomIcon){g4.addColorStop(0,'#ffffff');g4.addColorStop(0.5,'#cccccc');g4.addColorStop(1,'#888888');}
+    else{g4.addColorStop(0,hexA(this.colors[2],255*intensity));g4.addColorStop(0.5,hexA(this.colors[0],255*intensity));g4.addColorStop(1,hexA(this.colors[1],204*intensity));}
+    ctx.beginPath();ctx.moveTo(this.x-size*1.0,this.y-size*0.1);ctx.lineTo(this.x+size*1.0,this.y-size*0.1);ctx.lineTo(this.x,this.y+size*1.3);ctx.closePath();ctx.fillStyle=g4;ctx.fill();
+    ctx.filter='none';ctx.restore();
   }
 
   drawStar() {
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    const spikes = 5;
-    const outerR = this.radius * 0.9;
-    const innerR = this.radius * 0.4;
-    const intensity = this.glowIntensity;
-    const blur1 = this.isBottomIcon ? 'blur(10px)' : (currentStage === 2 ? 'blur(15px)' : 'blur(30px)');
-    const blur2 = this.isBottomIcon ? 'blur(5px)'  : (currentStage === 2 ? 'blur(6px)'  : 'blur(8px)');
-
-    ctx.filter = blur1;
-    const g1 = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, outerR * 1.5);
-    if (this.isBottomIcon) {
-      g1.addColorStop(0,'#eeeeee'); g1.addColorStop(0.5,'#aaaaaa'); g1.addColorStop(1,'#55555500');
-    } else {
-      g1.addColorStop(0, hexA(this.colors[0], 85 * intensity));
-      g1.addColorStop(0.5, hexA(this.colors[1], 68 * intensity));
-      g1.addColorStop(1, hexA(this.colors[2], 0));
-    }
+    ctx.save(); ctx.globalCompositeOperation='lighter';
+    const spikes=5,outerR=this.radius*0.9,innerR=this.radius*0.4,intensity=this.glowIntensity;
+    const b1=this.isBottomIcon?'blur(10px)':(currentStage===2?'blur(15px)':'blur(30px)');
+    const b2=this.isBottomIcon?'blur(5px)':(currentStage===2?'blur(6px)':'blur(8px)');
+    ctx.filter=b1;
+    const g1=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,outerR*1.5);
+    if(this.isBottomIcon){g1.addColorStop(0,'#eeeeee');g1.addColorStop(0.5,'#aaaaaa');g1.addColorStop(1,'#55555500');}
+    else{g1.addColorStop(0,hexA(this.colors[0],85*intensity));g1.addColorStop(0.5,hexA(this.colors[1],68*intensity));g1.addColorStop(1,hexA(this.colors[2],0));}
     ctx.beginPath();
-    for (let i = 0; i < spikes * 2; i++) {
-      const angle = (Math.PI * i) / spikes - Math.PI / 2;
-      const r = i % 2 === 0 ? outerR * 1.5 : innerR * 1.5;
-      i === 0 ? ctx.moveTo(this.x + Math.cos(angle)*r, this.y + Math.sin(angle)*r)
-              : ctx.lineTo(this.x + Math.cos(angle)*r, this.y + Math.sin(angle)*r);
-    }
-    ctx.closePath(); ctx.fillStyle = g1; ctx.fill();
-
-    ctx.filter = blur2;
-    const g2 = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, outerR * 1.1);
-    if (this.isBottomIcon) {
-      g2.addColorStop(0,'#ffffff'); g2.addColorStop(0.4,'#dddddd');
-      g2.addColorStop(0.8,'#aaaaaa'); g2.addColorStop(1,'#55555500');
-    } else {
-      g2.addColorStop(0,   hexA(this.colors[0], 255 * intensity));
-      g2.addColorStop(0.4, hexA(this.colors[1], 255 * intensity));
-      g2.addColorStop(0.8, hexA(this.colors[2], 238 * intensity));
-      g2.addColorStop(1,   hexA(this.colors[0], 0));
-    }
+    for(let i=0;i<spikes*2;i++){const angle=(Math.PI*i)/spikes-Math.PI/2;const r=i%2===0?outerR*1.5:innerR*1.5;i===0?ctx.moveTo(this.x+Math.cos(angle)*r,this.y+Math.sin(angle)*r):ctx.lineTo(this.x+Math.cos(angle)*r,this.y+Math.sin(angle)*r);}
+    ctx.closePath();ctx.fillStyle=g1;ctx.fill();
+    ctx.filter=b2;
+    const g2=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,outerR*1.1);
+    if(this.isBottomIcon){g2.addColorStop(0,'#ffffff');g2.addColorStop(0.4,'#dddddd');g2.addColorStop(0.8,'#aaaaaa');g2.addColorStop(1,'#55555500');}
+    else{g2.addColorStop(0,hexA(this.colors[0],255*intensity));g2.addColorStop(0.4,hexA(this.colors[1],255*intensity));g2.addColorStop(0.8,hexA(this.colors[2],238*intensity));g2.addColorStop(1,hexA(this.colors[0],0));}
     ctx.beginPath();
-    for (let i = 0; i < spikes * 2; i++) {
-      const angle = (Math.PI * i) / spikes - Math.PI / 2;
-      const r = i % 2 === 0 ? outerR : innerR;
-      i === 0 ? ctx.moveTo(this.x + Math.cos(angle)*r, this.y + Math.sin(angle)*r)
-              : ctx.lineTo(this.x + Math.cos(angle)*r, this.y + Math.sin(angle)*r);
-    }
-    ctx.closePath(); ctx.fillStyle = g2; ctx.fill();
-
-    ctx.filter = 'none';
-    ctx.restore();
+    for(let i=0;i<spikes*2;i++){const angle=(Math.PI*i)/spikes-Math.PI/2;const r=i%2===0?outerR:innerR;i===0?ctx.moveTo(this.x+Math.cos(angle)*r,this.y+Math.sin(angle)*r):ctx.lineTo(this.x+Math.cos(angle)*r,this.y+Math.sin(angle)*r);}
+    ctx.closePath();ctx.fillStyle=g2;ctx.fill();
+    ctx.filter='none';ctx.restore();
   }
 
   drawTriangle() {
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    const size = this.radius * 1.2;
-    const intensity = this.glowIntensity;
-    const blur1 = this.isBottomIcon ? 'blur(10px)' : (currentStage === 2 ? 'blur(15px)' : 'blur(30px)');
-    const blur2 = this.isBottomIcon ? 'blur(5px)'  : (currentStage === 2 ? 'blur(8px)'  : 'blur(10px)');
-
-    ctx.filter = blur1;
-    const g1 = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, size * 1.5);
-    if (this.isBottomIcon) {
-      g1.addColorStop(0,'#eeeeee'); g1.addColorStop(0.5,'#aaaaaa'); g1.addColorStop(1,'#55555500');
-    } else {
-      g1.addColorStop(0, hexA(this.colors[0], 85 * intensity));
-      g1.addColorStop(0.5, hexA(this.colors[1], 68 * intensity));
-      g1.addColorStop(1, hexA(this.colors[2], 0));
-    }
-    ctx.beginPath();
-    ctx.moveTo(this.x, this.y - size * 1.3);
-    ctx.lineTo(this.x - size * 1.2, this.y + size * 0.8);
-    ctx.lineTo(this.x + size * 1.2, this.y + size * 0.8);
-    ctx.closePath(); ctx.fillStyle = g1; ctx.fill();
-
-    ctx.filter = blur2;
-    const g2 = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, size * 1.0);
-    if (this.isBottomIcon) {
-      g2.addColorStop(0,'#ffffff'); g2.addColorStop(0.4,'#dddddd');
-      g2.addColorStop(0.8,'#aaaaaa'); g2.addColorStop(1,'#55555500');
-    } else {
-      g2.addColorStop(0,   hexA(this.colors[0], 255 * intensity));
-      g2.addColorStop(0.4, hexA(this.colors[1], 255 * intensity));
-      g2.addColorStop(0.8, hexA(this.colors[2], 238 * intensity));
-      g2.addColorStop(1,   hexA(this.colors[0], 0));
-    }
-    ctx.beginPath();
-    ctx.moveTo(this.x, this.y - size);
-    ctx.lineTo(this.x - size * 0.9, this.y + size * 0.6);
-    ctx.lineTo(this.x + size * 0.9, this.y + size * 0.6);
-    ctx.closePath(); ctx.fillStyle = g2; ctx.fill();
-
-    ctx.filter = 'none';
-    ctx.restore();
+    ctx.save(); ctx.globalCompositeOperation='lighter';
+    const size=this.radius*1.2,intensity=this.glowIntensity;
+    const b1=this.isBottomIcon?'blur(10px)':(currentStage===2?'blur(15px)':'blur(30px)');
+    const b2=this.isBottomIcon?'blur(5px)':(currentStage===2?'blur(8px)':'blur(10px)');
+    ctx.filter=b1;
+    const g1=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,size*1.5);
+    if(this.isBottomIcon){g1.addColorStop(0,'#eeeeee');g1.addColorStop(0.5,'#aaaaaa');g1.addColorStop(1,'#55555500');}
+    else{g1.addColorStop(0,hexA(this.colors[0],85*intensity));g1.addColorStop(0.5,hexA(this.colors[1],68*intensity));g1.addColorStop(1,hexA(this.colors[2],0));}
+    ctx.beginPath();ctx.moveTo(this.x,this.y-size*1.3);ctx.lineTo(this.x-size*1.2,this.y+size*0.8);ctx.lineTo(this.x+size*1.2,this.y+size*0.8);ctx.closePath();ctx.fillStyle=g1;ctx.fill();
+    ctx.filter=b2;
+    const g2=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,size*1.0);
+    if(this.isBottomIcon){g2.addColorStop(0,'#ffffff');g2.addColorStop(0.4,'#dddddd');g2.addColorStop(0.8,'#aaaaaa');g2.addColorStop(1,'#55555500');}
+    else{g2.addColorStop(0,hexA(this.colors[0],255*intensity));g2.addColorStop(0.4,hexA(this.colors[1],255*intensity));g2.addColorStop(0.8,hexA(this.colors[2],238*intensity));g2.addColorStop(1,hexA(this.colors[0],0));}
+    ctx.beginPath();ctx.moveTo(this.x,this.y-size);ctx.lineTo(this.x-size*0.9,this.y+size*0.6);ctx.lineTo(this.x+size*0.9,this.y+size*0.6);ctx.closePath();ctx.fillStyle=g2;ctx.fill();
+    ctx.filter='none';ctx.restore();
   }
 }
 
@@ -394,27 +236,21 @@ class EnhancedBlob {
    LightBeam
 ========================================================= */
 class LightBeam {
-  constructor(startX, startY, endX, endY, colors) {
-    this.startX = startX; this.startY = startY;
-    this.endX = endX;     this.endY = endY;
-    this.colors = colors; this.progress = 0;
+  constructor(startX,startY,endX,endY,colors){
+    this.startX=startX;this.startY=startY;this.endX=endX;this.endY=endY;this.colors=colors;this.progress=0;
   }
-  update(delta) { this.progress += delta * 0.0008; return this.progress >= 1; }
-  draw() {
-    const cx = this.startX + (this.endX - this.startX) * this.progress;
-    const cy = this.startY + (this.endY - this.startY) * this.progress;
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    const grad = ctx.createLinearGradient(this.startX, this.startY, cx, cy);
-    grad.addColorStop(0, this.colors[0]+'ff');
-    grad.addColorStop(0.5, this.colors[1]+'ff');
-    grad.addColorStop(1, this.colors[2]+'ff');
-    ctx.strokeStyle = grad;
-    ctx.filter = 'blur(30px)'; ctx.lineWidth = 15;
-    ctx.beginPath(); ctx.moveTo(this.startX, this.startY); ctx.lineTo(cx, cy); ctx.stroke();
-    ctx.filter = 'blur(10px)'; ctx.lineWidth = 8;
-    ctx.beginPath(); ctx.moveTo(this.startX, this.startY); ctx.lineTo(cx, cy); ctx.stroke();
-    ctx.filter = 'none'; ctx.restore();
+  update(delta){this.progress+=delta*0.0008;return this.progress>=1;}
+  draw(){
+    const cx=this.startX+(this.endX-this.startX)*this.progress;
+    const cy=this.startY+(this.endY-this.startY)*this.progress;
+    ctx.save();ctx.globalCompositeOperation='lighter';
+    const grad=ctx.createLinearGradient(this.startX,this.startY,cx,cy);
+    grad.addColorStop(0,this.colors[0]+'ff');grad.addColorStop(0.5,this.colors[1]+'ff');grad.addColorStop(1,this.colors[2]+'ff');
+    ctx.strokeStyle=grad;ctx.filter='blur(30px)';ctx.lineWidth=15;
+    ctx.beginPath();ctx.moveTo(this.startX,this.startY);ctx.lineTo(cx,cy);ctx.stroke();
+    ctx.filter='blur(10px)';ctx.lineWidth=8;
+    ctx.beginPath();ctx.moveTo(this.startX,this.startY);ctx.lineTo(cx,cy);ctx.stroke();
+    ctx.filter='none';ctx.restore();
   }
 }
 
@@ -426,13 +262,12 @@ function showDragGuide() {
   guideShown = true;
   const guide = document.createElement('div');
   guide.className = 'drag-guide';
-  guide.innerHTML = currentStage === 1
+  guide.innerHTML = currentStage===1
     ? `<div class="drag-guide-text">Drag the light to a time</div><div class="drag-arrow">↕</div>`
     : `<div class="drag-guide-text">Click a shape</div>`;
   document.getElementById('right-panel').appendChild(guide);
   setTimeout(() => guide.remove(), 3000);
 }
-
 function showSliderGuide() {
   const guide = document.createElement('div');
   guide.className = 'drag-guide';
@@ -447,38 +282,33 @@ function showSliderGuide() {
 function initStage1() {
   const data = getStage1Data();
   stage1Blobs = {};
-  for (const [key, d] of Object.entries(data)) {
-    stage1Blobs[key] = new EnhancedBlob(d.position.x, d.position.y, 85, d.colors, stage1Labels[key], 'circle', false);
+  for (const [key,d] of Object.entries(data)) {
+    stage1Blobs[key] = new EnhancedBlob(d.position.x,d.position.y,85,d.colors,stage1Labels[key],'circle',false);
   }
-  centerLight = new EnhancedBlob(W / 2, H * 0.45, 70, ['#FFFFFF', '#F5F5F5', '#E0E0E0'], '', 'circle', false);
+  centerLight = new EnhancedBlob(W/2,H*0.45,70,['#FFFFFF','#F5F5F5','#E0E0E0'],'','circle',false);
   nextBtn.disabled = true;
   setTimeout(() => showDragGuide(), 500);
 }
-
 function initStage2() {
   leftImage.src = 'art2.png';
   const data = getStage1Data();
-  const selectedColors = data[userChoices.time]?.colors || ['#FFFFFF', '#F5F5F5', '#E0E0E0'];
-  const grayColors = ['#999999', '#777777', '#555555'];
-  const shapeY = H * 0.72;
-  const shapeR = 50;
+  const sel = data[userChoices.time]?.colors || ['#FFFFFF','#F5F5F5','#E0E0E0'];
+  const gray = ['#999999','#777777','#555555'];
+  const sy = H*0.72, sr = 50;
   stage2Blobs = {};
-  stage2Blobs['clover']   = new EnhancedBlob(W * 0.25, shapeY, shapeR, grayColors, '', 'clover',   true);
-  stage2Blobs['star']     = new EnhancedBlob(W * 0.42, shapeY, shapeR, grayColors, '', 'star',     true);
-  stage2Blobs['heart']    = new EnhancedBlob(W * 0.58, shapeY, shapeR, grayColors, '', 'heart',    true);
-  stage2Blobs['triangle'] = new EnhancedBlob(W * 0.75, shapeY, shapeR, grayColors, '', 'triangle', true);
-  centerLight = new EnhancedBlob(W / 2, H * 0.35, 90, selectedColors, '', 'circle', false);
-  nextBtn.disabled = true;
-  guideShown = false;
+  stage2Blobs['clover']   = new EnhancedBlob(W*0.25,sy,sr,gray,'','clover',true);
+  stage2Blobs['star']     = new EnhancedBlob(W*0.42,sy,sr,gray,'','star',true);
+  stage2Blobs['heart']    = new EnhancedBlob(W*0.58,sy,sr,gray,'','heart',true);
+  stage2Blobs['triangle'] = new EnhancedBlob(W*0.75,sy,sr,gray,'','triangle',true);
+  centerLight = new EnhancedBlob(W/2,H*0.35,90,sel,'','circle',false);
+  nextBtn.disabled = true; guideShown = false;
   setTimeout(() => showDragGuide(), 500);
 }
-
 function initStage3() {
   leftImage.src = 'art3.png';
   const data = getStage1Data();
-  const selectedColors = data[userChoices.time]?.colors || ['#FFFFFF', '#F5F5F5', '#E0E0E0'];
-  const selectedShape = userChoices.shape || 'circle';
-  centerLight = new EnhancedBlob(W / 2, H * 0.35, 120, selectedColors, '', selectedShape, false);
+  const sel = data[userChoices.time]?.colors || ['#FFFFFF','#F5F5F5','#E0E0E0'];
+  centerLight = new EnhancedBlob(W/2,H*0.35,120,sel,'',userChoices.shape||'circle',false);
   lightIntensity = 0.5;
   centerLight.glowIntensity = 1.0;
   nextBtn.disabled = true;
@@ -486,54 +316,72 @@ function initStage3() {
 }
 
 /* =========================================================
-   Slider
+   Slider — 개선된 UI
+   트랙 아래에 LOW / HIGH 라벨
+   그라디언트 fill + 글로우 핸들
 ========================================================= */
-const sliderUI = { y: 0, left: 0, right: 0, w: 0, handleR: 8 };
+const SLIDER = { trackY:0, left:0, right:0, w:0, handleR:14, trackH:6 };
 
-function computeSliderUI() {
-  sliderUI.y     = H * 0.68;
-  sliderUI.w     = W * 0.5;
-  sliderUI.left  = W * 0.25;
-  sliderUI.right = sliderUI.left + sliderUI.w;
-  sliderX = sliderUI.left + lightIntensity * sliderUI.w;
+function computeSlider() {
+  SLIDER.trackY = H * 0.68;
+  SLIDER.w      = W * 0.54;
+  SLIDER.left   = (W - SLIDER.w) / 2;
+  SLIDER.right  = SLIDER.left + SLIDER.w;
+  sliderX       = SLIDER.left + lightIntensity * SLIDER.w;
 }
 
 function drawSlider() {
-  computeSliderUI();
-  const { left, right, w, y, handleR } = sliderUI;
+  computeSlider();
+  const { trackY, left, right, w, handleR, trackH } = SLIDER;
+  const labelY = trackY + 20;   // LOW/HIGH 라벨 — 트랙 바로 아래
+  const pad = 24;
 
   ctx.save();
   ctx.globalCompositeOperation = 'source-over';
-  ctx.globalAlpha = 1;
-  ctx.filter = 'none';
+  ctx.globalAlpha = 1; ctx.filter = 'none';
 
-  // track
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 2;
+  /* 반투명 배경 패널 */
+  ctx.fillStyle = 'rgba(0,0,0,0.52)';
   ctx.beginPath();
-  ctx.moveTo(left, y);
-  ctx.lineTo(right, y);
-  ctx.stroke();
-
-  // left end cap
-  ctx.fillStyle = '#ffffff';
-  ctx.shadowColor = 'rgba(255,255,255,0.5)';
-  ctx.shadowBlur = 8;
-  ctx.beginPath();
-  ctx.arc(left, y, handleR, 0, Math.PI * 2);
+  ctx.roundRect(left - pad, trackY - 30, w + pad*2, 76, 14);
   ctx.fill();
 
-  // right end cap
-  ctx.beginPath();
-  ctx.arc(right, y, handleR, 0, Math.PI * 2);
-  ctx.fill();
+  /* 베이스 트랙 (어두운 홈) */
+  ctx.lineCap = 'round';
+  ctx.lineWidth = trackH;
+  ctx.strokeStyle = 'rgba(255,255,255,0.20)';
+  ctx.beginPath(); ctx.moveTo(left, trackY); ctx.lineTo(right, trackY); ctx.stroke();
 
-  // current position dot
+  /* 채워진 그라디언트 트랙 */
+  const fillGrad = ctx.createLinearGradient(left, 0, right, 0);
+  fillGrad.addColorStop(0,   'rgba(255,255,255,0.25)');
+  fillGrad.addColorStop(0.5, 'rgba(255,255,255,0.85)');
+  fillGrad.addColorStop(1,   'rgba(255,255,255,0.25)');
+  ctx.strokeStyle = fillGrad;
+  ctx.lineWidth = trackH;
+  ctx.beginPath(); ctx.moveTo(left, trackY); ctx.lineTo(left + lightIntensity*w, trackY); ctx.stroke();
+
+  /* 핸들 글로우 */
+  ctx.shadowColor = 'rgba(255,255,255,0.55)';
+  ctx.shadowBlur  = 20;
+  ctx.fillStyle   = '#ffffff';
+  ctx.beginPath(); ctx.arc(sliderX, trackY, handleR, 0, Math.PI*2); ctx.fill();
+
+  /* 핸들 내부 점 */
   ctx.shadowBlur = 0;
-  ctx.fillStyle = '#888888';
-  ctx.beginPath();
-  ctx.arc(sliderX, y, 5, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.fillStyle  = 'rgba(20,20,20,0.45)';
+  ctx.beginPath(); ctx.arc(sliderX, trackY, 4.5, 0, Math.PI*2); ctx.fill();
+
+  /* LOW / HIGH 라벨 — 트랙 아래 */
+  ctx.font         = '11px Helvetica Neue, Arial';
+  ctx.fillStyle    = 'rgba(255,255,255,0.60)';
+  ctx.textBaseline = 'top';
+
+  ctx.textAlign = 'left';
+  ctx.fillText('LOW', left, labelY);
+
+  ctx.textAlign = 'right';
+  ctx.fillText('HIGH', right, labelY);
 
   ctx.restore();
 }
@@ -547,97 +395,74 @@ function updateIntensity(v) {
   userChoices.intensity = lightIntensity;
   nextBtn.disabled = false;
 }
-
 function isOnSlider(x, y) {
-  computeSliderUI();
-  const { left, right, y: sy } = sliderUI;
-  return y >= sy - 25 && y <= sy + 25 && x >= left - 12 && x <= right + 12;
+  computeSlider();
+  const { trackY, left, right, handleR } = SLIDER;
+  return Math.hypot(x-sliderX, y-trackY) <= handleR+16
+      || (y >= trackY-20 && y <= trackY+20 && x >= left-12 && x <= right+12);
 }
-
 function setSliderFromX(x) {
-  computeSliderUI();
-  updateIntensity((x - sliderUI.left) / sliderUI.w);
+  computeSlider();
+  updateIntensity((x - SLIDER.left) / SLIDER.w);
 }
 
 /* =========================================================
-   Stage 1: Drag & Drop
+   Stage 1 animation
 ========================================================= */
 function checkDrop() {
-  for (const [key, blob] of Object.entries(stage1Blobs)) {
-    const dist = Math.hypot(centerLight.x - blob.x, centerLight.y - blob.y);
-    if (dist < blob.radius + centerLight.radius) {
-      absorbColor(key, blob);
-      return;
+  for (const [key,blob] of Object.entries(stage1Blobs)) {
+    if (Math.hypot(centerLight.x-blob.x,centerLight.y-blob.y) < blob.radius+centerLight.radius) {
+      absorbColor(key,blob); return;
     }
   }
 }
-
 function absorbColor(timeKey, targetBlob) {
-  isAnimating = true;
-  userChoices.time = timeKey;
-  const startX = centerLight.x, startY = centerLight.y, startR = centerLight.radius;
-  const dur = 800, t0 = Date.now();
-  function step() {
-    const p = Math.min((Date.now() - t0) / dur, 1);
-    const e = easeInOutCubic(p);
-    centerLight.x = startX + (targetBlob.x - startX) * e;
-    centerLight.y = startY + (targetBlob.y - startY) * e;
-    centerLight.radius = startR * (1 - e * 0.4);
-    if (p < 1) requestAnimationFrame(step);
-    else setTimeout(() => changeColor(timeKey, startX, startY, startR), 300);
+  isAnimating=true; userChoices.time=timeKey;
+  const sx=centerLight.x,sy=centerLight.y,sr=centerLight.radius,dur=800,t0=Date.now();
+  function step(){
+    const p=Math.min((Date.now()-t0)/dur,1),e=easeInOutCubic(p);
+    centerLight.x=sx+(targetBlob.x-sx)*e; centerLight.y=sy+(targetBlob.y-sy)*e; centerLight.radius=sr*(1-e*0.4);
+    p<1?requestAnimationFrame(step):setTimeout(()=>changeColor(timeKey,sx,sy,sr),300);
   }
   step();
 }
-
-function changeColor(timeKey, ox, oy, or_) {
-  const newColors = getStage1Data()[timeKey].colors;
-  const dur = 1000, t0 = Date.now();
-  function step() {
-    const p = Math.min((Date.now() - t0) / dur, 1);
-    centerLight.colors = newColors;
-    centerLight.radius = or_ * (0.6 + p * 0.4);
-    if (p < 1) requestAnimationFrame(step);
-    else setTimeout(() => returnToCenter(ox, oy, or_), 200);
+function changeColor(timeKey,ox,oy,or_){
+  const nc=getStage1Data()[timeKey].colors,dur=1000,t0=Date.now();
+  function step(){
+    const p=Math.min((Date.now()-t0)/dur,1);
+    centerLight.colors=nc; centerLight.radius=or_*(0.6+p*0.4);
+    p<1?requestAnimationFrame(step):setTimeout(()=>returnToCenter(ox,oy,or_),200);
   }
   step();
 }
-
-function returnToCenter(ox, oy, or_) {
-  const dur = 600, t0 = Date.now();
-  const sx = centerLight.x, sy = centerLight.y;
-  const tx = W / 2, ty = H * 0.45;
-  function step() {
-    const p = Math.min((Date.now() - t0) / dur, 1);
-    const e = easeInOutCubic(p);
-    centerLight.x = sx + (tx - sx) * e;
-    centerLight.y = sy + (ty - sy) * e;
-    centerLight.radius = or_;
-    if (p < 1) requestAnimationFrame(step);
-    else { isAnimating = false; nextBtn.disabled = false; }
+function returnToCenter(ox,oy,or_){
+  const dur=600,t0=Date.now(),sx=centerLight.x,sy=centerLight.y,tx=W/2,ty=H*0.45;
+  function step(){
+    const p=Math.min((Date.now()-t0)/dur,1),e=easeInOutCubic(p);
+    centerLight.x=sx+(tx-sx)*e; centerLight.y=sy+(ty-sy)*e; centerLight.radius=or_;
+    p<1?requestAnimationFrame(step):(isAnimating=false,nextBtn.disabled=false);
   }
   step();
 }
 
 /* =========================================================
-   Stage 2: Shoot Light
+   Stage 2 animation
 ========================================================= */
 function shootLight(shapeKey, targetBlob) {
-  isAnimating = true;
-  userChoices.shape = shapeKey;
-  lightBeam = new LightBeam(centerLight.x, centerLight.y, targetBlob.x, targetBlob.y, centerLight.colors);
-  const t0 = Date.now();
-  function phase1() {
-    const done = lightBeam.update(Date.now() - t0);
-    if (!done) requestAnimationFrame(phase1);
-    else { lightBeam = null; setTimeout(() => phase2(), 200); }
+  isAnimating=true; userChoices.shape=shapeKey;
+  lightBeam=new LightBeam(centerLight.x,centerLight.y,targetBlob.x,targetBlob.y,centerLight.colors);
+  const t0=Date.now();
+  function phase1(){
+    const done=lightBeam.update(Date.now()-t0);
+    if(!done)requestAnimationFrame(phase1);
+    else{lightBeam=null;setTimeout(()=>phase2(),200);}
   }
-  function phase2() {
-    const dur = 1000, t1 = Date.now();
-    function step() {
-      const p = Math.min((Date.now() - t1) / dur, 1);
-      centerLight.shapeType = shapeKey;
-      if (p < 1) requestAnimationFrame(step);
-      else { isAnimating = false; nextBtn.disabled = false; }
+  function phase2(){
+    const dur=1000,t1=Date.now();
+    function step(){
+      const p=Math.min((Date.now()-t1)/dur,1);
+      centerLight.shapeType=shapeKey;
+      p<1?requestAnimationFrame(step):(isAnimating=false,nextBtn.disabled=false);
     }
     step();
   }
@@ -645,58 +470,35 @@ function shootLight(shapeKey, targetBlob) {
 }
 
 /* =========================================================
-   Pointer Events (통합)
+   Pointer Events
 ========================================================= */
 canvas.style.touchAction = 'none';
-
-function getPos(e) {
-  const rect = canvas.getBoundingClientRect();
-  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-}
+function getPos(e){ const r=canvas.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
 
 canvas.addEventListener('pointerdown', (e) => {
   if (isAnimating) return;
-  const { x, y } = getPos(e);
-
-  if (currentStage === 1) {
-    const dist = Math.hypot(x - centerLight.x, y - centerLight.y);
-    if (dist < centerLight.radius + 20) {
-      isDragging = true;
-      canvas.style.cursor = 'grabbing';
-      canvas.setPointerCapture(e.pointerId);
+  const {x,y} = getPos(e);
+  if (currentStage===1) {
+    if (Math.hypot(x-centerLight.x,y-centerLight.y) < centerLight.radius+20) {
+      isDragging=true; canvas.style.cursor='grabbing'; canvas.setPointerCapture(e.pointerId);
     }
-  } else if (currentStage === 2) {
-    for (const [key, blob] of Object.entries(stage2Blobs)) {
-      const dist = Math.hypot(x - blob.x, y - blob.y);
-      if (dist < blob.radius + 30) { shootLight(key, blob); return; }
+  } else if (currentStage===2) {
+    for (const [key,blob] of Object.entries(stage2Blobs)) {
+      if (Math.hypot(x-blob.x,y-blob.y) < blob.radius+30) { shootLight(key,blob); return; }
     }
-  } else if (currentStage === 3) {
-    if (isOnSlider(x, y)) {
-      sliderDragging = true;
-      setSliderFromX(x);
-      canvas.setPointerCapture(e.pointerId);
-    }
+  } else if (currentStage===3) {
+    if (isOnSlider(x,y)) { sliderDragging=true; setSliderFromX(x); canvas.setPointerCapture(e.pointerId); }
   }
 });
-
 canvas.addEventListener('pointermove', (e) => {
-  const { x, y } = getPos(e);
-  if (currentStage === 1 && isDragging && !isAnimating) {
-    centerLight.x = x;
-    centerLight.y = y;
-  } else if (currentStage === 3 && sliderDragging) {
-    setSliderFromX(x);
-  }
+  const {x,y} = getPos(e);
+  if (currentStage===1 && isDragging && !isAnimating) { centerLight.x=x; centerLight.y=y; }
+  else if (currentStage===3 && sliderDragging) { setSliderFromX(x); }
 });
-
 canvas.addEventListener('pointerup', (e) => {
-  if (currentStage === 1 && isDragging) {
-    isDragging = false;
-    canvas.style.cursor = 'default';
-    checkDrop();
-  }
-  sliderDragging = false;
-  try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+  if (currentStage===1 && isDragging) { isDragging=false; canvas.style.cursor='default'; checkDrop(); }
+  sliderDragging=false;
+  try { canvas.releasePointerCapture(e.pointerId); } catch(_) {}
 });
 
 /* =========================================================
@@ -704,44 +506,28 @@ canvas.addEventListener('pointerup', (e) => {
 ========================================================= */
 function animate() {
   ctx.save();
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.filter = 'none';
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation='source-over'; ctx.filter='none'; ctx.globalAlpha=1;
+  ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
   ctx.restore();
 
   const time = Date.now();
 
-  // ✅ Stage 1: 4개 시간 blob + 중앙 빛
-  if (currentStage === 1) {
-    for (const blob of Object.values(stage1Blobs)) {
-      blob.update(time);
-      blob.draw();
-    }
+  if (currentStage===1) {
+    for (const b of Object.values(stage1Blobs)) { b.update(time); b.draw(); }
     if (centerLight) { centerLight.update(time); centerLight.draw(); }
-  }
-  // ✅ Stage 2: 하단 shape blob + 중앙 빛
-  else if (currentStage === 2) {
-    for (const blob of Object.values(stage2Blobs)) {
-      blob.update(time);
-      blob.draw();
-    }
+  } else if (currentStage===2) {
+    for (const b of Object.values(stage2Blobs)) { b.update(time); b.draw(); }
     if (centerLight) { centerLight.update(time); centerLight.draw(); }
-  }
-  // ✅ Stage 3: 중앙 빛만
-  else if (currentStage === 3) {
+  } else if (currentStage===3) {
     if (centerLight) { centerLight.update(time); centerLight.draw(); }
   }
 
   if (lightBeam) lightBeam.draw();
 
-  // ✅ 슬라이더: 항상 맨 마지막에 source-over로 (절대 안 묻힘)
-  if (currentStage === 3) {
+  // 슬라이더 — 항상 맨 마지막, source-over 강제
+  if (currentStage===3) {
     ctx.save();
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.globalAlpha = 1;
-    ctx.filter = 'none';
+    ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=1; ctx.filter='none';
     drawSlider();
     ctx.restore();
   }
@@ -750,18 +536,14 @@ function animate() {
 }
 
 /* =========================================================
-   Next 버튼
+   Next
 ========================================================= */
 nextBtn.disabled = true;
 nextBtn.addEventListener('click', () => {
-  if (currentStage === 1) {
-    currentStage = 2;
-    initStage2();
-  } else if (currentStage === 2) {
-    currentStage = 3;
-    initStage3();
-  } else if (currentStage === 3) {
-    alert(`Complete!\nTime: ${userChoices.time}\nShape: ${userChoices.shape}\nIntensity: ${(userChoices.intensity ?? 0).toFixed(2)}`);
+  if (currentStage===1)      { currentStage=2; initStage2(); }
+  else if (currentStage===2) { currentStage=3; initStage3(); }
+  else if (currentStage===3) {
+    alert(`Complete!\nTime: ${userChoices.time}\nShape: ${userChoices.shape}\nIntensity: ${(userChoices.intensity??0).toFixed(2)}`);
   }
 });
 
@@ -770,9 +552,9 @@ nextBtn.addEventListener('click', () => {
 ========================================================= */
 window.addEventListener('resize', () => {
   resizeCanvas();
-  if (currentStage === 1)      initStage1();
-  else if (currentStage === 2) initStage2();
-  else if (currentStage === 3) initStage3();
+  if      (currentStage===1) initStage1();
+  else if (currentStage===2) initStage2();
+  else if (currentStage===3) initStage3();
 });
 
 /* =========================================================
