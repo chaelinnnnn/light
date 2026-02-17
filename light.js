@@ -51,7 +51,9 @@ function startBGM() {
 /* =========================================================
    ★ Directive System
 ========================================================= */
-const DIRECTIVE2_STAGE = Math.ceil(Math.random() * 3);
+// ★ Stage 1~2에서만 뜨게 (Stage3 제외)
+const DIRECTIVE2_STAGE = Math.ceil(Math.random() * 2);
+
 let DIRECTIVE3_STAGE;
 do { DIRECTIVE3_STAGE = Math.ceil(Math.random() * 3); }
 while (DIRECTIVE3_STAGE === DIRECTIVE2_STAGE);
@@ -62,6 +64,9 @@ let directive3Fired = false;
 const DIRECTIVE2_DELAY = 8000 + Math.random() * 12000;
 
 let directive2Timer = null;
+
+// ★ 결과/갤러리 위에서는 팝업 절대 뜨지 않게
+let isResultUIOpen = false;
 
 /* =========================================================
    ★ Directive 1 — idle 2s → shrink animation → return to intro
@@ -140,6 +145,7 @@ function goToIntro() {
   idleWarningActive = false;
   directive2Fired   = false;
   lastInteractionTime = Date.now();
+  isResultUIOpen = false;
 
   const overlay = document.createElement('div');
   overlay.style.cssText = `
@@ -174,7 +180,13 @@ function scheduleDirective2() {
   if (directive2Fired) return;
   clearTimeout(directive2Timer);
   directive2Timer = setTimeout(() => {
-    if (!directive2Fired && currentStage === DIRECTIVE2_STAGE) {
+    if (
+      !directive2Fired &&
+      !popupEl &&
+      !isResultUIOpen &&     // ★ 결과/갤러리 위 차단
+      currentStage !== 3 &&  // ★ Stage3 차단
+      currentStage === DIRECTIVE2_STAGE
+    ) {
       directive2Fired = true;
       showPopup();
     }
@@ -191,7 +203,7 @@ function showPopup() {
     overflow:hidden;
   `;
 
-  // pop.png가 쌓이는 레이어 (입력 UI보다 아래)
+  // pop.png 레이어 (입력 UI 아래)
   const popLayer = document.createElement('div');
   popLayer.style.cssText = `
     position:absolute;inset:0;
@@ -199,7 +211,7 @@ function showPopup() {
   `;
   popupEl.appendChild(popLayer);
 
-  // 입력 UI 레이어 (항상 최상단)
+  // 입력 UI 레이어 (최상단)
   const ui = document.createElement('div');
   ui.style.cssText = `
     position:absolute;inset:0;
@@ -235,9 +247,7 @@ function showPopup() {
   document.body.appendChild(popupEl);
   setTimeout(() => input.focus(), 100);
 
-  /* -------------------------------
-     pop.png “가득 채우기” 효과
-  -------------------------------- */
+  // pop.png “가득 채우기” 효과
   const POP = {
     intervalMs: 55,
     burstCount: 3,
@@ -284,9 +294,7 @@ function showPopup() {
 
   popupEl._popTimer = popTimer;
 
-  /* -------------------------------
-     10s countdown (기존과 동일)
-  -------------------------------- */
+  // 10s countdown
   let remaining = 10;
   timerEl.textContent = `Enter within ${remaining} seconds`;
 
@@ -319,10 +327,11 @@ function showPopup() {
 
 function removePopup() {
   clearInterval(popupCountdownTimer);
-  if (popupEl && popupEl._popTimer) clearInterval(popupEl._popTimer); // ★ popTimer 정리
+  if (popupEl && popupEl._popTimer) clearInterval(popupEl._popTimer);
   if (popupEl) { popupEl.remove(); popupEl = null; }
 }
 
+/* =========================================================
 /* =========================================================
    Directive 3 — disabled
 ========================================================= */
@@ -358,7 +367,7 @@ const stage1Labels = {
 const CLOVER_VIEWBOX = 106;
 const CLOVER_CENTER  = 53;
 const CLOVER_PATH = new Path2D(
-  'M97.4026 53.0522C103.659 48.4719 106.786 42.105 105.781 35.627C104.999 30.6005 100.643 26.0202 94.8327 23.8985C94.3865 23.6745 93.8273 23.5634 93.3811 23.4524C93.2701 23.4524 93.1571 23.3413 92.9349 23.3413C92.4887 23.2302 92.1536 23.1173 91.7055 23.1173C91.5945 23.1173 91.4815 23.1173 91.3704 23.0062C90.9242 22.8951 90.365 22.8951 89.9188 22.7822H89.5837C89.2486 22.7822 88.8024 22.7822 88.4673 22.6711H88.1322C87.686 22.6711 87.1268 22.6711 86.6806 22.7822H86.5696C86.1234 22.7822 85.6753 22.8932 85.2291 23.0062C85.118 23.0062 85.005 23.0062 84.894 23.1173C84.5588 23.2283 84.1126 23.2283 83.7775 23.3413C83.6665 23.3413 83.5535 23.3413 83.5535 23.4524C83.1073 23.5634 82.6592 23.6764 82.213 23.8985H82.1019C83.5535 19.9884 83.6665 15.521 81.9909 11.1647C79.8691 5.35695 75.2884 1.11171 70.2616 0.217473C63.8924 -0.898889 57.5251 2.34105 52.9445 8.59498C48.362 2.34105 41.9947 -0.785913 35.5163 0.219388C30.4895 1.00065 25.9089 5.35695 23.7871 11.1666C22.2226 15.5229 22.2226 19.9903 23.676 23.9004H23.565C23.1188 23.7894 22.6707 23.5653 22.2245 23.4543C22.1504 23.4543 22.0757 23.4173 22.0004 23.3432C21.6653 23.2322 21.2191 23.1192 20.884 23.1192C20.7729 23.1192 20.6599 23.1192 20.5489 23.0081C20.1027 22.8971 19.6546 22.8971 19.2084 22.7841C18.7622 22.7841 18.203 22.673 17.7568 22.673H17.4217C16.9755 22.673 16.6404 22.673 16.1923 22.7841H15.8572C15.411 22.7841 14.8518 22.8951 14.4056 23.0081C14.2946 23.0081 14.1816 23.0081 14.1816 23.1192C13.7354 23.2302 13.4003 23.3432 12.9522 23.3432C12.8411 23.3432 12.7281 23.4543 12.617 23.4543C12.1708 23.5653 11.6117 23.7894 11.1655 23.9004C5.35545 26.0221 1.10995 30.6005 0.217572 35.627C-0.898859 41.9939 2.33937 48.4719 8.59559 53.0522C2.33937 57.6326 -0.78779 63.9995 0.217572 70.4774C0.998882 75.504 5.35545 80.0843 11.1655 82.206C11.7247 82.43 12.2819 82.5411 12.8411 82.7651C13.0651 82.8762 13.2873 82.8762 13.5113 82.8762C13.8465 82.9872 14.1816 82.9872 14.4056 83.1002C14.6297 83.1002 14.9648 83.2113 15.1869 83.2113C15.5221 83.2113 15.7461 83.3223 16.0812 83.3223H17.6438C18.203 83.3223 18.6492 83.3223 19.0954 83.2113H19.4305C19.7656 83.2113 20.2118 83.1002 20.547 83.1002C20.771 83.1002 20.8821 82.9891 21.1061 82.9891C21.4412 82.8781 21.7764 82.8781 22.0004 82.7651C22.2245 82.7651 22.3355 82.654 22.5596 82.5411C22.8947 82.43 23.1188 82.3170 23.4539 82.2060C23.5279 82.2060 23.6026 82.1689 23.6779 82.0949C22.2264 86.0050 22.1134 90.4724 23.7890 94.8287C25.9108 100.6360 30.4914 104.8820 35.5182 105.7760C36.2995 105.8870 37.1938 106.0000 37.9751 106.0000C43.5611 106.0000 48.9231 102.8730 52.9445 97.3984C57.5251 103.6540 63.8924 106.7810 70.3708 105.7760C75.3976 104.9950 79.9782 100.6380 82.1000 94.8287C83.6645 90.4724 83.6645 86.0050 82.2111 82.0949C82.2851 82.0949 82.3598 82.1319 82.4351 82.2060C82.6592 82.3170 82.9943 82.4300 83.3294 82.5411C83.5535 82.6521 83.6645 82.6521 83.8886 82.7651C84.2237 82.8762 84.4478 82.8762 84.7829 82.9891C85.0069 82.9891 85.1180 83.1002 85.3421 83.1002C85.6772 83.2113 86.0123 83.2113 86.4585 83.2113H86.9047C87.3509 83.2113 87.9100 83.3223 88.3562 83.3223H89.9188C90.3650 83.3223 90.8131 83.2113 91.1483 83.0983H91.4834C91.9296 82.9872 92.3777 82.8742 92.8239 82.7632C92.9349 82.7632 93.0479 82.7632 93.1590 82.6521C93.7182 82.5411 94.2754 82.3170 94.8346 82.0930C100.6430 79.9713 104.8880 75.3910 105.7830 70.3645C106.8990 63.9976 103.6590 57.6307 97.4045 53.0522H97.4026Z'
+  'M97.4026 53.0522C103.659 48.4719 106.786 42.105 105.781 35.627C104.999 30.6005 100.643 26.0202 94.8327 23.8985C94.3865 23.6745 93.8273 23.5634 93.3811 23.4524C93.2701 23.4524 93.1571 23.3413 92.9349 23.3413C92.4887 23.2302 92.1536 23.1173 91.7055 23.1173C91.5945 23.1173 91.4815 23.1173 91.3704 23.0062C90.9242 22.8951 90.365 22.8951 89.9188 22.7822H89.5837C89.2486 22.7822 88.8024 22.7822 88.4673 22.6711H88.1322C87.686 22.6711 87.1268 22.6711 86.6806 22.7822H86.5696C86.1234 22.7822 85.6753 22.8932 85.2291 23.0062C85.118 23.0062 85.005 23.0062 84.894 23.1173C84.5588 23.2283 84.1126 23.2283 83.7775 23.3413C83.6665 23.3413 83.5535 23.3413 83.5535 23.4524C83.1073 23.5634 82.6592 23.6764 82.213 23.8985H82.1019C83.5535 19.9884 83.6665 15.521 81.9909 11.1647C79.8691 5.35695 75.2884 1.11171 70.2616 0.217473C63.8924 -0.898889 57.5251 2.34105 52.9445 8.59498C48.362 2.34105 41.9947 -0.785913 35.5163 0.219388C30.4895 1.00065 25.9089 5.35695 23.7871 11.1666C22.2226 15.5229 22.2226 19.9903 23.676 23.9004H23.565C23.1188 23.7894 22.6707 23.5653 22.2245 23.4543C22.1504 23.4543 22.0757 23.4173 22.0004 23.3432C21.6653 23.2322 21.2191 23.1192 20.884 23.1192C20.7729 23.1192 20.6599 23.1192 20.5489 23.0081C20.1027 22.8971 19.6546 22.8971 19.2084 22.7841C18.7622 22.7841 18.203 22.673 17.7568 22.673H17.4217C16.9755 22.673 16.6404 22.673 16.1923 22.7841H15.8572C15.411 22.7841 14.8518 22.8951 14.4056 23.0081C14.2946 23.0081 14.1816 23.0081 14.1816 23.1192C13.7354 23.2302 13.4003 23.3432 12.9522 23.3432C12.8411 23.3432 12.7281 23.4543 12.617 23.4543C12.1708 23.5653 11.6117 23.7894 11.1655 23.9004C5.35545 26.0221 1.10995 30.6005 0.217572 35.627C-0.898859 41.9939 2.33937 48.4719 8.59559 53.0522C2.33937 57.6326 -0.78779 63.9995 0.217572 70.4774C0.998882 75.504 5.35545 80.0843 11.1655 82.206C11.7247 82.43 12.2819 82.5411 12.8411 82.7651C13.0651 82.8762 13.2873 82.8762 13.5113 82.8762C13.8465 82.9872 14.1816 82.9872 14.4056 83.1002C14.6297 83.1002 14.9648 83.2113 15.1869 83.2113C15.5221 83.2113 15.7461 83.3223 16.0812 83.3223H17.6438C18.203 83.3223 18.6492 83.3223 19.0954 83.2113H19.4305C19.7656 83.2113 20.2118 83.1002 20.547 83.1002C20.771 83.1002 20.8821 82.9891 21.1061 82.9891C21.4412 82.8781 21.7764 82.8781 22.0004 82.7651C22.2245 82.7651 22.3355 82.654 22.5596 82.5411C22.8947 82.43 23.1188 82.317 23.4539 82.206C23.5279 82.206 23.6026 82.1689 23.6779 82.0949C22.2264 86.005 22.1134 90.4724 23.789 94.8287C25.9108 100.636 30.4914 104.882 35.5182 105.776C36.2995 105.887 37.1938 106 37.9751 106C43.5611 106 48.9231 102.873 52.9445 97.3984C57.5251 103.654 63.8924 106.781 70.3708 105.776C75.3976 104.995 79.9782 100.638 82.1 94.8287C83.6645 90.4724 83.6645 86.005 82.2111 82.0949C82.2851 82.0949 82.3598 82.1319 82.4351 82.206C82.6592 82.317 82.9943 82.43 83.3294 82.5411C83.5535 82.6521 83.6645 82.6521 83.8886 82.7651C84.2237 82.8762 84.4478 82.8762 84.7829 82.9891C85.0069 82.9891 85.118 83.1002 85.3421 83.1002C85.6772 83.2113 86.0123 83.2113 86.4585 83.2113H86.9047C87.3509 83.2113 87.91 83.3223 88.3562 83.3223H89.9188C90.365 83.3223 90.8131 83.2113 91.1483 83.0983H91.4834C91.9296 82.9872 92.3777 82.8742 92.8239 82.7632C92.9349 82.7632 93.0479 82.7632 93.159 82.6521C93.7182 82.5411 94.2754 82.317 94.8346 82.093C100.643 79.9713 104.888 75.391 105.783 70.3645C106.899 63.9976 103.659 57.6307 97.4045 53.0522H97.4026Z'
 );
 
 /* =========================================================
@@ -545,11 +554,10 @@ class LightBeam {
 }
 
 /* =========================================================
-   Guide (★ 검은 바탕 패널 기준 "정중앙 고정")
+   Guide (중앙 정렬 통일)
 ========================================================= */
 function showGuideOverlay(html) {
   document.querySelectorAll('.guide-overlay').forEach(el => el.remove());
-
   const el = document.createElement('div');
   el.className = 'guide-overlay';
   el.style.cssText = `
@@ -565,12 +573,11 @@ function showGuideOverlay(html) {
     max-width:92vw;
     display:flex;
     justify-content:center;
+    text-align:center;
   `;
   el.innerHTML = html;
-
   document.body.appendChild(el);
   requestAnimationFrame(() => { el.style.opacity = '1'; });
-
   setTimeout(() => {
     el.style.opacity = '0';
     setTimeout(() => el.remove(), 500);
@@ -593,7 +600,7 @@ function showDragGuide() {
         border-radius:14px;
         text-align:center;
       ">
-        <div style="color:rgba(255,255,255,0.85);font-size:13px;letter-spacing:0.18em;text-shadow:0 0 16px rgba(255,255,255,0.5);white-space:nowrap;">
+        <div style="color:rgba(255,255,255,0.85);font-size:13px;letter-spacing:0.18em;text-align:center;text-shadow:0 0 16px rgba(255,255,255,0.5);white-space:nowrap;">
           DRAG THE LIGHT TO A TIME
         </div>
         <div style="color:rgba(255,255,255,0.7);font-size:22px;line-height:1;text-shadow:0 0 12px rgba(255,255,255,0.5);animation:arrowBounce 1.2s ease-in-out infinite;">
@@ -920,6 +927,8 @@ function captureLightSnapshot() {
 }
 
 function showResult() {
+  isResultUIOpen = true;
+
   const snapshot = captureLightSnapshot();
   const entry = {
     dataURL:   snapshot,
@@ -978,8 +987,16 @@ function showResult() {
     const a = document.createElement('a');
     a.href = snapshot; a.download = `my-light-${Date.now()}.png`; a.click();
   });
-  galleryBtn.addEventListener('click', () => { overlay.remove(); showGallery(entry); });
-  restartBtn.addEventListener('click',  () => { overlay.remove(); goToIntro(); });
+  galleryBtn.addEventListener('click', () => {
+    overlay.remove();
+    isResultUIOpen = false;
+    showGallery(entry);
+  });
+  restartBtn.addEventListener('click',  () => {
+    overlay.remove();
+    isResultUIOpen = false;
+    goToIntro();
+  });
 
   btns.appendChild(saveBtn);
   btns.appendChild(galleryBtn);
@@ -993,6 +1010,8 @@ function showResult() {
 }
 
 function showGallery(currentEntry) {
+  isResultUIOpen = true;
+
   const allLights = loadSavedLights();
 
   const overlay = document.createElement('div');
@@ -1088,11 +1107,24 @@ function showGallery(currentEntry) {
   const backBtn    = makeBtn2('← BACK');
   const restartBtn = makeBtn2('RESTART');
 
-  backBtn.addEventListener('click',    () => { overlay.remove(); showResult && currentEntry ? showResultAgain(currentEntry, overlay) : overlay.remove(); });
-  restartBtn.addEventListener('click', () => { overlay.remove(); goToIntro(); });
+  backBtn.addEventListener('click', () => {
+    isResultUIOpen = false;
+    overlay.remove();
+    // (원본 로직 유지)
+    showResult && currentEntry ? showResultAgain(currentEntry, overlay) : overlay.remove();
+  });
 
-  // BACK simply closes gallery
-  backBtn.addEventListener('click', () => overlay.remove(), { once: true });
+  restartBtn.addEventListener('click', () => {
+    isResultUIOpen = false;
+    overlay.remove();
+    goToIntro();
+  });
+
+  // BACK simply closes gallery (원본 유지 + flag만 추가)
+  backBtn.addEventListener('click', () => {
+    isResultUIOpen = false;
+    overlay.remove();
+  }, { once: true });
 
   btnWrap.appendChild(backBtn);
   btnWrap.appendChild(restartBtn);
@@ -1105,7 +1137,7 @@ function showGallery(currentEntry) {
 }
 
 /* =========================================================
-   Opening (★ I UNDERSTAND 버튼: 흰색 + 크기 키움)
+   Opening
 ========================================================= */
 function startOpening() {
   clearTimeout(directive2Timer);
